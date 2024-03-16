@@ -5,8 +5,8 @@
 package minisoccerfieldmanagement.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
 
 public class PriceList {
     private int id;
@@ -16,13 +16,13 @@ public class PriceList {
     private String dateOfWeek;
     private BigDecimal unitPricePer30Minutes;
     private Boolean isDeleted;
-    private Date createAt;
-    private Date updateAt;
+    private Timestamp createAt;
+    private Timestamp updateAt;
 
     public PriceList() {
     }
 
-    public PriceList(int id, Time startTime, Time endTime, String typeField, String dateOfWeek, BigDecimal unitPricePer30Minutes, Boolean isDeleted, Date createAt, Date updateAt) {
+    public PriceList(int id, Time startTime, Time endTime, String typeField, String dateOfWeek, BigDecimal unitPricePer30Minutes, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
         this.id = id;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -90,19 +90,19 @@ public class PriceList {
         isDeleted = deleted;
     }
 
-    public Date getCreateAt() {
+    public Timestamp getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(Date createAt) {
+    public void setCreateAt(Timestamp createAt) {
         this.createAt = createAt;
     }
 
-    public Date getUpdateAt() {
+    public Timestamp getUpdateAt() {
         return updateAt;
     }
 
-    public void setUpdateAt(Date updateAt) {
+    public void setUpdateAt(Timestamp updateAt) {
         this.updateAt = updateAt;
     }
 }
