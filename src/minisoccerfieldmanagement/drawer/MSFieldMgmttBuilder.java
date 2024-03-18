@@ -1,5 +1,6 @@
 package minisoccerfieldmanagement.drawer;
 
+import minisoccerfieldmanagement.form.Dashboard;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
 import raven.drawer.component.header.SimpleHeaderData;
@@ -22,38 +23,38 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
     public SimpleHeaderData getSimpleHeaderData() {
         return new SimpleHeaderData()
                 .setIcon(new AvatarIcon(getClass().getResource("/minisoccerfieldmanagement/image/profile.png"), 60, 60, 999))
-                .setTitle("Ra Ven")
-                .setDescription("raven@gmail.com");
+                .setTitle("Khang Nè")
+                .setDescription("0397490429");
     }
 
     @Override
     public SimpleMenuOption getSimpleMenuOption() {
         String menus[][] = {
-            {"~MAIN~"},
+            {"~~"},
             {"Dashboard"},
-            {"~WEB APP~"},
-            {"Email", "Inbox", "Read", "Compost"},
-            {"Chat"},
-            {"Calendar"},
-            {"~COMPONENT~"},
-            {"Advanced UI", "Cropper", "Owl Carousel", "Sweet Alert"},
-            {"Forms", "Basic Elements", "Advanced Elements", "SEditors", "Wizard"},
+            {"~-------------------------------------------------------------------------------~"},
+            {"Customer"},
+            {"Service"},
+            {"Booking Schedule"},
+            {"~MANAGEMENT~"},
+            {"Operations", "Account", "Field", "Service"},
+            {"Invoice"},
             {"~OTHER~"},
-            {"Charts", "Apex", "Flot", "Sparkline"},
-            {"Icons", "Feather Icons", "Flag Icons", "Mdi Icons"},
-            {"Special Pages", "Blank page", "Faq", "Invoice", "Profile", "Pricing", "Timeline"},
+            {"Statistics", "Field", "Service", "Customer", "Employee", "Revenue"},
+            {"Setting", "Membership", "Price List"},
+            {"My Account"},
             {"Logout"}};
 
         String icons[] = {
             "dashboard.svg",
-            "email.svg",
-            "chat.svg",
+            "customer.svg",
+            "service.svg",
             "calendar.svg",
             "ui.svg",
             "forms.svg",
             "chart.svg",
             "icon.svg",
-            "page.svg",
+            "account.svg",
             "logout.svg"};
 
         return new SimpleMenuOption()
@@ -65,7 +66,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                     @Override
                     public void selected(MenuAction action, int index, int subIndex) {
                         if (index == 0) {
-                            WindowsTabbed.getInstance().addTab("Test Form", new TestForm());
+                            WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                         } else if (index == 9) {
                             Main.main.login();
                         }
@@ -89,8 +90,8 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
     @Override
     public SimpleFooterData getSimpleFooterData() {
         return new SimpleFooterData()
-                .setTitle("Java Swing Drawer")
-                .setDescription("Version 1.1.0");
+                .setTitle("MSFM")
+                .setDescription("Version 1.0.0");
     }
 
     @Override
