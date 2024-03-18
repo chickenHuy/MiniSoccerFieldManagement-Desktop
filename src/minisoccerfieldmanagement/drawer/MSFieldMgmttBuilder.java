@@ -1,5 +1,6 @@
 package minisoccerfieldmanagement.drawer;
 
+import java.awt.Component;
 import minisoccerfieldmanagement.form.Dashboard;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
@@ -8,10 +9,10 @@ import raven.drawer.component.menu.MenuAction;
 import raven.drawer.component.menu.MenuEvent;
 import raven.drawer.component.menu.MenuValidation;
 import raven.drawer.component.menu.SimpleMenuOption;
-import minisoccerfieldmanagement.form.TestForm;
 import minisoccerfieldmanagement.main.Main;
 import raven.swing.AvatarIcon;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
+import minisoccerfieldmanagement.util.ThemesChange;
 
 /**
  *
@@ -19,6 +20,17 @@ import minisoccerfieldmanagement.tabbed.WindowsTabbed;
  */
 public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
 
+    private  final  ThemesChange themesChange;
+    public  MSFieldMgmttBuilder()
+    {
+        themesChange = new  ThemesChange();
+    }
+    
+    @Override
+    public Component getFooter()
+    {
+        return themesChange;
+    }
     @Override
     public SimpleHeaderData getSimpleHeaderData() {
         return new SimpleHeaderData()
