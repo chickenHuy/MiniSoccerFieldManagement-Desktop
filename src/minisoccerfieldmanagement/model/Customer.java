@@ -21,6 +21,11 @@ public class Customer {
     public Customer() {
     }
 
+    public Customer(String name, String image) {
+        this.name = name;
+        this.image = image;
+    }
+    
     public Customer(int id, int memberShipId, String name, String phoneNumber, BigDecimal totalSpend, String image, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
         this.id = id;
         this.memberShipId = memberShipId;
