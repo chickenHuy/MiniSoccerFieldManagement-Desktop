@@ -2,6 +2,7 @@ package minisoccerfieldmanagement.drawer;
 
 import java.awt.Component;
 import minisoccerfieldmanagement.form.Dashboard;
+import minisoccerfieldmanagement.form.ServiceManagement;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
 import raven.drawer.component.header.SimpleHeaderData;
@@ -81,6 +82,10 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                             WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                         } else if (index == 9) {
                             Main.main.login();
+                        }
+                        else if (index == 4 && subIndex == 3 )
+                        {
+                            WindowsTabbed.getInstance().addTab("Service", new ServiceManagement());
                         }
                         System.out.println("Menu selected " + index + " " + subIndex);
                     }
