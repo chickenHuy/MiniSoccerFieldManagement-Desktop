@@ -1,25 +1,24 @@
 package minisoccerfieldmanagement.model;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class MemberShip {
+public class ServiceItems {
     private int id;
-    private String name;
-    private int discountRate;
-    private BigDecimal minimumSpendAmount;
+    private int serviceUsageId;
+    private int serviceId;
+    private int quantity;
     private Boolean isDeleted;
     private Timestamp createAt;
     private Timestamp updateAt;
 
-    public MemberShip() {
+    public ServiceItems() {
     }
 
-    public MemberShip(int id, String name, int discountRate, BigDecimal minimumSpendAmount, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
+    public ServiceItems(int id, int serviceUsageId, int serviceId, int quantity, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
         this.id = id;
-        this.name = name;
-        this.discountRate = discountRate;
-        this.minimumSpendAmount = minimumSpendAmount;
+        this.serviceUsageId = serviceUsageId;
+        this.serviceId = serviceId;
+        this.quantity = quantity;
         this.isDeleted = isDeleted;
         this.createAt = createAt;
         this.updateAt = updateAt;
@@ -33,28 +32,28 @@ public class MemberShip {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public int getServiceUsageId() {
+        return serviceUsageId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setServiceUsageId(int serviceUsageId) {
+        this.serviceUsageId = serviceUsageId;
     }
 
-    public int getDiscountRate() {
-        return discountRate;
+    public int getServiceId() {
+        return serviceId;
     }
 
-    public void setDiscountRate(int discountRate) {
-        this.discountRate = discountRate;
+    public void setServiceId(int serviceId) {
+        this.serviceId = serviceId;
     }
 
-    public BigDecimal getMinimumSpendAmount() {
-        return minimumSpendAmount;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setMinimumSpendAmount(BigDecimal minimumSpendAmount) {
-        this.minimumSpendAmount = minimumSpendAmount;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public Boolean getIsDeleted() {
@@ -80,4 +79,5 @@ public class MemberShip {
     public void setUpdateAt(Timestamp updateAt) {
         this.updateAt = updateAt;
     }
+    
 }

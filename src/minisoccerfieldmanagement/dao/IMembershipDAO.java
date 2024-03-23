@@ -4,10 +4,28 @@
  */
 package minisoccerfieldmanagement.dao;
 
+import java.math.BigDecimal;
+import java.util.List;
+import minisoccerfieldmanagement.model.MemberShip;
+
 /**
  *
  * @author trank
  */
 public interface IMembershipDAO {
+
+    Boolean add(MemberShip model);
+
+    List<MemberShip> findAll();
+
+    MemberShip findById(int id);
+
+    MemberShip findBySpendAmount(BigDecimal totalSpend);
+
+    int findDiscountByCustomer(int customerId);
+
+    Boolean softDelete(int id);
+
+    Boolean update(MemberShip model);
     
 }
