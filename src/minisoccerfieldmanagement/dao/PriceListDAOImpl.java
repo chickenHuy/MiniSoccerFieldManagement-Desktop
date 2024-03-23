@@ -174,11 +174,6 @@ public class PriceListDAOImpl implements IPriceListDAO{
     }
 
     @Override
-    public BigDecimal findPriceByTime(Timestamp dateTimeIn, Timestamp dateTimeOut, String date) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public PriceList findById(int id) {
         try {
             String sql = "SELECT `id`, `startTime`, `endTime`, `typeField`, `dateOfWeek`, `unitPricePer30Minutes`, `updatedAt`, `createdAt` FROM `pricelist` WHERE `id` = ? AND isDeleted = 0 ;";
