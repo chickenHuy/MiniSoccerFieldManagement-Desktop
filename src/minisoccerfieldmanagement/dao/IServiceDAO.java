@@ -1,13 +1,23 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
 package minisoccerfieldmanagement.dao;
 
-/**
- *
- * @author trank
- */
+import java.util.List;
+import minisoccerfieldmanagement.model.Service;
+
 public interface IServiceDAO {
     
+    Boolean add(Service model);
+
+    Boolean update(Service model);
+
+    Boolean softDelete(int id);
+    
+    Service findById(int id);
+    
+    List<Service> findByStatus(String status);
+    
+    List<Service> findAll();
+    
+    Boolean updateStatus(int id, String status);
+    
+    Boolean updateSoldAndQuantity(int id, int qty);
 }

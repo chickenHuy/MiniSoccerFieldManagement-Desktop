@@ -1,13 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
- */
 package minisoccerfieldmanagement.dao;
 
-/**
- *
- * @author trank
- */
+import minisoccerfieldmanagement.model.User;
+
 public interface IUserDAO {
     
+    Boolean add(User model);
+
+    Boolean update(User model);
+
+    Boolean softDelete(int id);
+    
+    User findById(int id);
+    
+    User verifyLoginData(String userName, String password);
+    
+    Boolean changeRole(int id, String role);
+    
+    Boolean changePassword(int id, String oldPass, String newPass);
 }
