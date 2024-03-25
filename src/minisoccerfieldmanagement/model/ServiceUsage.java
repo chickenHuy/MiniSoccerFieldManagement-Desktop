@@ -4,7 +4,7 @@
  */
 package minisoccerfieldmanagement.model;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 /**
  *
@@ -12,9 +12,9 @@ import java.security.Timestamp;
  */
 
 public class ServiceUsage {
-    private String id;
-    private String matchId;
-    private String customerId;
+    private int id;
+    private int matchId;
+    private int customerId;
     private String note;
     private Boolean isDeleted;
     private Timestamp createAt;
@@ -23,7 +23,7 @@ public class ServiceUsage {
     public ServiceUsage() {
     }
 
-    public ServiceUsage(String id, String matchId, String customerId, String note, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
+    public ServiceUsage(int id, int matchId, int customerId, String note, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
         this.id = id;
         this.matchId = matchId;
         this.customerId = customerId;
@@ -33,30 +33,38 @@ public class ServiceUsage {
         this.updateAt = updateAt;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getMatchId() {
+    public int getMatchId() {
         return matchId;
     }
 
-    public void setMatchId(String matchId) {
+    public void setMatchId(int matchId) {
         this.matchId = matchId;
     }
 
-    public String getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+    
     public String getNote() {
         return note;
     }
