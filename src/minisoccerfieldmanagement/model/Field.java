@@ -17,7 +17,7 @@ public class Field {
     private Timestamp updatedAt;
 
     public Field() {
-        
+
     }
 
     public Field(int id, String name, String status, String type, String image, int combineField1, int combineField2, int combineField3, Boolean isDeleted, Timestamp createdAt, Timestamp updatedAt) {
@@ -26,9 +26,9 @@ public class Field {
         this.status = status;
         this.type = type;
         this.image = image;
-        this.combineField1=combineField1;
-        this.combineField2=combineField2;
-        this.combineField3=combineField3;
+        this.combineField1 = combineField1;
+        this.combineField2 = combineField2;
+        this.combineField3 = combineField3;
         this.isDeleted = isDeleted;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
