@@ -5,7 +5,7 @@
 package minisoccerfieldmanagement.model;
 
 import java.math.BigDecimal;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 /**
  *
@@ -13,9 +13,9 @@ import java.security.Timestamp;
  */
 
 public class Transaction {
-    private String id;
-    private String userID;
-    private String serviceUsageId;
+    private int id;
+    private int userID;
+    private int serviceUsageId;
     private String type;
     private BigDecimal totalAmount;
     private BigDecimal additionalFee;
@@ -28,7 +28,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(String id, String userID, String serviceUsageId, String type, BigDecimal totalAmount, BigDecimal additionalFee, BigDecimal discountAmount, BigDecimal finalAmount, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
+    public Transaction(int id, int userID, int serviceUsageId, String type, BigDecimal totalAmount, BigDecimal additionalFee, BigDecimal discountAmount, BigDecimal finalAmount, Boolean isDeleted, Timestamp createAt, Timestamp updateAt) {
         this.id = id;
         this.userID = userID;
         this.serviceUsageId = serviceUsageId;
@@ -42,29 +42,38 @@ public class Transaction {
         this.updateAt = updateAt;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getUserID() {
+    public int getUserID() {
         return userID;
     }
 
-    public void setUserID(String userID) {
+    public void setUserID(int userID) {
         this.userID = userID;
     }
 
-    public String getServiceUsageId() {
+    public int getServiceUsageId() {
         return serviceUsageId;
     }
 
-    public void setServiceUsageId(String serviceUsageId) {
+    public void setServiceUsageId(int serviceUsageId) {
         this.serviceUsageId = serviceUsageId;
     }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+    
 
     public String getType() {
         return type;

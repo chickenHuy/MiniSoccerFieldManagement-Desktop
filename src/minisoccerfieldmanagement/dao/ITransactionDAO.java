@@ -13,11 +13,11 @@ import minisoccerfieldmanagement.model.Transaction;
 public interface ITransactionDAO {
     Boolean add (Transaction transaction);
     Boolean update (Transaction transaction);
-    Boolean softDelete (String id);
-    Transaction findById (String id);
-    List <Transaction> findByUser (String userId);
-    Transaction findByServiceUsage (String serviceUsageId);
+    Boolean softDelete (int id);
+    Transaction findById (int id);
+    List <Transaction> findByUser (int userId);
+    Transaction findByServiceUsage (int serviceUsageId);
     void findByDate (Timestamp date);
-    void findByCustomer (String customerId);
-    void findByFieldId (String fieldId);
+    void findByCustomer (int customerId);
+    void findByFieldId (int fieldId);
 }

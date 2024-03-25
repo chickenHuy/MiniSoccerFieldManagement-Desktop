@@ -193,7 +193,10 @@ public class PriceListDAOImpl implements IPriceListDAO{
                 pl.setUnitPricePer30Minutes(rs.getBigDecimal("unitPricePer30Minutes"));
                 pl.setDeleted(Boolean.FALSE);
                 pl.setCreateAt(new Timestamp(rs.getDate("createdAt").getTime()));
-                pl.setUpdateAt(new Timestamp(rs.getDate("updatedAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    pl.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
+                }
                 return pl;
             }
 			

@@ -13,9 +13,9 @@ import java.util.List;
 public interface IServiceUsageDAO {
     Boolean add (ServiceUsage serviceUsage);
     Boolean update (ServiceUsage serviceUsage);
-    Boolean softDelete (String id);
-    ServiceUsage findById (String id);
-    ServiceUsage findByMatch (String matchId);
-    List <ServiceUsage> findByCustomer (String customerId);
+    Boolean softDelete (int id);
+    ServiceUsage findById (int id);
+    ServiceUsage findByMatch (int matchId);
+    List <ServiceUsage> findByCustomer (int customerId);
     
 }
