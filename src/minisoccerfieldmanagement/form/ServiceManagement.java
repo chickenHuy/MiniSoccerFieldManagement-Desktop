@@ -4,7 +4,9 @@
  */
 package minisoccerfieldmanagement.form;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.util.TableGradientCell;
 
 /**
  *
@@ -17,6 +19,17 @@ public class ServiceManagement extends TabbedForm {
      */
     public ServiceManagement() {
         initComponents();
+        jTable1.setDefaultRenderer(Object.class, new TableGradientCell());
+        this.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:1,1,1,1,$TableHeader.bottomSeparatorColor,,10");
+        jTable1.getTableHeader().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverBackground:null;"
+                + "pressedBackground:null;"
+                + "separatorColor:$TableHeader.background");
+        jScrollPane1.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:3,0,3,0,$Table.background,10,10");
+        jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverTrackColor:null");
     }
 
     /**
@@ -28,57 +41,55 @@ public class ServiceManagement extends TabbedForm {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelRound1 = new minisoccerfieldmanagement.util.PanelRound();
-        panelRound2 = new minisoccerfieldmanagement.util.PanelRound();
         flatLabel1 = new com.formdev.flatlaf.extras.components.FlatLabel();
         flatTextField1 = new com.formdev.flatlaf.extras.components.FlatTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setMaximumSize(new java.awt.Dimension(1188, 696));
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
-        panelRound1.setBackground(new java.awt.Color(195, 204, 90));
-        panelRound1.setPreferredSize(new java.awt.Dimension(692, 636));
-        panelRound1.setRoundBottomLeft(20);
-        panelRound1.setRoundBottomRight(20);
-        panelRound1.setRoundTopLeft(20);
-        panelRound1.setRoundTopRight(20);
-
-        panelRound2.setPreferredSize(new java.awt.Dimension(686, 628));
-        panelRound2.setRoundBottomLeft(20);
-        panelRound2.setRoundBottomRight(20);
-        panelRound2.setRoundTopLeft(20);
-        panelRound2.setRoundTopRight(20);
-        panelRound2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        panelRound1.add(panelRound2);
-
         flatLabel1.setText("Name");
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(49, 49, 49)
-                .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
+                .addGap(120, 120, 120)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 646, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(53, 53, 53)
                 .addComponent(flatLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(flatTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(259, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(50, 50, 50)
-                        .addComponent(panelRound1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(117, 117, 117)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(152, 152, 152)
+                        .addGap(161, 161, 161)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(flatLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(flatTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(152, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -86,7 +97,7 @@ public class ServiceManagement extends TabbedForm {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.formdev.flatlaf.extras.components.FlatLabel flatLabel1;
     private com.formdev.flatlaf.extras.components.FlatTextField flatTextField1;
-    private minisoccerfieldmanagement.util.PanelRound panelRound1;
-    private minisoccerfieldmanagement.util.PanelRound panelRound2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }
