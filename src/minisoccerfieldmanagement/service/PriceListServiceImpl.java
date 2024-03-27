@@ -7,6 +7,7 @@ package minisoccerfieldmanagement.service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import minisoccerfieldmanagement.dao.IPriceListDAO;
 import minisoccerfieldmanagement.dao.PriceListDAOImpl;
@@ -95,6 +96,20 @@ public class PriceListServiceImpl implements IPriceListService{
         }
         return totalPrice;
         
+    }
+
+    @Override
+    public List<PriceList> findByDateOfWeek(String date, String typeField) {
+        List<PriceList> pl = findByDateOfWeek(date);
+        List<PriceList> selected = new ArrayList<>();
+        for (PriceList priceList : pl) {
+            if (priceList.getTypeField().equals(typeField))
+            {
+               selected.add(priceList);
+            }
+            
+        }
+        return  selected;
     }
     
 }

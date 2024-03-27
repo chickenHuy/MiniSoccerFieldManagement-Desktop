@@ -25,6 +25,7 @@ public interface IPriceListDAO {
     List<PriceList> findAll();
 
     PriceList findById(int id);
+    
 
     
 }
