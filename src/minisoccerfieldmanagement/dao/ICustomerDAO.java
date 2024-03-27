@@ -25,7 +25,5 @@ public interface ICustomerDAO {
     Boolean softDelete(int id);
 
     Boolean update(Customer model);
-
-    Boolean updateTotalSpend(int id, BigDecimal increment);
     
 }

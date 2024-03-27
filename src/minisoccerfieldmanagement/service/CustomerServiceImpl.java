@@ -43,16 +43,14 @@ public class CustomerServiceImpl implements ICustomerService{
 
     @Override
     public Boolean updateTotalSpend(int id, BigDecimal increment) {        
-        Boolean kq = customerDAO.updateTotalSpend(id, increment);
         Customer customer = customerDAO.findById(id);
-        
         IMemberShipService memberShipService = new MemberShipServiceImpl();
+        if (customer == null)
+            return false;
+        customer.setTotalSpend(customer.getTotalSpend().add(increment));
         MemberShip newMemberShip = memberShipService.findBySpendAmount(customer.getTotalSpend());
-        if (kq && customer.getMemberShipId() != newMemberShip.getId()) {
-            customer.setMemberShipId(newMemberShip.getId());
-            update(customer);
-        }
-        return kq;
+        customer.setMemberShipId(newMemberShip.getId());
+        return update(customer);
     }
     
 }
