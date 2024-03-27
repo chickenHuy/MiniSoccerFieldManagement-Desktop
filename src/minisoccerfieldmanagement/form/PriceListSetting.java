@@ -563,7 +563,7 @@ public class PriceListSetting extends TabbedForm {
             {
                 model.setUnitPricePer30Minutes(unitPrice);
                 priceListService.update(model);
-                MessageAlerts.getInstance().showMessage("Success", ("Price has been changed to: " + tfUnitPrice.getText()), MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                MessageAlerts.getInstance().showMessage("Success", ("Price has been changed to: " + tfUnitPrice.getText() + " VND"), MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
                     if (i == MessageAlerts.OK_OPTION )
