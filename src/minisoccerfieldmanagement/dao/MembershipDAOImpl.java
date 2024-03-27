@@ -147,7 +147,7 @@ public class MembershipDAOImpl implements IMembershipDAO{
     public MemberShip findBySpendAmount(BigDecimal totalSpend) {
         MemberShip model = new MemberShip();
         try {
-            String sql = "SELECT * FROM `membership` WHERE ? >= `minimumSpendAmount` AND `isDeleted` = 0 ORDER BY `minimumSpendAmount` DESC LIMIT 1;";
+            String sql = "SELECT * FROM `membership` WHERE ? >= `minimumSpendAmount` AND `idDeleted` = 0 ORDER BY `minimumSpendAmount` DESC LIMIT 1;";
             conn = new DBConnection().getConnection();
             
             ps = conn.prepareStatement(sql);
@@ -160,7 +160,7 @@ public class MembershipDAOImpl implements IMembershipDAO{
                 model.setName(rs.getString("name"));
                 model.setDiscountRate(rs.getInt("discountRate"));
                 model.setMinimumSpendAmount(rs.getBigDecimal("minimumSpendAmount"));
-                model.setIsDeleted(rs.getBoolean("isDeleted"));
+                model.setIsDeleted(rs.getBoolean("idDeleted"));
                 model.setCreateAt(rs.getTimestamp("createdAt"));
                 Date updatedAtDate = rs.getDate("updatedAt");
                 if (updatedAtDate != null) {

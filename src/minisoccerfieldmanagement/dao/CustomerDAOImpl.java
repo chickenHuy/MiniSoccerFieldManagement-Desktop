@@ -1,6 +1,5 @@
 package minisoccerfieldmanagement.dao;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.PreparedStatement;
@@ -9,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import minisoccerfieldmanagement.model.Customer;
-import minisoccerfieldmanagement.model.MemberShip;
 
 
 
@@ -43,7 +41,7 @@ public class CustomerDAOImpl implements ICustomerDAO{
     @Override
     public Boolean update(Customer model) {
         try {
-            String sql = "UPDATE `Customer` SET `name` = ?, `phoneNumber` = ?, `image` = ?, `updatedAt` = NOW() WHERE `id` = ?;";
+            String sql = "UPDATE `Customer` SET `name` = ?, `phoneNumber` = ?, `image` = ?, `memberShipId` = ?, `totalSpend`= ?, `updatedAt` = NOW() WHERE `id` = ?;";
             conn = new DBConnection().getConnection();
             
             ps = conn.prepareStatement(sql);
@@ -51,7 +49,9 @@ public class CustomerDAOImpl implements ICustomerDAO{
             ps.setString(1, model.getName());
             ps.setString(2, model.getPhoneNumber());
             ps.setString(3, model.getImage());
-            ps.setInt(4, model.getId());
+            ps.setInt(4, model.getMemberShipId());
+            ps.setBigDecimal(5, model.getTotalSpend());
+            ps.setInt(6, model.getId());
             
             ps.executeUpdate();
             conn.close();
@@ -71,26 +71,6 @@ public class CustomerDAOImpl implements ICustomerDAO{
             ps = conn.prepareStatement(sql);
             
             ps.setBoolean(1, true);
-            ps.setInt(2, id);
-            
-            ps.executeUpdate();
-            conn.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }  
-        return true;
-    }
-    
-    @Override
-    public Boolean updateTotalSpend(int id, BigDecimal increment) {
-        try {
-            String sql = "UPDATE `Customer` SET `totalSpend` = `totalSpend` + ?, `updatedAt` = NOW() WHERE `id` = ?;";
-            conn = new DBConnection().getConnection();
-            
-            ps = conn.prepareStatement(sql);
-            
-            ps.setBigDecimal(1, increment);
             ps.setInt(2, id);
             
             ps.executeUpdate();
