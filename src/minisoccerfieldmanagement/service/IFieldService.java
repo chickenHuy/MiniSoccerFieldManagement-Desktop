@@ -1,10 +1,10 @@
-package minisoccerfieldmanagement.dao;
+package minisoccerfieldmanagement.service;
 
 import java.util.List;
 import minisoccerfieldmanagement.model.Field;
 
-public interface IFieldDAO {
-
+public interface IFieldService {
+    
     Boolean add(Field model);
 
     Boolean update(Field model);
@@ -20,5 +20,5 @@ public interface IFieldDAO {
     List<Field> findAllCombinedField();
 
     List<Field> findAllNormalFiled();
-
+    
 }
