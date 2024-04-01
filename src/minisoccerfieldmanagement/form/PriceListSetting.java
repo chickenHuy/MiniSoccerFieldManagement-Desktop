@@ -5,10 +5,12 @@
 package minisoccerfieldmanagement.form;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.PriceList;
 import minisoccerfieldmanagement.service.IPriceListService;
 import minisoccerfieldmanagement.service.PriceListServiceImpl;
@@ -86,6 +88,7 @@ public class PriceListSetting extends TabbedForm {
         btnSave = new javax.swing.JButton();
         lblId = new javax.swing.JLabel();
         tfUnitPrice = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
@@ -366,6 +369,9 @@ public class PriceListSetting extends TabbedForm {
         lblId.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblId.setForeground(new java.awt.Color(195, 204, 90));
 
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel4.setText("Membership Details");
+
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
@@ -375,21 +381,23 @@ public class PriceListSetting extends TabbedForm {
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGap(0, 47, Short.MAX_VALUE)
+                        .addComponent(jLabel4)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel3Layout.createSequentialGroup()
                         .addGap(39, 39, 39)
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(tfUnitPrice, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(ftfFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(ftfTo, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                                .addGap(0, 2, Short.MAX_VALUE)
-                                .addComponent(jLabel2)
-                                .addGap(42, 42, 42)
-                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(ftfFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addGap(0, 0, Short.MAX_VALUE)))))
@@ -398,12 +406,14 @@ public class PriceListSetting extends TabbedForm {
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel3Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(ftfFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ftfFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
                 .addGap(51, 51, 51)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ftfTo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -412,9 +422,9 @@ public class PriceListSetting extends TabbedForm {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(tfUnitPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(44, 44, 44)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                 .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(22, 22, 22))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -422,9 +432,9 @@ public class PriceListSetting extends TabbedForm {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 808, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 808, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(19, Short.MAX_VALUE))
         );
@@ -432,9 +442,9 @@ public class PriceListSetting extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(32, 32, 32)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
-                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 596, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(68, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -462,7 +472,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[0].getValueAt(indexRow, 0).toString();
             String from = priceListModels[0].getValueAt(indexRow, 1).toString();
             String to = priceListModels[0].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[0].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[0].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -475,7 +485,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[1].getValueAt(indexRow, 0).toString();
             String from = priceListModels[1].getValueAt(indexRow, 1).toString();
             String to = priceListModels[1].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[1].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[1].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -487,7 +497,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[2].getValueAt(indexRow, 0).toString();
             String from = priceListModels[2].getValueAt(indexRow, 1).toString();
             String to = priceListModels[2].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[2].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[2].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -499,7 +509,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[3].getValueAt(indexRow, 0).toString();
             String from = priceListModels[3].getValueAt(indexRow, 1).toString();
             String to = priceListModels[3].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[3].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[3].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -511,7 +521,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[4].getValueAt(indexRow, 0).toString();
             String from = priceListModels[4].getValueAt(indexRow, 1).toString();
             String to = priceListModels[4].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[4].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[4].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -523,7 +533,7 @@ public class PriceListSetting extends TabbedForm {
             String id = priceListModels[5].getValueAt(indexRow, 0).toString();
             String from = priceListModels[5].getValueAt(indexRow, 1).toString();
             String to = priceListModels[5].getValueAt(indexRow, 2).toString();
-            String price = priceListModels[5].getValueAt(indexRow, 3).toString();
+            String price = priceListModels[5].getValueAt(indexRow, 3).toString().replace(" VND", "").replace(",", "");
             
             clickTableEvent(id, from, to, price, indexRow);
         }
@@ -608,6 +618,7 @@ public class PriceListSetting extends TabbedForm {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -651,13 +662,16 @@ public class PriceListSetting extends TabbedForm {
        
         
     }
+    private Object[] getRow(PriceList priceList) {
+        DecimalFormat df = new DecimalFormat("#,##0.##");
+        return new Object[]{priceList.getId(), priceList.getStartTime(),priceList.getEndTime(), df.format(priceList.getUnitPricePer30Minutes())+ " VND"};
+    }
     private void GetPriceList(String typeField)
     {
         try{
         
         String[] week = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
         int vt = 0;
-        Object[] row = new Object[4];
         
         for (String dateInWeek : week)
         {
@@ -666,11 +680,7 @@ public class PriceListSetting extends TabbedForm {
             if (pl != null){
                 for (PriceList p : pl)
                 {
-                    row[0] = p.getId();
-                    row[1] = p.getStartTime();
-                    row[2] = p.getEndTime();
-                    row[3] = p.getUnitPricePer30Minutes();
-                    priceListModels[vt].addRow(row);
+                    priceListModels[vt].addRow(getRow(p));
                 }
             }
             vt++;

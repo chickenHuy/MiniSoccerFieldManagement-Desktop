@@ -10,6 +10,8 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -19,6 +21,9 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.MemberShip;
+import minisoccerfieldmanagement.service.IMemberShipService;
+import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.TableGradientCell;
 
@@ -31,44 +36,24 @@ public class MembershipSetting extends TabbedForm {
     /**
      * Creates new form MembershipSetting
      */
+    
+    IMemberShipService memberShipService;
+    DefaultTableModel models;
     public MembershipSetting() {
         initComponents();
         FlatLaf.registerCustomDefaultsSource("tableview");
         FlatLaf.registerCustomDefaultsSource("crazypanel");
+        memberShipService = new MemberShipServiceImpl();
+        models = (DefaultTableModel) tblService.getModel();
         applyTableStyle(tblService);
-        testData(tblService);
+        loadData();
     }
-    private void testData(JTable table) {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.addRow(getRandomRow("Beer"));
-        model.addRow(getRandomRow("Shirt"));
-        model.addRow(getRandomRow("Laptop"));
-        model.addRow(getRandomRow("Book"));
-        model.addRow(getRandomRow("Coffee"));
-        model.addRow(getRandomRow("Phone"));
-        model.addRow(getRandomRow("Chair"));
-        model.addRow(getRandomRow("Watch"));
-        model.addRow(getRandomRow("Sunglasses"));
-        model.addRow(getRandomRow("Bag"));
-        model.addRow(getRandomRow("Headphones"));
-        model.addRow(getRandomRow("Camera"));
-        model.addRow(getRandomRow("Necklace"));
-        model.addRow(getRandomRow("Perfume"));
-        model.addRow(getRandomRow("Wallet"));
-        model.addRow(getRandomRow("Jacket"));
-        model.addRow(getRandomRow("Bicycle"));
-        model.addRow(getRandomRow("Game console"));
-        model.addRow(getRandomRow("Tennis racket"));
-    }
-    private Object[] getRandomRow(String name) {
+
+    private Object[] getRow(MemberShip membership) {
         DecimalFormat df = new DecimalFormat("#,##0.##");
-        return new Object[]{false, name, "$" + df.format(getAmount(9999, 9999999)), "$" + df.format(getAmount(9999, 9999999)), df.format(getAmount(-100, 100))};
+        return new Object[]{membership.getId(), membership.getName(),df.format(membership.getMinimumSpendAmount())+ " VND", String.valueOf(membership.getDiscountRate())};
     }
     
-    private double getAmount(int from, int to) {
-        Random ran = new Random();
-        return (ran.nextInt(to - from) + from) * ran.nextDouble();
-    }
 
     private void applyTableStyle(JTable table) {
 
@@ -176,6 +161,11 @@ public class MembershipSetting extends TabbedForm {
                 return canEdit [columnIndex];
             }
         });
+        tblService.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblServiceMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblService);
 
         crazyPanel1.add(jScrollPane1);
@@ -256,7 +246,7 @@ public class MembershipSetting extends TabbedForm {
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(spnDiscountRate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         crazyPanel5.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -277,12 +267,27 @@ public class MembershipSetting extends TabbedForm {
         ));
 
         btnAddNew.setText("Add New");
+        btnAddNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNewActionPerformed(evt);
+            }
+        });
         crazyPanel4.add(btnAddNew);
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
         crazyPanel4.add(btnSave);
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
         crazyPanel4.add(btnDelete);
 
         javax.swing.GroupLayout crazyPanel5Layout = new javax.swing.GroupLayout(crazyPanel5);
@@ -322,13 +327,35 @@ public class MembershipSetting extends TabbedForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 262, Short.MAX_VALUE))
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE))
                 .addGap(14, 14, 14))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnAddNewActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void tblServiceMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblServiceMouseClicked
+        int index = tblService.getSelectedRow();
+        if (index != -1) {
+            lblId.setText("#" + models.getValueAt(index, 0));
+            tfName.setText(models.getValueAt(index, 1).toString());
+            tfMinimumSpendAmount.setText(models.getValueAt(index, 2).toString().replace(" VND", "").replace(",",""));
+            spnDiscountRate.setValue(Integer.parseInt(models.getValueAt(index, 3).toString()));
+        }
+    }//GEN-LAST:event_tblServiceMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -354,4 +381,14 @@ public class MembershipSetting extends TabbedForm {
     private javax.swing.JTextField tfName;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
+
+
+    private void loadData() {
+        List<MemberShip> memberships = new ArrayList<>();
+        memberships = memberShipService.findAll();
+        for (MemberShip membership : memberships) {
+            models.addRow(getRow(membership));
+        }
+        
+    }
 }
