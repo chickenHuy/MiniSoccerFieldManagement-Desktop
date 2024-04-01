@@ -2,6 +2,7 @@ package minisoccerfieldmanagement.drawer;
 
 import java.awt.Component;
 import minisoccerfieldmanagement.form.Dashboard;
+import minisoccerfieldmanagement.form.FieldManagement;
 import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
 import minisoccerfieldmanagement.form.ServiceManagement;
@@ -88,6 +89,10 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         else if (index == 4 && subIndex == 3 )
                         {
                             WindowsTabbed.getInstance().addTab("Service", new ServiceManagement());
+                        }
+                        else if (index == 4 && subIndex == 2 )
+                        {
+                            WindowsTabbed.getInstance().addTab("Field", new FieldManagement());
                         }
                         else if (index == 7 && subIndex == 1 )
                         {

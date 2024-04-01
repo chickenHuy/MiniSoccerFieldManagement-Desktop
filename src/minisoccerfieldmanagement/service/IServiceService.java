@@ -1,24 +1,24 @@
-package minisoccerfieldmanagement.dao;
+package minisoccerfieldmanagement.service;
 
 import java.util.List;
 import minisoccerfieldmanagement.model.Service;
 
-public interface IServiceDAO {
-
+public interface IServiceService {
+    
     Boolean add(Service model);
 
     Boolean update(Service model);
 
     Boolean softDelete(int id);
-
+    
     Service findById(int id);
-
+    
     List<Service> findByStatus(String status);
-
+    
     List<Service> findAll();
-
+    
     Boolean updateStatus(int id, String status);
-
+    
     Boolean updateSoldAndQuantity(int id, int qty);
-
+    
 }

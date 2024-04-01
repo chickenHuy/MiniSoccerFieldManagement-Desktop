@@ -261,9 +261,6 @@ public class FieldDAOImpl implements IFieldDAO {
                 pl.setStatus(rs.getString("status"));
                 pl.setType(rs.getString("type"));
                 pl.setImage(rs.getString("image"));
-                pl.setCombineField1(rs.getInt("combineField1"));
-                pl.setCombineField2(rs.getInt("combineField2"));
-                pl.setCombineField3(rs.getInt("combineField3"));
                 pl.setDeleted(Boolean.FALSE);
                 pl.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
                 Date updatedAtDate = rs.getDate("updatedAt");
