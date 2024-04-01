@@ -3,9 +3,11 @@ package minisoccerfieldmanagement.drawer;
 import java.awt.Component;
 import minisoccerfieldmanagement.form.Dashboard;
 import minisoccerfieldmanagement.form.FieldManagement;
+import minisoccerfieldmanagement.form.InvoiceManagement;
 import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
 import minisoccerfieldmanagement.form.ServiceManagement;
+import minisoccerfieldmanagement.form.StaffBooking;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
 import raven.drawer.component.header.SimpleHeaderData;
@@ -100,7 +102,15 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         }
                         else if (index == 7 && subIndex == 2 )
                         {
-                            WindowsTabbed.getInstance().addTab("PriceList", new PriceListSetting());
+                            WindowsTabbed.getInstance().addTab("Price List", new PriceListSetting());
+                        }
+                        else if (index == 3)
+                        {
+                            WindowsTabbed.getInstance().addTab("Booking", new StaffBooking());
+                        }
+                        else if (index == 5)
+                        {
+                            WindowsTabbed.getInstance().addTab("Invoice", new InvoiceManagement());
                         }
                         System.out.println("Menu selected " + index + " " + subIndex);
                     }

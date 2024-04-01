@@ -563,10 +563,11 @@ public class PriceListSetting extends TabbedForm {
                         if (i == MessageAlerts.CLOSED_OPTION )
                         {
                             tfUnitPrice.setText("");
+                           
                         }
                     }
                 });
-             
+                return;
             }
             PriceList model = priceListService.findById(id);
             if (model != null)

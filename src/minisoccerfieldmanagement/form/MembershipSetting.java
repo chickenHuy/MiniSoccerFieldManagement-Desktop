@@ -347,9 +347,9 @@ public class MembershipSetting extends TabbedForm {
         String name = tfName.getText();
         String miniumTotalSpend = tfMinimumSpendAmount.getText();
         String rate = spnDiscountRate.getValue().toString();
-        if (name.isBlank() || miniumTotalSpend.isBlank() || rate.isBlank())
+        if (name.isBlank() || miniumTotalSpend.isBlank() || rate.isBlank() || miniumTotalSpend.contains("-") || rate.contains("-"))
         {
-            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank or int number < 0", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                             @Override
                             public void action(PopupController pc, int i) {
                                 if (i == MessageAlerts.CLOSED_OPTION )
