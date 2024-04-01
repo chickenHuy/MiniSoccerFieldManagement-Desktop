@@ -9,6 +9,7 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,9 @@ import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.TableGradientCell;
+import raven.alerts.MessageAlerts;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 /**
  *
@@ -33,10 +37,7 @@ import minisoccerfieldmanagement.util.TableGradientCell;
  */
 public class MembershipSetting extends TabbedForm {
 
-    /**
-     * Creates new form MembershipSetting
-     */
-    
+    private int index;
     IMemberShipService memberShipService;
     DefaultTableModel models;
     public MembershipSetting() {
@@ -46,6 +47,7 @@ public class MembershipSetting extends TabbedForm {
         memberShipService = new MemberShipServiceImpl();
         models = (DefaultTableModel) tblService.getModel();
         applyTableStyle(tblService);
+        index = -1;
         loadData();
     }
 
@@ -336,19 +338,157 @@ public class MembershipSetting extends TabbedForm {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
-        // TODO add your handling code here:
+        clearText();
+        index = -1;
     }//GEN-LAST:event_btnAddNewActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // TODO add your handling code here:
+        MemberShip memberShip = new MemberShip();
+        String name = tfName.getText();
+        String miniumTotalSpend = tfMinimumSpendAmount.getText();
+        String rate = spnDiscountRate.getValue().toString();
+        if (name.isBlank() || miniumTotalSpend.isBlank() || rate.isBlank())
+        {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.CLOSED_OPTION )
+                                {
+
+                                }
+                            }
+                        });
+
+        }
+        else {
+            memberShip.setName(name);
+            try {
+                memberShip.setDiscountRate(Integer.parseInt(rate));
+                memberShip.setMinimumSpendAmount( new BigDecimal(miniumTotalSpend));
+                if (index == -1) {
+                    if (memberShipService.add(memberShip))
+                    {
+                        MessageAlerts.getInstance().showMessage("Add Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                        List<MemberShip> memberShips = memberShipService.findAll();
+                        models.setNumRows(0);
+                        for (MemberShip mpShip : memberShips) {
+
+                            models.addRow(getRow(mpShip));
+                        }
+                    }
+                    else
+                    {
+                        MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                    }
+                }
+                else
+                {
+                    memberShip.setId(Integer.parseInt(models.getValueAt(index, 0).toString()));
+                    if (memberShipService.update(memberShip))
+                    {
+                        MessageAlerts.getInstance().showMessage("Updated Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                        List<MemberShip> memberShips = memberShipService.findAll();
+                        models.setNumRows(0);
+                        for (MemberShip mpShip : memberShips) {
+
+                            models.addRow(getRow(mpShip));
+                        }
+                    }
+                    else
+                    {
+                        MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                    }
+                }
+            } catch (Exception e) {
+                MessageAlerts.getInstance().showMessage("Add/Update failed", "Please check the format again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.CLOSED_OPTION )
+                                {
+
+                                }
+                            }
+                        });
+
+            }
+        }
+        
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
+        if (index != -1){
+            MessageAlerts.getInstance().showMessage("Delete Membership", "You definitely want to delete the membership with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.YES_OPTION )
+                    {
+                        int id = Integer.parseInt(models.getValueAt(index, 0).toString());
+                        if (memberShipService.softDelete(id))
+                        {
+                            MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                        models.removeRow(index);
+                        clearText();
+                        
+                        }
+                        else
+                        {
+                            MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            
+        }
+        
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void tblServiceMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblServiceMouseClicked
-        int index = tblService.getSelectedRow();
+        index = tblService.getSelectedRow();
         if (index != -1) {
             lblId.setText("#" + models.getValueAt(index, 0));
             tfName.setText(models.getValueAt(index, 1).toString());
@@ -390,5 +530,13 @@ public class MembershipSetting extends TabbedForm {
             models.addRow(getRow(membership));
         }
         
+    }
+
+    private void clearText() {
+        tfName.setText("");
+        tfMinimumSpendAmount.setText("0");
+        spnDiscountRate.setValue(0);
+        lblId.setText("");
+        tfName.requestFocus();
     }
 }
