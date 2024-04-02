@@ -4,6 +4,8 @@
  */
 package minisoccerfieldmanagement.form;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -36,9 +38,13 @@ import minisoccerfieldmanagement.service.FieldServiceImpl;
 import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
+import minisoccerfieldmanagement.util.Utils;
+import raven.alerts.MessageAlerts;
 import raven.datetime.component.time.TimeEvent;
 import raven.datetime.component.time.TimePicker;
 import raven.datetime.component.time.TimeSelectionListener;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 /**
  *
@@ -73,10 +79,29 @@ public class StaffBooking extends TabbedForm {
         jLabel2 = new javax.swing.JLabel();
         tfStartTime = new javax.swing.JFormattedTextField();
         tfEndTime = new javax.swing.JFormattedTextField();
-        cbxFields = new javax.swing.JComboBox<>();
-        jLabel3 = new javax.swing.JLabel();
+        cbxTypeField = new javax.swing.JComboBox<>();
+        lblField = new javax.swing.JLabel();
         tfDate = new javax.swing.JFormattedTextField();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txtSearch = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        tfName = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        tfPrice = new javax.swing.JTextField();
+        cbxStatus = new javax.swing.JComboBox<>();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        crazyPanel6 = new raven.crazypanel.CrazyPanel();
+        btnSave = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
+        btnAddNew1 = new javax.swing.JButton();
+        btnAddNew = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        cbxFields1 = new javax.swing.JComboBox<>();
+        jLabel3 = new javax.swing.JLabel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblScheduler = new javax.swing.JTable();
@@ -89,7 +114,9 @@ public class StaffBooking extends TabbedForm {
 
         crazyPanel3.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
-            null
+            new String[]{
+                ""
+            }
         ));
         crazyPanel3.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
             "",
@@ -98,6 +125,7 @@ public class StaffBooking extends TabbedForm {
             null
         ));
         crazyPanel3.setName(""); // NOI18N
+        crazyPanel3.setPreferredSize(new java.awt.Dimension(900, 280));
 
         jLabel1.setText("From");
 
@@ -109,51 +137,222 @@ public class StaffBooking extends TabbedForm {
         tfEndTime.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT))));
         tfEndTime.setEnabled(false);
 
-        cbxFields.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbxTypeField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "5 a side", "7 a side" }));
+        cbxTypeField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxTypeFieldActionPerformed(evt);
+            }
+        });
 
-        jLabel3.setText("Field");
+        lblField.setText("Field");
 
         tfDate.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
         tfDate.setEnabled(false);
 
         jLabel4.setText("Date");
 
+        jLabel5.setText("Phone");
+
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtSearchKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
+
+        jLabel6.setText("Type");
+
+        tfName.setEnabled(false);
+
+        jLabel7.setText("Price");
+
+        jLabel8.setText("Name");
+
+        tfPrice.setEnabled(false);
+        tfPrice.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfPriceActionPerformed(evt);
+            }
+        });
+
+        cbxStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active", "Canceled", "Completed" }));
+        cbxStatus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxStatusActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setText("Status");
+
+        jLabel10.setText("Note");
+
+        crazyPanel6.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        btnSave.setText("Save");
+
+        btnDelete.setText("Delete");
+
+        btnAddNew1.setText("Add New");
+
+        btnAddNew.setText("Add New");
+
+        javax.swing.GroupLayout crazyPanel6Layout = new javax.swing.GroupLayout(crazyPanel6);
+        crazyPanel6.setLayout(crazyPanel6Layout);
+        crazyPanel6Layout.setHorizontalGroup(
+            crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel6Layout.createSequentialGroup()
+                .addGap(7, 7, 7)
+                .addComponent(btnSave)
+                .addGap(7, 7, 7)
+                .addComponent(btnDelete)
+                .addGap(94, 94, 94)
+                .addComponent(btnAddNew1))
+            .addGroup(crazyPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnAddNew))
+        );
+        crazyPanel6Layout.setVerticalGroup(
+            crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel6Layout.createSequentialGroup()
+                .addGap(7, 7, 7)
+                .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnSave)
+                    .addComponent(btnDelete)
+                    .addComponent(btnAddNew1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnAddNew)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        cbxFields1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Field" }));
+        cbxFields1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxFields1ActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Field");
+
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
-                .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(41, 41, 41)
-                .addComponent(cbxFields, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(6, 6, 6)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(tfPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(cbxTypeField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbxStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGap(41, 41, 41)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(32, 32, 32))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)))
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(237, 237, 237)
+                        .addComponent(lblField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(cbxFields1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(47, 47, 47)
+                        .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap(245, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel3)
+                    .addComponent(cbxFields1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel8))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGap(13, 13, 13)
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(tfPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel7))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(cbxStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel9))
+                                .addGap(34, 34, 34))))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)))
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxFields, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
+                    .addComponent(lblField)
                     .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabel4)
+                    .addComponent(cbxTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
                 .addGap(25, 25, 25))
         );
 
@@ -209,24 +408,27 @@ public class StaffBooking extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 1150, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 885, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -234,22 +436,95 @@ public class StaffBooking extends TabbedForm {
         // TODO add your handling code here:
     }//GEN-LAST:event_tblSchedulerMouseDragged
 
+    private void cbxStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxStatusActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbxStatusActionPerformed
+
+    private void cbxTypeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTypeFieldActionPerformed
+        if (cbxTypeField.getSelectedIndex() == 1) {
+            fields = fieldService.findAllNormalFiled();
+        }
+        else if (cbxTypeField.getSelectedIndex() == 2) {
+            fields = fieldService.findAllCombinedField();
+        }
+        else if (cbxTypeField.getSelectedIndex() == 0)
+        {
+            fields = fieldService.findAll();
+        }
+    }//GEN-LAST:event_cbxTypeFieldActionPerformed
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtSearchActionPerformed
+
+    private void cbxFields1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxFields1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbxFields1ActionPerformed
+
+    private void tfPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPriceActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfPriceActionPerformed
+
+    private void txtSearchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyPressed
+        
+    }//GEN-LAST:event_txtSearchKeyPressed
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        String text = txtSearch.getText();
+        if ((!text.matches("\\d+")) && (!text.isEmpty())) {
+            MessageAlerts.getInstance().showMessage("Number Only", "You can only enter number", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+                                        txtSearch.requestFocus();
+                                    }
+                                }
+                            });
+   
+                txtSearch.setText(text.substring(0, text.length()-1));
+            
+        }
+        if (text.length() == 10) {
+            // Perform search here
+        }
+    }//GEN-LAST:event_txtSearchKeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddNew;
+    private javax.swing.JButton btnAddNew1;
+    private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnSave;
     private minisoccerfieldmanagement.util.Calendar calendarSchedule;
-    private javax.swing.JComboBox<String> cbxFields;
+    private javax.swing.JComboBox<String> cbxFields1;
+    private javax.swing.JComboBox<String> cbxStatus;
+    private javax.swing.JComboBox<String> cbxTypeField;
     private raven.crazypanel.CrazyPanel crazyPanel3;
     private raven.crazypanel.CrazyPanel crazyPanel4;
     private raven.crazypanel.CrazyPanel crazyPanel5;
+    private raven.crazypanel.CrazyPanel crazyPanel6;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblField;
     private javax.swing.JTable tblScheduler;
     private javax.swing.JFormattedTextField tfDate;
     private javax.swing.JFormattedTextField tfEndTime;
+    private javax.swing.JTextField tfName;
+    private javax.swing.JTextField tfPrice;
     private javax.swing.JFormattedTextField tfStartTime;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 
     private void setScheduler(Date date) {
@@ -264,7 +539,7 @@ public class StaffBooking extends TabbedForm {
             for (int j = 1; j < numberOfCol ; j++) {
                 data[i][j] = ""; // Initialize the rest of the fields with empty strings
             }
-            if (i%2 == 0)
+            if (i%2 == 0 && i< 5)
                 data[i][1] = "Booked";
         }
         List<Booking> listBookings = new ArrayList<Booking>();
@@ -292,8 +567,37 @@ public class StaffBooking extends TabbedForm {
         tblScheduler.setRowSelectionAllowed(false);
         tblScheduler.setCellSelectionEnabled(true);
         
-
-
+        int index = 1;
+        for (Field field:fields) {
+            tblScheduler.getColumnModel().getColumn(index).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                 if (isSelected) {
+                    setBackground(table.getSelectionBackground());
+                    setForeground(table.getSelectionForeground());
+                } 
+                else
+                if (value.toString().contains("Booked")) {
+                    setBackground(new Color(3,169,244));
+                    
+                }
+                else {
+                    setBackground(table.getBackground());
+                    if (row % 2 != 0) { // Check if the row represents a whole hour
+                        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.lightGray)); // Add a border at the bottom of the cell
+                    } else {
+                        setBorder(noFocusBorder); // No border for half-hour rows
+                        setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.lightGray)); // Add a border at the bottom of the cell
+                    }
+                    
+               }
+                System.out.println(value);
+                return this;
+            }
+            });
+            index ++;
+        }
 
     }
 
@@ -342,30 +646,8 @@ public class StaffBooking extends TabbedForm {
             }
         });
         
-        tblScheduler.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (row % 2 != 0) { // Check if the row represents a whole hour
-                    setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.lightGray)); // Add a border at the bottom of the cell
-                } else {
-                    setBorder(noFocusBorder); // No border for half-hour rows
-                    setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.lightGray)); // Add a border at the bottom of the cell
-                }
-                return this;
-            }
-        });
         
-        tblScheduler.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if ("Booked".equals(value)) {
-                    setBackground(new Color(3,169,244)); // Set the background color to red if the cell is booked
-                }
-                return this;
-            }
-        });
+
         
         ListSelectionModel cellSelectionModel = tblScheduler.getSelectionModel();
         cellSelectionModel.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -385,6 +667,21 @@ public class StaffBooking extends TabbedForm {
 //                       System.out.println(timeSlots.get(selectedRow[i]) + " - " + fields.get(selectedColumns[j]+1).getName());
 //                  }
 //                }
+                if (selectedColumns.length > 1)
+                {
+                    MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                    tfEndTime.setValue(null);
+                    tfStartTime.setValue(null);
+                    return;
+                }
 
                 if (selectedRow.length > 0) {
                     // Assuming timeSlots is a List of LocalTime ranges
@@ -422,7 +719,10 @@ public class StaffBooking extends TabbedForm {
 
     private void loadData() {
         fields = new ArrayList<>();
-    
+        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
+        btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
+        btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
+        btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
         fieldService = new FieldServiceImpl();
         fields = fieldService.findAll();
         tfDate.setValue(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
