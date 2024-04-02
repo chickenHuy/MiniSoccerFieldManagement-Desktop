@@ -10,15 +10,25 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatter;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.ModelDate;
@@ -26,6 +36,9 @@ import minisoccerfieldmanagement.service.FieldServiceImpl;
 import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
+import raven.datetime.component.time.TimeEvent;
+import raven.datetime.component.time.TimePicker;
+import raven.datetime.component.time.TimeSelectionListener;
 
 /**
  *
@@ -35,10 +48,13 @@ public class StaffBooking extends TabbedForm {
 
     List<LocalTime> timeSlots;
     List<Field> fields;
+    IFieldService fieldService;
+    String[] columnNames;
     
     public StaffBooking() {
         initComponents();
-        setScheduler();
+        loadData();
+        setScheduler((Date)tfDate.getValue());
         setEvents();
         
     }
@@ -53,6 +69,14 @@ public class StaffBooking extends TabbedForm {
     private void initComponents() {
 
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        tfStartTime = new javax.swing.JFormattedTextField();
+        tfEndTime = new javax.swing.JFormattedTextField();
+        cbxFields = new javax.swing.JComboBox<>();
+        jLabel3 = new javax.swing.JLabel();
+        tfDate = new javax.swing.JFormattedTextField();
+        jLabel4 = new javax.swing.JLabel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblScheduler = new javax.swing.JTable();
@@ -75,15 +99,62 @@ public class StaffBooking extends TabbedForm {
         ));
         crazyPanel3.setName(""); // NOI18N
 
+        jLabel1.setText("From");
+
+        jLabel2.setText("To");
+
+        tfStartTime.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT))));
+        tfStartTime.setEnabled(false);
+
+        tfEndTime.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT))));
+        tfEndTime.setEnabled(false);
+
+        cbxFields.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel3.setText("Field");
+
+        tfDate.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
+        tfDate.setEnabled(false);
+
+        jLabel4.setText("Date");
+
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 886, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
+                .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(23, 23, 23)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addComponent(cbxFields, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 289, Short.MAX_VALUE)
+            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                .addContainerGap(245, Short.MAX_VALUE)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbxFields, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addGap(25, 25, 25))
         );
 
         crazyPanel5.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -109,6 +180,11 @@ public class StaffBooking extends TabbedForm {
         ));
         tblScheduler.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tblScheduler.setAutoscrolls(false);
+        tblScheduler.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                tblSchedulerMouseDragged(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblScheduler);
 
         crazyPanel5.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -133,13 +209,13 @@ public class StaffBooking extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 1150, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(23, Short.MAX_VALUE))
+                        .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -150,117 +226,75 @@ public class StaffBooking extends TabbedForm {
                     .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblSchedulerMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSchedulerMouseDragged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblSchedulerMouseDragged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private minisoccerfieldmanagement.util.Calendar calendarSchedule;
+    private javax.swing.JComboBox<String> cbxFields;
     private raven.crazypanel.CrazyPanel crazyPanel3;
     private raven.crazypanel.CrazyPanel crazyPanel4;
     private raven.crazypanel.CrazyPanel crazyPanel5;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblScheduler;
+    private javax.swing.JFormattedTextField tfDate;
+    private javax.swing.JFormattedTextField tfEndTime;
+    private javax.swing.JFormattedTextField tfStartTime;
     // End of variables declaration//GEN-END:variables
 
-    private void setScheduler() {
-    List<LocalTime> timeSlots = new ArrayList<>();
-    fields = new ArrayList<>();
-    
-    IFieldService fieldService = new FieldServiceImpl();
-    fields = fieldService.findAll();
-    LocalTime start = LocalTime.of(5, 0);
-    LocalTime end = LocalTime.of(22, 30);
-    while (!start.isAfter(end)) {
-        timeSlots.add(start);
-        start = start.plus(30, ChronoUnit.MINUTES);
-    }
+    private void setScheduler(Date date) {
+        Date utilDate = new Date(); // Replace with your java.util.Date
+        Timestamp sqlTimestamp = new Timestamp(utilDate.getTime());
 
-    // Create column names
-    String[] columnNames = new String[fields.size()+1];
-    columnNames[0] = "Time Slot";
-    for (int i = 1; i <= fields.size(); i++) {
-        columnNames[i] = fields.get(i-1).getName();
-    }
-
-    // Create data
-    Object[][] data = new Object[timeSlots.size()][11];
-    for (int i = 0; i < timeSlots.size(); i++) {
-        data[i][0] = timeSlots.get(i).toString();
-        for (int j = 1; j <= 10; j++) {
-            data[i][j] = ""; // Initialize the rest of the fields with empty strings
-        }
-        if (i%2 == 0)
-            data[i][1] = "Booked";
-    }
-    List<Booking> listBookings = new ArrayList<Booking>();
-    for (int i = 5; i < 15; i+=2) {
-        Booking booking = new Booking();
-        booking.setId(i + 1);
-        booking.setCustomerId(i + 1);
-        booking.setFieldId(1); // All bookings are for field id 1
-        booking.setUserId(i + 1);
-        booking.setStatus("Booked");
-        booking.setNote("Sample booking " + (i + 1));
-        booking.setTimeStart(Timestamp.valueOf(LocalDateTime.now().plusHours(i)));
-        booking.setTimeEnd(Timestamp.valueOf(LocalDateTime.now().plusHours(i + 1)));
-        booking.setPrice(new BigDecimal("100.00"));
-        booking.setIsDeleted(false);
-        listBookings.add(booking);
-        }
-            
-            
-    // Create table model and set it to the table
-    DefaultTableModel model = new DefaultTableModel(data, columnNames);
-    tblScheduler.setModel(model);
-    
-    // Set row height
-    tblScheduler.setRowHeight(30);
-
-    // Set custom renderer for the first column
-    tblScheduler.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (row % 2 == 0) {
-                // For every other row, set the value to the hour and span two cells vertically
-                setPreferredSize(new Dimension(getPreferredSize().width, 60));
-            } else {
-                // For the remaining rows, make the cell empty and invisible
-                setText("");
-                setPreferredSize(new Dimension(getPreferredSize().width, 0));
+        int numberOfCol = fields.size() + 1;
+        // Create data
+        Object[][] data = new Object[timeSlots.size()][numberOfCol];
+        for (int i = 0; i < timeSlots.size(); i++) {
+            data[i][0] = timeSlots.get(i).toString();
+            for (int j = 1; j < numberOfCol ; j++) {
+                data[i][j] = ""; // Initialize the rest of the fields with empty strings
             }
-            return this;
+            if (i%2 == 0)
+                data[i][1] = "Booked";
         }
-    });
-    
-    tblScheduler.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if ("Booked".equals(value)) {
-                setBackground(Color.RED); // Set the background color to red if the cell is booked
+        List<Booking> listBookings = new ArrayList<Booking>();
+        for (int i = 5; i < 15; i+=2) {
+            Booking booking = new Booking();
+            booking.setId(i + 1);
+            booking.setCustomerId(i + 1);
+            booking.setFieldId(1); // All bookings are for field id 1
+            booking.setUserId(i + 1);
+            booking.setStatus("Booked");
+            booking.setNote("Sample booking " + (i + 1));
+            booking.setTimeStart(Timestamp.valueOf(LocalDateTime.now().plusHours(i)));
+            booking.setTimeEnd(Timestamp.valueOf(LocalDateTime.now().plusHours(i + 1)));
+            booking.setPrice(new BigDecimal("100.00"));
+            booking.setIsDeleted(false);
+            listBookings.add(booking);
             }
-            return this;
-        }
-    });
-    tblScheduler.setColumnSelectionAllowed(false);
-    tblScheduler.setRowSelectionAllowed(false);
-    tblScheduler.setCellSelectionEnabled(true);
-    tblScheduler.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        if (row % 2 != 0) { // Check if the row represents a whole hour
-            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY)); // Add a border at the bottom of the cell
-        } else {
-            setBorder(noFocusBorder); // No border for half-hour rows
-        }
-        return this;
-    }
-});
-    
+
+
+        // Create table model and set it to the table
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        tblScheduler.setModel(model);
+        tblScheduler.setRowHeight(30);
+        tblScheduler.setColumnSelectionAllowed(false);
+        tblScheduler.setRowSelectionAllowed(false);
+        tblScheduler.setCellSelectionEnabled(true);
+        
+
+
+
     }
 
 
@@ -268,10 +302,148 @@ public class StaffBooking extends TabbedForm {
         calendarSchedule.addCalendarSelectedListener(new CalendarSelectedListener() {
             @Override
             public void selected(MouseEvent evt, ModelDate date) {
-                System.out.println(date.toDate());
+                tfDate.setValue(date.toDate());
+            }
+        });
+        
+        timePicker1.addTimeSelectionListener(new TimeSelectionListener() {
+            @Override
+            public void timeSelected(TimeEvent te) {
+                if (timePicker1.isTimeSelected()) {
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("hh:mm a");
+                    System.out.println(timePicker1.getSelectedTime());
+                }
+            }
+        });
+        
+        timePicker2.addTimeSelectionListener(new TimeSelectionListener() {
+            @Override
+            public void timeSelected(TimeEvent te) {
+                if (timePicker2.isTimeSelected()) {
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("hh:mm a");
+                    System.out.println(timePicker2.getSelectedTime());
+                }
+            }
+        });
+        
+        tblScheduler.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (row % 2 == 0) {
+                    // For every other row, set the value to the hour and span two cells vertically
+                    setPreferredSize(new Dimension(getPreferredSize().width, 60));
+                } else {
+                    // For the remaining rows, make the cell empty and invisible
+                    setText("");
+                    setPreferredSize(new Dimension(getPreferredSize().width, 0));
+                }
+                return this;
+            }
+        });
+        
+        tblScheduler.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (row % 2 != 0) { // Check if the row represents a whole hour
+                    setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.lightGray)); // Add a border at the bottom of the cell
+                } else {
+                    setBorder(noFocusBorder); // No border for half-hour rows
+                    setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.lightGray)); // Add a border at the bottom of the cell
+                }
+                return this;
+            }
+        });
+        
+        tblScheduler.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if ("Booked".equals(value)) {
+                    setBackground(new Color(3,169,244)); // Set the background color to red if the cell is booked
+                }
+                return this;
+            }
+        });
+        
+        ListSelectionModel cellSelectionModel = tblScheduler.getSelectionModel();
+        cellSelectionModel.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+        cellSelectionModel.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                if (e.getValueIsAdjusting()) {
+                  return;
+                }
+
+
+                int[] selectedRow = tblScheduler.getSelectedRows();
+                int[] selectedColumns = tblScheduler.getSelectedColumns();
+
+//                for (int i = 0; i < selectedRow.length; i++) {
+//                  for (int j = 0; j < selectedColumns.length; j++) {
+//                       System.out.println(timeSlots.get(selectedRow[i]) + " - " + fields.get(selectedColumns[j]+1).getName());
+//                  }
+//                }
+
+                if (selectedRow.length > 0) {
+                    // Assuming timeSlots is a List of LocalTime ranges
+                    LocalTime startTime = timeSlots.get(selectedRow[0]);
+                    LocalTime endTime = timeSlots.get(selectedRow[selectedRow.length - 1]).plusMinutes(30);
+
+                    // Convert LocalTime to String
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                    String formattedStartTime = startTime.format(formatter);
+                    String formattedEndTime = endTime.format(formatter);
+
+                    // Set the start and end times in the text fields
+                    tfStartTime.setText(formattedStartTime);
+                    tfEndTime.setText(formattedEndTime);
+                }
             }
         });
     }
+    
+    private void setTimePicker() {
+        timePicker1 = new  TimePicker();
+        timePicker1.set24HourView(true);
+        timePicker1.setOrientation(SwingConstants.HORIZONTAL);
+        
+        
+        timePicker2 = new  TimePicker();
+        timePicker2.set24HourView(true);
+        timePicker2.setOrientation(SwingConstants.HORIZONTAL);
+        
+        
+        timePicker1.setEditor(tfStartTime);
+        timePicker2.setEditor(tfEndTime);
+    }
+    private raven.datetime.component.time.TimePicker timePicker1, timePicker2;
+
+    private void loadData() {
+        fields = new ArrayList<>();
+    
+        fieldService = new FieldServiceImpl();
+        fields = fieldService.findAll();
+        tfDate.setValue(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        
+        timeSlots = new ArrayList<>();
+        LocalTime start = LocalTime.of(5, 0);
+        LocalTime end = LocalTime.of(22, 30);
+        while (!start.isAfter(end)) {
+            timeSlots.add(start);
+            start = start.plus(30, ChronoUnit.MINUTES);
+        }
+        
+        // Create column names
+        columnNames = new String[fields.size()+1];
+        columnNames[0] = "Time Slot";
+        for (int i = 1; i <= fields.size(); i++) {
+            columnNames[i] = fields.get(i-1).getName();
+        }
+        setTimePicker();
+    }
+    
     
 
 
