@@ -4,7 +4,28 @@
  */
 package minisoccerfieldmanagement.form;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.ModelDate;
+import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.util.CalendarSelectedListener;
 
 /**
  *
@@ -12,11 +33,14 @@ import minisoccerfieldmanagement.tabbed.TabbedForm;
  */
 public class StaffBooking extends TabbedForm {
 
-    /**
-     * Creates new form StaffBooking
-     */
+    List<LocalTime> timeSlots;
+    List<Field> fields;
+    
     public StaffBooking() {
         initComponents();
+        setScheduler();
+        setEvents();
+        
     }
 
     /**
@@ -30,7 +54,13 @@ public class StaffBooking extends TabbedForm {
 
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblScheduler = new javax.swing.JTable();
+        crazyPanel4 = new raven.crazypanel.CrazyPanel();
+        calendarSchedule = new minisoccerfieldmanagement.util.Calendar();
 
+        setMaximumSize(new java.awt.Dimension(1188, 696));
+        setMinimumSize(new java.awt.Dimension(1188, 696));
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
         crazyPanel3.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -49,11 +79,11 @@ public class StaffBooking extends TabbedForm {
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1144, Short.MAX_VALUE)
+            .addGap(0, 886, Short.MAX_VALUE)
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 178, Short.MAX_VALUE)
+            .addGap(0, 289, Short.MAX_VALUE)
         );
 
         crazyPanel5.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -67,49 +97,182 @@ public class StaffBooking extends TabbedForm {
             null
         ));
         crazyPanel5.setName(""); // NOI18N
+        crazyPanel5.setLayout(new java.awt.BorderLayout());
 
-        javax.swing.GroupLayout crazyPanel5Layout = new javax.swing.GroupLayout(crazyPanel5);
-        crazyPanel5.setLayout(crazyPanel5Layout);
-        crazyPanel5Layout.setHorizontalGroup(
-            crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1138, Short.MAX_VALUE)
-        );
-        crazyPanel5Layout.setVerticalGroup(
-            crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 450, Short.MAX_VALUE)
-        );
+        tblScheduler.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Title 1"
+            }
+        ));
+        tblScheduler.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tblScheduler.setAutoscrolls(false);
+        jScrollPane1.setViewportView(tblScheduler);
+
+        crazyPanel5.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        crazyPanel4.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        crazyPanel4.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "",
+            "",
+            "",
+            null
+        ));
+        crazyPanel4.setName(""); // NOI18N
+        crazyPanel4.setLayout(new java.awt.BorderLayout());
+        crazyPanel4.add(calendarSchedule, java.awt.BorderLayout.PAGE_START);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(68, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(23, 23, 23)
-                    .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(72, Short.MAX_VALUE)))
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 1150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(487, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addContainerGap(232, Short.MAX_VALUE)
-                    .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(14, 14, 14)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(29, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private minisoccerfieldmanagement.util.Calendar calendarSchedule;
     private raven.crazypanel.CrazyPanel crazyPanel3;
+    private raven.crazypanel.CrazyPanel crazyPanel4;
     private raven.crazypanel.CrazyPanel crazyPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblScheduler;
     // End of variables declaration//GEN-END:variables
+
+    private void setScheduler() {
+    List<LocalTime> timeSlots = new ArrayList<>();
+    fields = new ArrayList<>();
+    
+    IFieldService fieldService = new FieldServiceImpl();
+    fields = fieldService.findAll();
+    LocalTime start = LocalTime.of(5, 0);
+    LocalTime end = LocalTime.of(22, 30);
+    while (!start.isAfter(end)) {
+        timeSlots.add(start);
+        start = start.plus(30, ChronoUnit.MINUTES);
+    }
+
+    // Create column names
+    String[] columnNames = new String[fields.size()+1];
+    columnNames[0] = "Time Slot";
+    for (int i = 1; i <= fields.size(); i++) {
+        columnNames[i] = fields.get(i-1).getName();
+    }
+
+    // Create data
+    Object[][] data = new Object[timeSlots.size()][11];
+    for (int i = 0; i < timeSlots.size(); i++) {
+        data[i][0] = timeSlots.get(i).toString();
+        for (int j = 1; j <= 10; j++) {
+            data[i][j] = ""; // Initialize the rest of the fields with empty strings
+        }
+        if (i%2 == 0)
+            data[i][1] = "Booked";
+    }
+    List<Booking> listBookings = new ArrayList<Booking>();
+    for (int i = 5; i < 15; i+=2) {
+        Booking booking = new Booking();
+        booking.setId(i + 1);
+        booking.setCustomerId(i + 1);
+        booking.setFieldId(1); // All bookings are for field id 1
+        booking.setUserId(i + 1);
+        booking.setStatus("Booked");
+        booking.setNote("Sample booking " + (i + 1));
+        booking.setTimeStart(Timestamp.valueOf(LocalDateTime.now().plusHours(i)));
+        booking.setTimeEnd(Timestamp.valueOf(LocalDateTime.now().plusHours(i + 1)));
+        booking.setPrice(new BigDecimal("100.00"));
+        booking.setIsDeleted(false);
+        listBookings.add(booking);
+        }
+            
+            
+    // Create table model and set it to the table
+    DefaultTableModel model = new DefaultTableModel(data, columnNames);
+    tblScheduler.setModel(model);
+    
+    // Set row height
+    tblScheduler.setRowHeight(30);
+
+    // Set custom renderer for the first column
+    tblScheduler.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (row % 2 == 0) {
+                // For every other row, set the value to the hour and span two cells vertically
+                setPreferredSize(new Dimension(getPreferredSize().width, 60));
+            } else {
+                // For the remaining rows, make the cell empty and invisible
+                setText("");
+                setPreferredSize(new Dimension(getPreferredSize().width, 0));
+            }
+            return this;
+        }
+    });
+    
+    tblScheduler.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if ("Booked".equals(value)) {
+                setBackground(Color.RED); // Set the background color to red if the cell is booked
+            }
+            return this;
+        }
+    });
+    tblScheduler.setColumnSelectionAllowed(false);
+    tblScheduler.setRowSelectionAllowed(false);
+    tblScheduler.setCellSelectionEnabled(true);
+    tblScheduler.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        if (row % 2 != 0) { // Check if the row represents a whole hour
+            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY)); // Add a border at the bottom of the cell
+        } else {
+            setBorder(noFocusBorder); // No border for half-hour rows
+        }
+        return this;
+    }
+});
+    
+    }
+
+
+    private void setEvents() {
+        calendarSchedule.addCalendarSelectedListener(new CalendarSelectedListener() {
+            @Override
+            public void selected(MouseEvent evt, ModelDate date) {
+                System.out.println(date.toDate());
+            }
+        });
+    }
+    
+
+
 }
