@@ -26,6 +26,6 @@ public interface IPriceListService {
 
     PriceList findById(int id);
 
-    BigDecimal findPriceByTime(Time dateTimeIn, Time dateTimeOut, String date);
+    BigDecimal findPriceByTime(Time dateTimeIn, Time dateTimeOut, String date, String typeField);
     List<PriceList> findByDateOfWeek(String date, String typeField);
 }

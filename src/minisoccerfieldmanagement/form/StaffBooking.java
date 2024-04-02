@@ -12,6 +12,8 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,9 +21,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -32,10 +37,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatter;
 import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.ModelDate;
+import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IPriceListService;
+import minisoccerfieldmanagement.service.PriceListServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
 import minisoccerfieldmanagement.util.Utils;
@@ -56,12 +67,19 @@ public class StaffBooking extends TabbedForm {
     List<Field> fields;
     IFieldService fieldService;
     String[] columnNames;
-    
+    Customer customer;
+    ICustomerService customerService;
+    User user;
+    Date dateSelected;
+    DefaultComboBoxModel fieldModels;
+    IPriceListService priceListService;
     public StaffBooking() {
         initComponents();
         loadData();
         setScheduler((Date)tfDate.getValue());
         setEvents();
+        user = new User();
+        user.setId(1);
         
     }
 
@@ -80,7 +98,6 @@ public class StaffBooking extends TabbedForm {
         tfStartTime = new javax.swing.JFormattedTextField();
         tfEndTime = new javax.swing.JFormattedTextField();
         cbxTypeField = new javax.swing.JComboBox<>();
-        lblField = new javax.swing.JLabel();
         tfDate = new javax.swing.JFormattedTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -96,12 +113,12 @@ public class StaffBooking extends TabbedForm {
         crazyPanel6 = new raven.crazypanel.CrazyPanel();
         btnSave = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
-        btnAddNew1 = new javax.swing.JButton();
         btnAddNew = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        taNote = new javax.swing.JTextArea();
         cbxFields1 = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
+        lblDuration = new javax.swing.JLabel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblScheduler = new javax.swing.JTable();
@@ -143,8 +160,6 @@ public class StaffBooking extends TabbedForm {
                 cbxTypeFieldActionPerformed(evt);
             }
         });
-
-        lblField.setText("Field");
 
         tfDate.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
         tfDate.setEnabled(false);
@@ -199,27 +214,36 @@ public class StaffBooking extends TabbedForm {
         ));
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("Delete");
 
-        btnAddNew1.setText("Add New");
-
-        btnAddNew.setText("Add New");
+        btnAddNew.setText("Clear");
+        btnAddNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNewActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout crazyPanel6Layout = new javax.swing.GroupLayout(crazyPanel6);
         crazyPanel6.setLayout(crazyPanel6Layout);
         crazyPanel6Layout.setHorizontalGroup(
             crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addGap(7, 7, 7)
-                .addComponent(btnSave)
-                .addGap(7, 7, 7)
-                .addComponent(btnDelete)
-                .addGap(94, 94, 94)
-                .addComponent(btnAddNew1))
-            .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnAddNew))
+                .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel6Layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(btnSave)
+                        .addGap(7, 7, 7)
+                        .addComponent(btnDelete))
+                    .addGroup(crazyPanel6Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btnAddNew)))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
         crazyPanel6Layout.setVerticalGroup(
             crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -227,16 +251,15 @@ public class StaffBooking extends TabbedForm {
                 .addGap(7, 7, 7)
                 .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnSave)
-                    .addComponent(btnDelete)
-                    .addComponent(btnAddNew1))
+                    .addComponent(btnDelete))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnAddNew)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        taNote.setColumns(20);
+        taNote.setRows(5);
+        jScrollPane2.setViewportView(taNote);
 
         cbxFields1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Field" }));
         cbxFields1.addActionListener(new java.awt.event.ActionListener() {
@@ -246,6 +269,10 @@ public class StaffBooking extends TabbedForm {
         });
 
         jLabel3.setText("Field");
+
+        lblDuration.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblDuration.setForeground(new java.awt.Color(195, 204, 90));
+        lblDuration.setText("Duration:");
 
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
@@ -297,16 +324,19 @@ public class StaffBooking extends TabbedForm {
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(237, 237, 237)
-                        .addComponent(lblField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(278, 278, 278))
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
                             .addComponent(cbxFields1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(47, 47, 47)
-                        .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGap(47, 47, 47)
+                                .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGap(81, 81, 81)
+                                .addComponent(lblDuration, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -339,15 +369,16 @@ public class StaffBooking extends TabbedForm {
                                     .addComponent(jLabel9))
                                 .addGap(34, 34, 34))))
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
-                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10))
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblDuration)
+                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel10)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)))
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
                     .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblField)
                     .addComponent(tfStartTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(tfDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
@@ -451,6 +482,10 @@ public class StaffBooking extends TabbedForm {
         {
             fields = fieldService.findAll();
         }
+        fieldModels = new DefaultComboBoxModel();
+        fieldModels.addAll(fields);
+        cbxFields1.setModel(fieldModels);
+        
     }//GEN-LAST:event_cbxTypeFieldActionPerformed
 
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
@@ -483,17 +518,66 @@ public class StaffBooking extends TabbedForm {
                             });
    
                 txtSearch.setText(text.substring(0, text.length()-1));
+            return;
             
         }
         if (text.length() == 10) {
-            // Perform search here
+            customer = customerService.findByPhoneNumber(text);
+            if (customer.getName() == null)
+            {
+             
+                MessageAlerts.getInstance().showMessage("Not found", "No customer found with phone number: " + text , MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+                                        txtSearch.requestFocus();
+                                    }
+                                }
+                            });
+            }
+      
+            tfName.setText(customer.getName());
+            
+                   
         }
+        else if (text.length()> 10)
+        {
+            MessageAlerts.getInstance().showMessage("Only 10 numbers", "Exceeded number of characters", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+                                        txtSearch.requestFocus();
+                                    }
+                                }
+                            });
+   
+                txtSearch.setText(text.substring(0, text.length()-1));
+            return;
+        }
+                
     }//GEN-LAST:event_txtSearchKeyReleased
+
+    private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
+        tfName.setText("");
+        tfPrice.setText("");
+        txtSearch.setText("");
+        tfEndTime.setValue(null);
+        tfStartTime.setValue(null);
+        tfDate.setValue(dateSelected);
+        taNote.setText("");
+        cbxStatus.setSelectedIndex(0);
+        cbxFields1.setSelectedIndex(0);
+    }//GEN-LAST:event_btnAddNewActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        save();
+    }//GEN-LAST:event_btnSaveActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNew;
-    private javax.swing.JButton btnAddNew1;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private minisoccerfieldmanagement.util.Calendar calendarSchedule;
@@ -516,8 +600,8 @@ public class StaffBooking extends TabbedForm {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JLabel lblField;
+    private javax.swing.JLabel lblDuration;
+    private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblScheduler;
     private javax.swing.JFormattedTextField tfDate;
     private javax.swing.JFormattedTextField tfEndTime;
@@ -606,7 +690,8 @@ public class StaffBooking extends TabbedForm {
         calendarSchedule.addCalendarSelectedListener(new CalendarSelectedListener() {
             @Override
             public void selected(MouseEvent evt, ModelDate date) {
-                tfDate.setValue(date.toDate());
+                dateSelected = date.toDate();
+                tfDate.setValue(dateSelected);
             }
         });
         
@@ -696,6 +781,47 @@ public class StaffBooking extends TabbedForm {
                     // Set the start and end times in the text fields
                     tfStartTime.setText(formattedStartTime);
                     tfEndTime.setText(formattedEndTime);
+
+                    java.sql.Time sTime = java.sql.Time.valueOf(startTime);
+                    java.sql.Time eTime = java.sql.Time.valueOf(endTime);
+                    String dayOfWeekStr;
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dateSelected);
+                    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+                    switch (dayOfWeek) {
+                        case Calendar.MONDAY:
+                            dayOfWeekStr = "Monday";
+                            break;
+                        case Calendar.TUESDAY:
+                            dayOfWeekStr = "Tuesday";
+                            break;
+                        case Calendar.WEDNESDAY:
+                            dayOfWeekStr = "Wednesday";
+                            break;
+                        case Calendar.THURSDAY:
+                            dayOfWeekStr = "Thursday";
+                            break;
+                        case Calendar.FRIDAY:
+                            dayOfWeekStr = "Friday";
+                            break;
+                        case Calendar.SATURDAY:
+                            dayOfWeekStr = "Saturday";
+                            break;
+                        case Calendar.SUNDAY:
+                            dayOfWeekStr = "Sunday";
+                            break;
+                        default:
+                            dayOfWeekStr = "";
+                            break;
+                    }
+                    DecimalFormat df = new DecimalFormat("#,##0.##");
+                    BigDecimal priceBigDecimal = new BigDecimal(String.valueOf(priceListService.findPriceByTime(sTime, eTime, dayOfWeekStr, fields.get(selectedColumns[0]).getType())));
+                    tfPrice.setText(df.format(priceBigDecimal)+ " VND");
+                    
+                    Duration duration = Duration.between(startTime, endTime);
+                    long hours = duration.toHours();
+                    long minutes = duration.toMinutes() % 60;
+                    lblDuration.setText(hours + "h" + ":" + minutes + "m");
                 }
             }
         });
@@ -718,6 +844,8 @@ public class StaffBooking extends TabbedForm {
     private raven.datetime.component.time.TimePicker timePicker1, timePicker2;
 
     private void loadData() {
+        
+        customerService = new CustomerServiceImpl();
         fields = new ArrayList<>();
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
@@ -725,10 +853,15 @@ public class StaffBooking extends TabbedForm {
         btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
         fieldService = new FieldServiceImpl();
         fields = fieldService.findAll();
+        fieldModels = new DefaultComboBoxModel();
+        fieldModels.addAll(fields);
+        cbxFields1.setModel(fieldModels);
+        
         tfDate.setValue(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        dateSelected =  Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
         
         timeSlots = new ArrayList<>();
-        LocalTime start = LocalTime.of(5, 0);
+        LocalTime start = LocalTime.of(6, 0);
         LocalTime end = LocalTime.of(22, 30);
         while (!start.isAfter(end)) {
             timeSlots.add(start);
@@ -742,6 +875,21 @@ public class StaffBooking extends TabbedForm {
             columnNames[i] = fields.get(i-1).getName();
         }
         setTimePicker();
+        
+        priceListService  = new PriceListServiceImpl();
+    }
+
+    private void save() {
+        if (true)
+        {
+            try {
+                
+              
+                
+                
+            } catch (Exception e) {
+            }
+        }
     }
     
     

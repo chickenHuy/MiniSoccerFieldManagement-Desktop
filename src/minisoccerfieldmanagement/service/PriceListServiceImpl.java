@@ -51,8 +51,8 @@ public class PriceListServiceImpl implements IPriceListService{
     }
 
     @Override
-    public BigDecimal findPriceByTime(Time dateTimeIn, Time dateTimeOut, String date) {
-        List<PriceList> priceLists = priceListDAO.findByDateOfWeek(date);
+    public BigDecimal findPriceByTime(Time dateTimeIn, Time dateTimeOut, String date, String typeField) {
+        List<PriceList> priceLists = findByDateOfWeek(date, typeField);
 
         // Lấy giờ và phút của timeIn và timeOut
         int hourIn = dateTimeIn.toLocalTime().getHour();
