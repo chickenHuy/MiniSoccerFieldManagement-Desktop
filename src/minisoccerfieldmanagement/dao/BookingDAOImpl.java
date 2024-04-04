@@ -301,7 +301,7 @@ public class BookingDAOImpl implements IBookingDAO {
     public List<Booking> findByDate(Date date) {
         List<Booking> bookings = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Booking WHERE DATE(createdAt) = ?";
+            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) = ?";
 
             conn = new DBConnection().getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -340,12 +340,52 @@ public class BookingDAOImpl implements IBookingDAO {
     public List<Booking> findByDateAndField(Date date, int fieldId) {
         List<Booking> bookings = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Booking WHERE DATE(createdAt) = ? AND fieldId = ?";
+            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) AND fieldId = ?";
 
             conn = new DBConnection().getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, date.toString());
             ps.setInt(2, fieldId);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setId(rs.getInt("id"));
+                booking.setCustomerId(rs.getInt("customerId"));
+                booking.setFieldId(rs.getInt("fieldId"));
+                booking.setUserId(rs.getInt("userId"));
+                booking.setStatus(rs.getString("status"));
+                booking.setNote(rs.getString("note"));
+                booking.setTimeStart(rs.getTimestamp("timeStart"));
+                booking.setTimeEnd(rs.getTimestamp("timeEnd"));
+                booking.setPrice(rs.getBigDecimal("price"));
+                booking.setIsDeleted(rs.getBoolean("isDeleted"));
+                booking.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                java.util.Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    booking.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                bookings.add(booking);
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    @Override
+    public List<Booking> findByDateAndTypeField(Date date, String typeField) {
+        List<Booking> bookings = new ArrayList<>();
+        try {
+            String sql = "SELECT Booking.id, customerId, fieldId, userId, Booking.status, Booking.note, Booking.timeStart, Booking.timeEnd, Booking.price, Booking.isDeleted, Booking.createdAt, Booking.updatedAt FROM Booking JOIN Field ON Booking.fieldId = Field.id\n WHERE DATE(timeStart) = DATE(?) AND Field.isDeleted = 0 AND Field.type = ?";
+
+            conn = new DBConnection().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, date.toString());
+            ps.setString(2, typeField);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

@@ -25,4 +25,5 @@ public interface IBookingDAO {
     List<Booking> findByDate(Date date);
 
     List<Booking> findByDateAndField(Date date, int fieldId);
+    List<Booking> findByDateAndTypeField(Date date, String typeField);
 }

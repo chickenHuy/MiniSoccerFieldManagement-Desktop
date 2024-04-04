@@ -44,6 +44,7 @@ import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.ModelDate;
 import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
 import minisoccerfieldmanagement.service.IBookingService;
@@ -55,6 +56,7 @@ import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.PriceListServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
+import minisoccerfieldmanagement.util.ColorGenerator;
 import minisoccerfieldmanagement.util.StaticStrings;
 import minisoccerfieldmanagement.util.Utils;
 import raven.alerts.MessageAlerts;
@@ -82,6 +84,8 @@ public class StaffBooking extends TabbedForm {
     DefaultComboBoxModel fieldModels;
     IPriceListService priceListService;
     IBookingService bookingService;
+    List<Booking> listBooking;
+    Object[][] data;
     public StaffBooking() {
         initComponents();
         loadData();
@@ -477,13 +481,16 @@ public class StaffBooking extends TabbedForm {
     private void cbxTypeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTypeFieldActionPerformed
         if (cbxTypeField.getSelectedIndex() == 1) {
             fields = fieldService.findAllNormalFiled();
+            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), StaticStrings.FIELD_STYLE_5_A_SIZE);
         }
         else if (cbxTypeField.getSelectedIndex() == 2) {
             fields = fieldService.findAllCombinedField();
+            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), StaticStrings.FIELD_STYLE_7_A_SIZE);
         }
         else if (cbxTypeField.getSelectedIndex() == 0)
         {
             fields = fieldService.findAll();
+            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), " ");
         }
         fieldModels = new DefaultComboBoxModel();
         fieldModels.addAll(fields);
@@ -617,33 +624,30 @@ public class StaffBooking extends TabbedForm {
 
         int numberOfCol = fields.size() + 1;
         // Create data
-        Object[][] data = new Object[timeSlots.size()][numberOfCol];
+        data = new Object[timeSlots.size()][numberOfCol];
         for (int i = 0; i < timeSlots.size(); i++) {
             data[i][0] = timeSlots.get(i).toString();
-            for (int j = 1; j < numberOfCol ; j++) {
-                data[i][j] = ""; // Initialize the rest of the fields with empty strings
-            }
-            if (i%2 == 0 && i< 5)
-                data[i][1] = "Booked";
         }
-        List<Booking> listBookings = new ArrayList<Booking>();
-        for (int i = 5; i < 15; i+=2) {
-            Booking booking = new Booking();
-            booking.setId(i + 1);
-            booking.setCustomerId(i + 1);
-            booking.setFieldId(1); // All bookings are for field id 1
-            booking.setUserId(i + 1);
-            booking.setStatus("Booked");
-            booking.setNote("Sample booking " + (i + 1));
-            booking.setTimeStart(Timestamp.valueOf(LocalDateTime.now().plusHours(i)));
-            booking.setTimeEnd(Timestamp.valueOf(LocalDateTime.now().plusHours(i + 1)));
-            booking.setPrice(new BigDecimal("100.00"));
-            booking.setIsDeleted(false);
-            listBookings.add(booking);
+         
+        for (Booking booking : listBooking) {
+            long minutesDiff = Math.abs(booking.getTimeEnd().getTime() - booking.getTimeStart().getTime()) / (1000 * 60); // Chia cho 1000 để chuyển milliseconds thành giây, và chia cho 60 để chuyển giây thành phút
+            long duration = minutesDiff / 30;
+            for (int i = 0; i < duration; i++)
+            {
+                
+                LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
+                if (i == 0){
+                    Customer cus = customerService.findById(booking.getCustomerId());
+                    data[getRow(st) + i][getCol(booking.getFieldId())] = cus.getName() + "\n" + cus.getPhoneNumber();
+                }
+                else
+                {
+                    data[getRow(st) + i][getCol(booking.getFieldId())] = "";
+                }
             }
+        }
 
 
-        // Create table model and set it to the table
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
         tblScheduler.setModel(model);
         tblScheduler.setRowHeight(30);
@@ -653,6 +657,7 @@ public class StaffBooking extends TabbedForm {
         
         int index = 1;
         for (Field field:fields) {
+            Color color = ColorGenerator.getRandomColor();
             tblScheduler.getColumnModel().getColumn(index).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -662,9 +667,8 @@ public class StaffBooking extends TabbedForm {
                     setForeground(table.getSelectionForeground());
                 } 
                 else
-                if (value.toString().contains("Booked")) {
-                    setBackground(new Color(3,169,244));
-                    
+                if (value != null) {
+                    setBackground(color); //new Color(3,169,244)
                 }
                 else {
                     setBackground(table.getBackground());
@@ -676,7 +680,6 @@ public class StaffBooking extends TabbedForm {
                     }
                     
                }
-                System.out.println(value);
                 return this;
             }
             });
@@ -747,11 +750,6 @@ public class StaffBooking extends TabbedForm {
                 int[] selectedRow = tblScheduler.getSelectedRows();
                 int[] selectedColumns = tblScheduler.getSelectedColumns();
 
-//                for (int i = 0; i < selectedRow.length; i++) {
-//                  for (int j = 0; j < selectedColumns.length; j++) {
-//                       System.out.println(timeSlots.get(selectedRow[i]) + " - " + fields.get(selectedColumns[j]+1).getName());
-//                  }
-//                }
                 if (selectedColumns.length > 1)
                 {
                     MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
@@ -851,7 +849,9 @@ public class StaffBooking extends TabbedForm {
 
     private void loadData() {
         
+        bookingService = new BookingServiceImpl();
         customerService = new CustomerServiceImpl();
+        listBooking = new ArrayList<>();
         fields = new ArrayList<>();
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
@@ -883,10 +883,10 @@ public class StaffBooking extends TabbedForm {
         setTimePicker();
         
         priceListService  = new PriceListServiceImpl();
+        listBooking = bookingService.findByDate(new java.sql.Date(dateSelected.getTime()));
     }
 
     private void save() {
-        Customer customer = new Customer();
         if (true)
         {   
             try {
@@ -913,6 +913,8 @@ public class StaffBooking extends TabbedForm {
               }
               if (customerName.isEmpty())
               {
+                customer = new Customer();
+                
                 IMemberShipService memberShipService = new MemberShipServiceImpl();
                 MemberShip membership = memberShipService.findBySpendAmount(BigDecimal.ZERO);
                 customer.setName("New Customer");
@@ -954,15 +956,7 @@ public class StaffBooking extends TabbedForm {
                 }
                 else
                 {
-                    return;
-                }
-
-            }
-            
-            newBooking.setCustomerId(customer.getId());
-            
-            if (true)//bookingService.add(newBooking))
-                MessageAlerts.getInstance().showMessage("Success", newBooking.toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                    MessageAlerts.getInstance().showMessage("Add Customer Failed", "Please check the information about customer", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
                                     if (i == MessageAlerts.CLOSED_OPTION )
@@ -971,8 +965,28 @@ public class StaffBooking extends TabbedForm {
                                     }
                                 }
                             });
+                    return;
+                }
+
+            }
+            
+            newBooking.setCustomerId(customer.getId());
+            
+            if (bookingService.add(newBooking))
+                MessageAlerts.getInstance().showMessage("Success", "Booking has been saved", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                            
+                setScheduler(dateSelected);
             } 
             catch (Exception e) {
+                e.printStackTrace();
                 MessageAlerts.getInstance().showMessage("Save error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
@@ -982,7 +996,7 @@ public class StaffBooking extends TabbedForm {
                                     }
                                 }
                             });
-                e.printStackTrace();
+                
             }
             
             
@@ -1006,6 +1020,26 @@ public class StaffBooking extends TabbedForm {
                             });
             }
         }
+        
+    }
+    public int getCol(int fieldId) {
+        if (fields == null) return -1;
+        for (int i = 0; i < fields.size(); i++) {
+            if (fields.get(i).getId() == fieldId) {
+                return i + 1;
+            }
+        }
+         return -1;
+     }
+
+     public int getRow(LocalTime timeSlot) {
+         if (timeSlots == null) return -1;
+         for (int i = 0; i < timeSlots.size(); i++) {
+             if (timeSlots.get(i).equals(timeSlot)) {
+                 return i;
+             }
+         }
+         return -1; // Trả về -1 nếu không tìm thấy timeSlot
     }
     
     

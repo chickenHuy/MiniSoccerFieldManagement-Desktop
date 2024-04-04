@@ -4,10 +4,34 @@
  */
 package minisoccerfieldmanagement.service;
 
+import java.sql.Date;
+import java.util.List;
+import minisoccerfieldmanagement.model.Booking;
+
 /**
  *
  * @author trank
  */
-public class IBookingService {
-    
+public interface IBookingService {
+
+    Boolean add(Booking booking);
+
+    Boolean updateStatus(int id, String status);
+
+    Boolean softDelete(int id);
+
+    Booking findById(int id);
+
+    List<Booking> findByCustomer(int customerId);
+
+    List<Booking> findByUser(int userId);
+
+    List<Booking> findByField(int fieldId);
+
+    List<Booking> findByStatus(String status);
+
+    List<Booking> findByDate(Date date);
+
+    List<Booking> findByDateAndField(Date date, int fieldId);
+    List<Booking> findByDateAndFieldType(Date date, String typeField);
 }

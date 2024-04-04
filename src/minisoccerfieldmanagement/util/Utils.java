@@ -8,6 +8,8 @@ import java.awt.Point;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
+import java.sql.Timestamp;
 import minisoccerfieldmanagement.model.Booking;
 
 /**
@@ -25,5 +27,15 @@ public class Utils {
         }
     }
     return coordinates;
-}
+    }
+    
+    public static LocalTime convertTimestampToLocalTime(Timestamp t)
+    {
+        return t.toLocalDateTime().toLocalTime();
+    }
+    
+    public static java.sql.Date convertUtilDateToSqlDate(Date date)
+    {
+        return new java.sql.Date(date.getTime());
+    }
 }
