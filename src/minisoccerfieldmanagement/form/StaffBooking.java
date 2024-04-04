@@ -86,6 +86,7 @@ public class StaffBooking extends TabbedForm {
     IBookingService bookingService;
     List<Booking> listBooking;
     Object[][] data;
+    Booking[][] booked;
     public StaffBooking() {
         initComponents();
         loadData();
@@ -417,11 +418,6 @@ public class StaffBooking extends TabbedForm {
         ));
         tblScheduler.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tblScheduler.setAutoscrolls(false);
-        tblScheduler.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                tblSchedulerMouseDragged(evt);
-            }
-        });
         jScrollPane1.setViewportView(tblScheduler);
 
         crazyPanel5.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -469,10 +465,6 @@ public class StaffBooking extends TabbedForm {
                 .addContainerGap(38, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tblSchedulerMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSchedulerMouseDragged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tblSchedulerMouseDragged
 
     private void cbxStatusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxStatusActionPerformed
         // TODO add your handling code here:
@@ -624,9 +616,11 @@ public class StaffBooking extends TabbedForm {
 
         int numberOfCol = fields.size() + 1;
         // Create data
+        booked = new Booking[timeSlots.size()][numberOfCol];
         data = new Object[timeSlots.size()][numberOfCol];
         for (int i = 0; i < timeSlots.size(); i++) {
             data[i][0] = timeSlots.get(i).toString();
+            
         }
          
         for (Booking booking : listBooking) {
@@ -650,7 +644,7 @@ public class StaffBooking extends TabbedForm {
                     dataString = "Cus: "+ cus.getName();
                 }
                 data[getRow(st) + i][getCol(booking.getFieldId())] = dataString;
-                
+                booked[getRow(st) + i][getCol(booking.getFieldId())] = booking;
             }
         }
 
@@ -704,6 +698,13 @@ public class StaffBooking extends TabbedForm {
             public void selected(MouseEvent evt, ModelDate date) {
                 dateSelected = date.toDate();
                 tfDate.setValue(dateSelected);
+                String type = "all";
+                if (cbxTypeField.getSelectedIndex() == 1)
+                    type = StaticStrings.FIELD_STYLE_5_A_SIZE;
+                else if (cbxTypeField.getSelectedIndex() == 2)
+                    type = StaticStrings.FIELD_STYLE_7_A_SIZE;
+                listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), type);
+                setScheduler(Utils.convertUtilDateToSqlDate(dateSelected));
             }
         });
         
@@ -754,113 +755,164 @@ public class StaffBooking extends TabbedForm {
                 if (e.getValueIsAdjusting()) {
                   return;
                 }
+                try {
+                    int[] selectedRow = tblScheduler.getSelectedRows();
+                    int[] selectedColumns = tblScheduler.getSelectedColumns();
 
-                int[] selectedRow = tblScheduler.getSelectedRows();
-                int[] selectedColumns = tblScheduler.getSelectedColumns();
-               
-                
-        
-                if (selectedColumns.length > 1)
-                {
-                    MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
 
+
+                    if (selectedColumns.length > 1)
+                    {
+                        MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                    @Override
+                                    public void action(PopupController pc, int i) {
+                                        if (i == MessageAlerts.CLOSED_OPTION )
+                                        {
+
+                                        }
                                     }
-                                }
-                            });
-                    tfEndTime.setValue(null);
-                    tfStartTime.setValue(null);
-                    
-                    
-                    
-                            
-                            
-                    return;
-                }
-                String dataShow = "";
-                for (int j = 0; j < selectedRow.length; j++)
-                {
-                    if (data[selectedRow[j]][selectedColumns[0]] != null )
+                                });
+                        tfEndTime.setValue(null);
+                        tfStartTime.setValue(null);
+
+
+
+
+
+                        return;
+                    }
+                    String dataShow = "";
+                    Boolean isBooked = false;
+                    if (isMoreOneSelected(selectedRow, selectedColumns[0]))
+                    {
+                        MessageAlerts.getInstance().showMessage("Choose only one", "You cannot choose both these areas", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                    @Override
+                                    public void action(PopupController pc, int i) {
+                                        if (i == MessageAlerts.CLOSED_OPTION )
+                                        {
+
+                                        }
+                                    }
+                                });
+                    }
+                    Boolean isBookedSelect = false;
+                    for (int j = 0; j < selectedRow.length; j++)
+                    {
+                        if (data[selectedRow[j]][selectedColumns[0]] != null )
+                        {   
+                            isBookedSelect = true;   
+                            break;
+
+                        }
+                    }
+                    if (isBookedSelect)
                     {   
-                        if (data[selectedRow[j]][selectedColumns[0]].toString().isEmpty())
+
+                        Booking bg = booked[selectedRow[0]][selectedColumns[0]];
+                        Customer cus = new Customer();
+                        if (bg != null)
                         {
-                            Notifications.getInstance().show(Notifications.Type.INFO, dataShow);
-                            return;
+                            cus = customerService.findById(bg.getCustomerId());
                         }
-                        else
+
+                        if ( cus != null)
                         {
-                            dataShow += "\n" +  data[selectedRow[j]][selectedColumns[0]].toString();                            
+                            String notify = "ID: " + bg.getId() + "\nCustomer: " +  cus.getName() + "\nPhone: " + cus.getPhoneNumber();
+                            Notifications.getInstance().show(Notifications.Type.INFO, notify);
+                            taNote.setText(bg.getNote());
+                            txtSearch.setText(cus.getPhoneNumber());
+                            tfName.setText(cus.getName());
+                            customer = cus;
+                            tfStartTime.setValue(Utils.convertTimestampToLocalTime(bg.getTimeStart()));
+                            tfEndTime.setValue(Utils.convertTimestampToLocalTime(bg.getTimeEnd()));
+                            DecimalFormat df = new DecimalFormat("#,##0.##");
+                            tfPrice.setText(df.format(bg.getPrice())+ " VND");
+                            for (Field field : fields)
+                            {
+                                if (field.getId() == bg.getFieldId())
+                                {
+                                    fieldModels.setSelectedItem(field);
+                                }
+                            }
+                            if (bg.getStatus().equals(StaticStrings.ACTIVE))
+                            {
+                                cbxStatus.setSelectedIndex(0);
+                            }
+                            else
+                            {
+                                cbxStatus.setSelectedIndex(1);
+                            }
                         }
+                        return;
                     }
+
+                    if (selectedRow.length > 0) {
+                        // Assuming timeSlots is a List of LocalTime ranges
+                        LocalTime startTime = timeSlots.get(selectedRow[0]);
+                        LocalTime endTime = timeSlots.get(selectedRow[selectedRow.length - 1]).plusMinutes(30);
+
+                        // Convert LocalTime to String
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                        String formattedStartTime = startTime.format(formatter);
+                        String formattedEndTime = endTime.format(formatter);
+
+                        // Set the start and end times in the text fields
+                        tfStartTime.setText(formattedStartTime);
+                        tfEndTime.setText(formattedEndTime);
+
+                        java.sql.Time sTime = java.sql.Time.valueOf(startTime);
+                        java.sql.Time eTime = java.sql.Time.valueOf(endTime);
+                        String dayOfWeekStr;
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(dateSelected);
+                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+                        switch (dayOfWeek) {
+                            case Calendar.MONDAY:
+                                dayOfWeekStr = "Monday";
+                                break;
+                            case Calendar.TUESDAY:
+                                dayOfWeekStr = "Tuesday";
+                                break;
+                            case Calendar.WEDNESDAY:
+                                dayOfWeekStr = "Wednesday";
+                                break;
+                            case Calendar.THURSDAY:
+                                dayOfWeekStr = "Thursday";
+                                break;
+                            case Calendar.FRIDAY:
+                                dayOfWeekStr = "Friday";
+                                break;
+                            case Calendar.SATURDAY:
+                                dayOfWeekStr = "Saturday";
+                                break;
+                            case Calendar.SUNDAY:
+                                dayOfWeekStr = "Sunday";
+                                break;
+                            default:
+                                dayOfWeekStr = "";
+                                break;
+                        }
+                        DecimalFormat df = new DecimalFormat("#,##0.##");
+                        BigDecimal priceBigDecimal = new BigDecimal(String.valueOf(priceListService.findPriceByTime(sTime, eTime, dayOfWeekStr, fields.get(selectedColumns[0]).getType())));
+                        tfPrice.setText(df.format(priceBigDecimal)+ " VND");
+
+                        Duration duration = Duration.between(startTime, endTime);
+                        long hours = duration.toHours();
+                        long minutes = duration.toMinutes() % 60;
+                        lblDuration.setText(hours + "h" + ":" + minutes + "m");
+                        fieldModels.setSelectedItem(fields.get(selectedColumns[0]-1));
                 }
-                if (!dataShow.isEmpty())
-                {
-                    Notifications.getInstance().show(Notifications.Type.INFO, dataShow);
-                    return;
-                }
-                
-
-                if (selectedRow.length > 0) {
-                    // Assuming timeSlots is a List of LocalTime ranges
-                    LocalTime startTime = timeSlots.get(selectedRow[0]);
-                    LocalTime endTime = timeSlots.get(selectedRow[selectedRow.length - 1]).plusMinutes(30);
-
-                    // Convert LocalTime to String
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                    String formattedStartTime = startTime.format(formatter);
-                    String formattedEndTime = endTime.format(formatter);
-
-                    // Set the start and end times in the text fields
-                    tfStartTime.setText(formattedStartTime);
-                    tfEndTime.setText(formattedEndTime);
-
-                    java.sql.Time sTime = java.sql.Time.valueOf(startTime);
-                    java.sql.Time eTime = java.sql.Time.valueOf(endTime);
-                    String dayOfWeekStr;
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(dateSelected);
-                    int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-                    switch (dayOfWeek) {
-                        case Calendar.MONDAY:
-                            dayOfWeekStr = "Monday";
-                            break;
-                        case Calendar.TUESDAY:
-                            dayOfWeekStr = "Tuesday";
-                            break;
-                        case Calendar.WEDNESDAY:
-                            dayOfWeekStr = "Wednesday";
-                            break;
-                        case Calendar.THURSDAY:
-                            dayOfWeekStr = "Thursday";
-                            break;
-                        case Calendar.FRIDAY:
-                            dayOfWeekStr = "Friday";
-                            break;
-                        case Calendar.SATURDAY:
-                            dayOfWeekStr = "Saturday";
-                            break;
-                        case Calendar.SUNDAY:
-                            dayOfWeekStr = "Sunday";
-                            break;
-                        default:
-                            dayOfWeekStr = "";
-                            break;
-                    }
-                    DecimalFormat df = new DecimalFormat("#,##0.##");
-                    BigDecimal priceBigDecimal = new BigDecimal(String.valueOf(priceListService.findPriceByTime(sTime, eTime, dayOfWeekStr, fields.get(selectedColumns[0]).getType())));
-                    tfPrice.setText(df.format(priceBigDecimal)+ " VND");
-                    
-                    Duration duration = Duration.between(startTime, endTime);
-                    long hours = duration.toHours();
-                    long minutes = duration.toMinutes() % 60;
-                    lblDuration.setText(hours + "h" + ":" + minutes + "m");
-                    fieldModels.setSelectedItem(fields.get(selectedColumns[0]-1));
-                }
+            } 
+                catch(Exception ex)
+                {}
             }
+        
+           
         });
+
+
+              
+        
     }
     
     private void setTimePicker() {
@@ -1061,7 +1113,7 @@ public class StaffBooking extends TabbedForm {
         setScheduler(dateSelected);
         
     }
-    public int getCol(int fieldId) {
+    private int getCol(int fieldId) {
         if (fields == null) return -1;
         for (int i = 0; i < fields.size(); i++) {
             if (fields.get(i).getId() == fieldId) {
@@ -1071,7 +1123,7 @@ public class StaffBooking extends TabbedForm {
          return -1;
      }
 
-     public int getRow(LocalTime timeSlot) {
+    private int getRow(LocalTime timeSlot) {
          if (timeSlots == null) return -1;
          for (int i = 0; i < timeSlots.size(); i++) {
              if (timeSlots.get(i).equals(timeSlot)) {
@@ -1081,7 +1133,20 @@ public class StaffBooking extends TabbedForm {
          return -1; // Trả về -1 nếu không tìm thấy timeSlot
     }
     
-    
+    private Boolean isMoreOneSelected(int[] row, int col)
+    {
+        int size = row.length;
+        if (size == 1 || size == 0) return false;
+        for (int i = 0; i< size -1; i++)
+        {
+            if (data[row[i]][col] == null && data[row[i+1]][col] != null)
+                return true;
+            
+            if (data[row[i]][col] != null && data[row[i+1]][col] == null)
+                return true;
+        }
+        return false;
+    }
 
 
 }
