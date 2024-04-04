@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -38,6 +39,7 @@ import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatter;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
+import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.ModelDate;
 import minisoccerfieldmanagement.model.User;
@@ -45,12 +47,16 @@ import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.IPriceListService;
+import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.PriceListServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
+import minisoccerfieldmanagement.util.StaticStrings;
 import minisoccerfieldmanagement.util.Utils;
 import raven.alerts.MessageAlerts;
+import raven.toast.Notifications;
 import raven.datetime.component.time.TimeEvent;
 import raven.datetime.component.time.TimePicker;
 import raven.datetime.component.time.TimeSelectionListener;
@@ -73,6 +79,7 @@ public class StaffBooking extends TabbedForm {
     Date dateSelected;
     DefaultComboBoxModel fieldModels;
     IPriceListService priceListService;
+    IBookingService bookingService;
     public StaffBooking() {
         initComponents();
         loadData();
@@ -168,15 +175,7 @@ public class StaffBooking extends TabbedForm {
 
         jLabel5.setText("Phone");
 
-        txtSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearchActionPerformed(evt);
-            }
-        });
         txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtSearchKeyPressed(evt);
-            }
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtSearchKeyReleased(evt);
             }
@@ -198,6 +197,7 @@ public class StaffBooking extends TabbedForm {
         });
 
         cbxStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active", "Canceled", "Completed" }));
+        cbxStatus.setEnabled(false);
         cbxStatus.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxStatusActionPerformed(evt);
@@ -222,7 +222,7 @@ public class StaffBooking extends TabbedForm {
 
         btnDelete.setText("Delete");
 
-        btnAddNew.setText("Clear");
+        btnAddNew.setText("Add");
         btnAddNew.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddNewActionPerformed(evt);
@@ -262,6 +262,7 @@ public class StaffBooking extends TabbedForm {
         jScrollPane2.setViewportView(taNote);
 
         cbxFields1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Field" }));
+        cbxFields1.setEnabled(false);
         cbxFields1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxFields1ActionPerformed(evt);
@@ -485,12 +486,13 @@ public class StaffBooking extends TabbedForm {
         fieldModels = new DefaultComboBoxModel();
         fieldModels.addAll(fields);
         cbxFields1.setModel(fieldModels);
-        
+        columnNames = new String[fields.size()+1];
+        columnNames[0] = "Time Slot";
+        for (int i = 1; i <= fields.size(); i++) {
+            columnNames[i] = fields.get(i-1).getName();
+        }
+        setScheduler(dateSelected);
     }//GEN-LAST:event_cbxTypeFieldActionPerformed
-
-    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtSearchActionPerformed
 
     private void cbxFields1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxFields1ActionPerformed
         // TODO add your handling code here:
@@ -499,10 +501,6 @@ public class StaffBooking extends TabbedForm {
     private void tfPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPriceActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfPriceActionPerformed
-
-    private void txtSearchKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyPressed
-        
-    }//GEN-LAST:event_txtSearchKeyPressed
 
     private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
         String text = txtSearch.getText();
@@ -765,6 +763,11 @@ public class StaffBooking extends TabbedForm {
                             });
                     tfEndTime.setValue(null);
                     tfStartTime.setValue(null);
+                    
+                    
+                    
+                            
+                            
                     return;
                 }
 
@@ -822,6 +825,7 @@ public class StaffBooking extends TabbedForm {
                     long hours = duration.toHours();
                     long minutes = duration.toMinutes() % 60;
                     lblDuration.setText(hours + "h" + ":" + minutes + "m");
+                    fieldModels.setSelectedItem(fields.get(selectedColumns[0]-1));
                 }
             }
         });
@@ -880,7 +884,100 @@ public class StaffBooking extends TabbedForm {
     }
 
     private void save() {
+        Customer customer = new Customer();
         if (true)
+        {   
+            try {
+              String phoneNumber = txtSearch.getText();
+              String customerName = tfName.getText();
+              String note = taNote.getText();
+              String priceString = tfPrice.getText();
+              priceString = priceString.trim().replace(",", "").replace("VND","");
+              BigDecimal price = new BigDecimal(priceString);
+              
+              if (phoneNumber.isEmpty() || phoneNumber.length() != 10)
+              {
+                    MessageAlerts.getInstance().showMessage("Phone is required", "Please enter customer phone", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                    return;
+              }
+              if (customerName.isEmpty())
+              {
+                IMemberShipService memberShipService = new MemberShipServiceImpl();
+                MemberShip membership = memberShipService.findBySpendAmount(BigDecimal.ZERO);
+                customer.setName("New Customer");
+                customer.setPhoneNumber(phoneNumber);
+                customer.setMemberShipId(membership.getId());
+              }
+              Booking newBooking = new Booking();
+              Field fiedBooking = (Field)fieldModels.getSelectedItem();
+              newBooking.setFieldId(fiedBooking.getId());
+              newBooking.setNote(note);
+              newBooking.setPrice(price);
+              
+              LocalDate dateBooking = (LocalDate)tfDate.getValue();
+              String ts = String.valueOf(tfStartTime.getValue());
+              String te = String.valueOf(tfEndTime.getValue());
+              
+              LocalDateTime dateTimeBooking = dateBooking.atTime(Integer.parseInt(ts.substring(0, 2)), Integer.parseInt(ts.substring(3, 5)));
+              LocalDateTime dateTimeEndBooking = dateBooking.atTime(Integer.parseInt(te.substring(0, 2)), Integer.parseInt(te.substring(3, 5)));
+              Timestamp startBooking = Timestamp.valueOf(dateTimeBooking);
+              Timestamp endBooking = Timestamp.valueOf(dateTimeEndBooking);
+              
+              newBooking.setTimeStart(startBooking);
+              newBooking.setTimeEnd(endBooking);
+              newBooking.setUserId(user.getId());
+              newBooking.setStatus(StaticStrings.ACTIVE);
+              
+           
+            if (tfName.getText().isEmpty())
+            {
+                if (customerService.add(customer)){
+                    Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER, "New customer has been added");
+                    customer = customerService.findByPhoneNumber(phoneNumber);
+                }
+                else
+                {
+                    return;
+                }
+
+            }
+            
+            newBooking.setCustomerId(customer.getId());
+            
+            if (bookingService.add(newBooking))
+                MessageAlerts.getInstance().showMessage("Success", "The soccer field reservation schedule has been saved", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+            } 
+            catch (Exception e) {
+                MessageAlerts.getInstance().showMessage("Save error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+            }
+            
+            
+        }
+        else
         {
             try {
                 
@@ -888,6 +985,15 @@ public class StaffBooking extends TabbedForm {
                 
                 
             } catch (Exception e) {
+                MessageAlerts.getInstance().showMessage("Save Error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
             }
         }
     }
