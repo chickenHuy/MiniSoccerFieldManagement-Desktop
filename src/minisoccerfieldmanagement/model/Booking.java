@@ -17,6 +17,8 @@ public class Booking {
     private boolean isDeleted;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    
+    public Booking(){}
 
     public int getId() {
         return id;
