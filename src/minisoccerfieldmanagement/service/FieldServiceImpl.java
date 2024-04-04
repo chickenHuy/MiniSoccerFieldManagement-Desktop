@@ -10,8 +10,13 @@ public class FieldServiceImpl implements IFieldService{
     IFieldDAO fieldDAO = new FieldDAOImpl();
     
     @Override
-    public Boolean add(Field model) {
-        return fieldDAO.add(model);
+    public Boolean add5Field(Field model) {
+        return fieldDAO.add5Field(model);
+    }
+    
+    @Override
+    public Boolean add7Field(Field model) {
+        return fieldDAO.add7Field(model);
     }
 
     @Override
@@ -47,6 +52,11 @@ public class FieldServiceImpl implements IFieldService{
     @Override
     public List<Field> findAllNormalFiled() {
         return fieldDAO.findAllNormalFiled();
+    }
+
+    @Override
+    public List<Field> findAllDeleted() {
+        return fieldDAO.findAllDeleted();
     }
     
 }
