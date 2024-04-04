@@ -5,8 +5,11 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -14,64 +17,73 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.StaticStrings;
+import raven.alerts.MessageAlerts;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 public class FieldManagement extends TabbedForm {
 
-    /**
-     * Creates new form FieldManagement
-     */
+    private int index;
+    IFieldService fieldService;
+    DefaultTableModel models;
+
     public FieldManagement() {
         initComponents();
+        fieldService = new FieldServiceImpl();
         tableModelField();
         loadFieldType();
         applyTableStyle(tblField);
+        index = -1;
+    }
+
+    private void loadData(boolean isGetDeleted) {
+        List<Field> fields = new ArrayList<>();
+        if (isGetDeleted) {
+            fields = fieldService.findAllDeleted();
+        } else {
+            fields = fieldService.findAll();
+        }
+        for (Field field : fields) {
+            if (isGetDeleted) {
+                models.addRow(addDeletedFieldRow(field));
+            } else {
+                models.addRow(addFieldRow(field));
+            }
+        }
     }
 
     private void tableModelField() {
         setTableModel(new String[]{"ID", "Name", "Type", "Status", "Created at", "Updated at"});
         btnField.setVisible(false);
         btnDeletedField.setVisible(true);
-        testData(tblField);
+        models = (DefaultTableModel) tblField.getModel();
+        loadData(false);
     }
 
     private void loadFieldType() {
-        jComboBox1.addItem(StaticStrings.FIELD_STYLE_5_A_SIZE);
-        jComboBox1.addItem(StaticStrings.FIELD_STYLE_7_A_SIZE);
+        cboFieldType.addItem(StaticStrings.FIELD_STYLE_5_A_SIZE);
+        cboFieldType.addItem(StaticStrings.FIELD_STYLE_7_A_SIZE);
     }
 
     private void tableModelDeleted() {
         setTableModel(new String[]{"ID", "Name", "Type", "Updated at"});
         btnField.setVisible(true);
         btnDeletedField.setVisible(false);
+        models = (DefaultTableModel) tblField.getModel();
+        loadData(true);
     }
 
-    private void testData(JTable table) {
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        model.addRow(getRandomRow("Beer"));
-        model.addRow(getRandomRow("Shirt"));
-        model.addRow(getRandomRow("Laptop"));
-        model.addRow(getRandomRow("Book"));
-        model.addRow(getRandomRow("Coffee"));
-        model.addRow(getRandomRow("Phone"));
-        model.addRow(getRandomRow("Chair"));
-        model.addRow(getRandomRow("Watch"));
-        model.addRow(getRandomRow("Sunglasses"));
-        model.addRow(getRandomRow("Bag"));
-        model.addRow(getRandomRow("Headphones"));
-        model.addRow(getRandomRow("Camera"));
-        model.addRow(getRandomRow("Necklace"));
-        model.addRow(getRandomRow("Perfume"));
-        model.addRow(getRandomRow("Wallet"));
-        model.addRow(getRandomRow("Jacket"));
-        model.addRow(getRandomRow("Bicycle"));
-        model.addRow(getRandomRow("Game console"));
-        model.addRow(getRandomRow("Tennis racket"));
+    private Object[] addFieldRow(Field field) {
+        return new Object[]{field.getId(), field.getName(), field.getType(), field.getStatus(), field.getCreatedAt(), field.getUpdatedAt()};
     }
 
-    private Object[] getRandomRow(String name) {
-        return new Object[]{"1", name, "type", "status", "1/1/1", "1/1/1"};
+    private Object[] addDeletedFieldRow(Field field) {
+        return new Object[]{field.getId(), field.getName(), field.getType(), field.getUpdatedAt()};
     }
 
     private void setTableModel(String[] columnNames) {
@@ -159,22 +171,23 @@ public class FieldManagement extends TabbedForm {
         btnUpload = new javax.swing.JButton();
         ptbServiceImage = new minisoccerfieldmanagement.util.PictureBox();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        cboFieldType = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jComboBox3 = new javax.swing.JComboBox<>();
-        jComboBox4 = new javax.swing.JComboBox<>();
-        jComboBox5 = new javax.swing.JComboBox<>();
+        lblCombineField2 = new javax.swing.JLabel();
+        lblCombineField1 = new javax.swing.JLabel();
+        lblCombineField3 = new javax.swing.JLabel();
+        tfName = new javax.swing.JTextField();
+        cboStatus = new javax.swing.JComboBox<>();
+        cboSubField1 = new javax.swing.JComboBox<>();
+        cboSubField2 = new javax.swing.JComboBox<>();
+        cboSubField3 = new javax.swing.JComboBox<>();
         crazyPanel6 = new raven.crazypanel.CrazyPanel();
         btnAddNew = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         crazyPanel7 = new raven.crazypanel.CrazyPanel();
         btnDelete = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
@@ -226,6 +239,12 @@ public class FieldManagement extends TabbedForm {
 
         btnPrint.setText("Print");
         crazyPanel2.add(btnPrint);
+
+        btnDeleteIcon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteIconActionPerformed(evt);
+            }
+        });
         crazyPanel2.add(btnDeleteIcon);
 
         crazyPanel1.add(crazyPanel2);
@@ -235,14 +254,14 @@ public class FieldManagement extends TabbedForm {
 
             },
             new String [] {
-                "", "ID", "Name", "Description", "Price"
+                "", "ID", "Name", "Type", "Status", "Created at", "Deleted at"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                true, false, false, false, false
+                true, false, false, false, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -251,6 +270,11 @@ public class FieldManagement extends TabbedForm {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblFieldMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblField);
@@ -307,25 +331,24 @@ public class FieldManagement extends TabbedForm {
             null
         ));
 
-        jComboBox1.setMaximumSize(new java.awt.Dimension(200, 200));
+        cboFieldType.setMaximumSize(new java.awt.Dimension(200, 200));
+        cboFieldType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboFieldTypeActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Name");
 
         jLabel2.setText("Status");
 
-        jLabel3.setText("Combine Field 2");
+        lblCombineField2.setText("Combine Field 2");
 
-        jLabel4.setText("Combine Field 1");
+        lblCombineField1.setText("Combine Field 1");
 
-        jLabel5.setText("Combine Field 3");
+        lblCombineField3.setText("Combine Field 3");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cboStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "active", "inactive" }));
 
         crazyPanel6.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -333,9 +356,19 @@ public class FieldManagement extends TabbedForm {
         ));
 
         btnAddNew.setText("Add New");
+        btnAddNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNewActionPerformed(evt);
+            }
+        });
         crazyPanel6.add(btnAddNew);
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
         crazyPanel6.add(btnSave);
 
         crazyPanel7.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -344,7 +377,14 @@ public class FieldManagement extends TabbedForm {
         ));
 
         btnDelete.setText("Delete");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
         crazyPanel7.add(btnDelete);
+
+        jLabel3.setPreferredSize(new java.awt.Dimension(10, 10));
 
         javax.swing.GroupLayout crazyPanel5Layout = new javax.swing.GroupLayout(crazyPanel5);
         crazyPanel5.setLayout(crazyPanel5Layout);
@@ -354,66 +394,73 @@ public class FieldManagement extends TabbedForm {
                 .addGap(15, 15, 15)
                 .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(crazyPanel5Layout.createSequentialGroup()
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cboFieldType, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(crazyPanel5Layout.createSequentialGroup()
+                        .addGap(52, 52, 52)
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblCombineField1, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblCombineField3, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblCombineField2, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addGap(18, 18, 18)
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(cboSubField1, 0, 158, Short.MAX_VALUE)
+                            .addComponent(cboSubField2, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(cboSubField3, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(crazyPanel5Layout.createSequentialGroup()
                         .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addGap(450, 450, 450)
                         .addComponent(crazyPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(23, 23, 23))
-                    .addGroup(crazyPanel5Layout.createSequentialGroup()
-                        .addGap(57, 57, 57)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addGap(18, 18, 18)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(18, 18, 18)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jComboBox3, 0, 158, Short.MAX_VALUE)
-                            .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jComboBox5, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(104, 104, 104))))
+                        .addGap(47, 47, 47))))
         );
         crazyPanel5Layout.setVerticalGroup(
             crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel5Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(15, 16, Short.MAX_VALUE)
+                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(crazyPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(crazyPanel5Layout.createSequentialGroup()
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cboFieldType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(crazyPanel5Layout.createSequentialGroup()
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(crazyPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(10, Short.MAX_VALUE))
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel5Layout.createSequentialGroup()
+                                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel1)
+                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(cboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(crazyPanel5Layout.createSequentialGroup()
+                                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblCombineField1)
+                                    .addComponent(cboSubField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblCombineField2)
+                                    .addComponent(cboSubField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel5Layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(lblCombineField3)
+                                    .addComponent(cboSubField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(crazyPanel5Layout.createSequentialGroup()
+                                .addGap(49, 49, 49)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(11, 11, 11))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -433,7 +480,7 @@ public class FieldManagement extends TabbedForm {
                 .addGroup(layout.createSequentialGroup()
                     .addGap(19, 19, 19)
                     .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(350, Short.MAX_VALUE)))
+                    .addContainerGap(398, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -450,7 +497,7 @@ public class FieldManagement extends TabbedForm {
                 .addGroup(layout.createSequentialGroup()
                     .addGap(16, 16, 16)
                     .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(457, Short.MAX_VALUE)))
+                    .addContainerGap(449, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -464,6 +511,257 @@ public class FieldManagement extends TabbedForm {
         tableModelField();
     }//GEN-LAST:event_btnFieldActionPerformed
 
+    private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
+        // TODO add your handling code here:
+        clearText();
+        index = -1;
+    }//GEN-LAST:event_btnAddNewActionPerformed
+
+    private void clearText() {
+        tfName.setText("");
+        tfName.requestFocus();
+        index = -1;
+    }
+
+    private void hide7Type() {
+        lblCombineField1.setVisible(false);
+        lblCombineField2.setVisible(false);
+        lblCombineField3.setVisible(false);
+        cboSubField1.setVisible(false);
+        cboSubField2.setVisible(false);
+        cboSubField3.setVisible(false);
+    }
+
+    private void show7Type() {
+        lblCombineField1.setVisible(true);
+        lblCombineField2.setVisible(true);
+        lblCombineField3.setVisible(true);
+        cboSubField1.setVisible(true);
+        cboSubField2.setVisible(true);
+        cboSubField3.setVisible(true);
+
+    }
+
+    private void tblFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblFieldMouseClicked
+        // TODO add your handling code here:
+        index = tblField.getSelectedRow();
+        if (index != -1) {
+            tfName.setText(models.getValueAt(index, 1).toString());
+            String type = models.getValueAt(index, 2).toString();
+            cboStatus.setSelectedItem(models.getValueAt(index, 3).toString());
+            cboFieldType.setSelectedItem(type);
+            if (type.equals(StaticStrings.FIELD_STYLE_5_A_SIZE)) {
+                hide7Type();
+            } else {
+                show7Type();
+                loadComboboxField();
+            }
+        }
+    }//GEN-LAST:event_tblFieldMouseClicked
+
+    private void loadComboboxField() {
+        loadField5Combobox(cboSubField1);
+        loadField5Combobox(cboSubField2);
+        loadField5Combobox(cboSubField3);
+    }
+
+    private void loadField5Combobox(JComboBox cboField) {
+        List<Field> fields = fieldService.findAllNormalFiled();
+        cboField.removeAllItems();
+        for (Field field : fields) {
+            cboField.addItem(field.getId());
+        }
+    }
+
+    private void cboFieldTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboFieldTypeActionPerformed
+        // TODO add your handling code here:
+        if (cboFieldType.getSelectedItem().toString().equals(StaticStrings.FIELD_STYLE_5_A_SIZE)) {
+            hide7Type();
+        } else {
+            show7Type();
+            loadComboboxField();
+        }
+    }//GEN-LAST:event_cboFieldTypeActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        Field field = new Field();
+        String name = tfName.getText();
+        String type = cboFieldType.getSelectedItem().toString();
+        String status = cboStatus.getSelectedItem().toString();
+        if (name.isBlank()) {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                }
+            });
+
+        } else {
+            field.setName(name);
+            field.setType(type);
+            field.setStatus(status);
+            if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE)) {
+                String idField1 = cboSubField1.getSelectedItem().toString();
+                String idField2 = cboSubField2.getSelectedItem().toString();
+                String idField3 = cboSubField3.getSelectedItem().toString();
+                if (idField1.equals(idField2) || idField1.equals(idField3) || idField2.equals(idField3)) {
+                    MessageAlerts.getInstance().showMessage("Combine Field Duplicate", "Please choose 3 different field id for combined field", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+                    return;
+                } else {
+                    field.setCombineField1(Integer.parseInt(idField1));
+                    field.setCombineField2(Integer.parseInt(idField2));
+                    field.setCombineField3(Integer.parseInt(idField3));
+                }
+            }
+            if (index == -1) {
+                boolean success;
+                if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
+                    success = fieldService.add7Field(field);
+                else
+                    success = fieldService.add5Field(field);
+                if (success) {
+                    MessageAlerts.getInstance().showMessage("Add Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+                    List<Field> fields = fieldService.findAll();
+                    models.setNumRows(0);
+                    for (Field fld: fields) {
+
+                        models.addRow(addFieldRow(fld));
+                    }
+                } else {
+                    MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+                }
+            } else {
+                field.setId(Integer.parseInt(models.getValueAt(index, 0).toString()));
+                if (fieldService.update(field)) {
+                    MessageAlerts.getInstance().showMessage("Updated Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+                    List<Field> fields = fieldService.findAll();
+                    models.setNumRows(0);
+                    for (Field fld : fields) {
+
+                        models.addRow(addFieldRow(fld));
+                    }
+                } else {
+                    MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        if (index != -1){
+            MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.YES_OPTION )
+                    {
+                        int id = Integer.parseInt(models.getValueAt(index, 0).toString());
+                        if (fieldService.softDelete(id))
+                        {
+                            MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                        models.removeRow(index);
+                        clearText();
+                        
+                        }
+                        else
+                        {
+                            MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnDeleteIconActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteIconActionPerformed
+        if (index != -1){
+            MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.YES_OPTION )
+                    {
+                        int id = Integer.parseInt(models.getValueAt(index, 0).toString());
+                        if (fieldService.softDelete(id))
+                        {
+                            MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+                        models.removeRow(index);
+                        clearText();
+                        
+                        }
+                        else
+                        {
+                            MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            
+        }
+    }//GEN-LAST:event_btnDeleteIconActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNew;
@@ -474,26 +772,27 @@ public class FieldManagement extends TabbedForm {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpload;
+    private javax.swing.JComboBox<String> cboFieldType;
+    private javax.swing.JComboBox<String> cboStatus;
+    private javax.swing.JComboBox<String> cboSubField1;
+    private javax.swing.JComboBox<String> cboSubField2;
+    private javax.swing.JComboBox<String> cboSubField3;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanel2;
     private raven.crazypanel.CrazyPanel crazyPanel3;
     private raven.crazypanel.CrazyPanel crazyPanel5;
     private raven.crazypanel.CrazyPanel crazyPanel6;
     private raven.crazypanel.CrazyPanel crazyPanel7;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
-    private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lblCombineField1;
+    private javax.swing.JLabel lblCombineField2;
+    private javax.swing.JLabel lblCombineField3;
     private minisoccerfieldmanagement.util.PictureBox ptbServiceImage;
     private javax.swing.JTable tblField;
+    private javax.swing.JTextField tfName;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

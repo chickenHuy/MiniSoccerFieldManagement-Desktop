@@ -21,7 +21,7 @@ public class FieldDAOImpl implements IFieldDAO {
     }
 
     @Override
-    public Boolean add(Field model) {
+    public Boolean add7Field(Field model) {
         try {
             String sql = "INSERT INTO `field`(`name`, `status`, `type`, `image`, `combineField1`, `combineField2`, `combineField3`, `createdAt`) VALUES (?,?,?,?,?,?,?,NOW()) ;";
 
@@ -36,6 +36,28 @@ public class FieldDAOImpl implements IFieldDAO {
             ps.setInt(6, model.getCombineField2());
             ps.setInt(7, model.getCombineField3());
 
+            ps.executeUpdate();
+            conn.close();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    @Override
+    public Boolean add5Field(Field model) {
+        try {
+            String sql = "INSERT INTO `field`(`name`, `status`, `type`, `image`, `createdAt`) VALUES (?,?,?,?,NOW()) ;";
+
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+
+            ps.setString(1, model.getName());
+            ps.setString(2, model.getStatus());
+            ps.setString(3, model.getType());
+            ps.setString(4, model.getImage());
             ps.executeUpdate();
             conn.close();
             return true;
@@ -276,6 +298,43 @@ public class FieldDAOImpl implements IFieldDAO {
             e.printStackTrace();
         }
         return fieldLists;
+    }
+
+    @Override
+    public List<Field> findAllDeleted() {
+        List<Field> allLists = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM `field` WHERE isDeleted = 1 ;";
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Field pl = new Field();
+                pl.setId(rs.getInt("id"));
+                pl.setName(rs.getString("name"));
+                pl.setStatus(rs.getString("status"));
+                pl.setType(rs.getString("type"));
+                pl.setImage(rs.getString("image"));
+                pl.setCombineField1(rs.getInt("combineField1"));
+                pl.setCombineField2(rs.getInt("combineField2"));
+                pl.setCombineField3(rs.getInt("combineField3"));
+                pl.setDeleted(Boolean.FALSE);
+                pl.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    pl.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                allLists.add(pl);
+            }
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return allLists;
     }
 
 }

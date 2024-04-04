@@ -5,8 +5,10 @@ import minisoccerfieldmanagement.model.Field;
 
 public interface IFieldService {
     
-    Boolean add(Field model);
+    Boolean add7Field(Field model);
 
+    Boolean add5Field(Field model);
+    
     Boolean update(Field model);
 
     Boolean softDelete(int id);
@@ -21,4 +23,5 @@ public interface IFieldService {
 
     List<Field> findAllNormalFiled();
     
+    List<Field> findAllDeleted();
 }
