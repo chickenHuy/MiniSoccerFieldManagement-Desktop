@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -45,6 +46,7 @@ import minisoccerfieldmanagement.model.ModelDate;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.service.IMemberShipService;
@@ -892,7 +894,8 @@ public class StaffBooking extends TabbedForm {
               String customerName = tfName.getText();
               String note = taNote.getText();
               String priceString = tfPrice.getText();
-              priceString = priceString.trim().replace(",", "").replace("VND","");
+              priceString = priceString.trim().replace(",", "").replace(" VND","");
+              
               BigDecimal price = new BigDecimal(priceString);
               
               if (phoneNumber.isEmpty() || phoneNumber.length() != 10)
@@ -922,7 +925,7 @@ public class StaffBooking extends TabbedForm {
               newBooking.setNote(note);
               newBooking.setPrice(price);
               
-              LocalDate dateBooking = (LocalDate)tfDate.getValue();
+              LocalDate dateBooking = ((Date)tfDate.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();;
               String ts = String.valueOf(tfStartTime.getValue());
               String te = String.valueOf(tfEndTime.getValue());
               
@@ -938,7 +941,13 @@ public class StaffBooking extends TabbedForm {
               
            
             if (tfName.getText().isEmpty())
-            {
+            {   String input = JOptionPane.showInputDialog(null, "Enter customer name", "Add Name", JOptionPane.QUESTION_MESSAGE);
+
+                // input sẽ chứa giá trị mà người dùng nhập vào. Nếu người dùng nhấn Cancel, input sẽ là null.
+                if (input != null) {
+                    customer.setName(input);
+                } 
+               
                 if (customerService.add(customer)){
                     Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER, "New customer has been added");
                     customer = customerService.findByPhoneNumber(phoneNumber);
@@ -952,8 +961,8 @@ public class StaffBooking extends TabbedForm {
             
             newBooking.setCustomerId(customer.getId());
             
-            if (bookingService.add(newBooking))
-                MessageAlerts.getInstance().showMessage("Success", "The soccer field reservation schedule has been saved", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+            if (true)//bookingService.add(newBooking))
+                MessageAlerts.getInstance().showMessage("Success", newBooking.toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
                                     if (i == MessageAlerts.CLOSED_OPTION )
@@ -973,6 +982,7 @@ public class StaffBooking extends TabbedForm {
                                     }
                                 }
                             });
+                e.printStackTrace();
             }
             
             
