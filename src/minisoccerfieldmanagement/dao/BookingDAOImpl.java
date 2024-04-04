@@ -301,7 +301,7 @@ public class BookingDAOImpl implements IBookingDAO {
     public List<Booking> findByDate(Date date) {
         List<Booking> bookings = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) = ?";
+            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) and isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -340,7 +340,7 @@ public class BookingDAOImpl implements IBookingDAO {
     public List<Booking> findByDateAndField(Date date, int fieldId) {
         List<Booking> bookings = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) AND fieldId = ?";
+            String sql = "SELECT * FROM Booking WHERE DATE(timeStart) = DATE(?) AND fieldId = ? and isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);

@@ -632,18 +632,25 @@ public class StaffBooking extends TabbedForm {
         for (Booking booking : listBooking) {
             long minutesDiff = Math.abs(booking.getTimeEnd().getTime() - booking.getTimeStart().getTime()) / (1000 * 60); // Chia cho 1000 để chuyển milliseconds thành giây, và chia cho 60 để chuyển giây thành phút
             long duration = minutesDiff / 30;
+            Customer cus = customerService.findById(booking.getCustomerId());
             for (int i = 0; i < duration; i++)
             {
-                
+                String dataString = "";
                 LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
                 if (i == 0){
-                    Customer cus = customerService.findById(booking.getCustomerId());
-                    data[getRow(st) + i][getCol(booking.getFieldId())] = cus.getName() + "\n" + cus.getPhoneNumber();
+                    dataString = "ID: " + booking.getId();
                 }
-                else
+                else if (i == 1)
                 {
-                    data[getRow(st) + i][getCol(booking.getFieldId())] = "";
+                    
+                    dataString = "P: "+ cus.getPhoneNumber();
                 }
+                else if (i==2)
+                {
+                    dataString = "Cus: "+ cus.getName();
+                }
+                data[getRow(st) + i][getCol(booking.getFieldId())] = dataString;
+                
             }
         }
 
@@ -659,6 +666,7 @@ public class StaffBooking extends TabbedForm {
         for (Field field:fields) {
             Color color = ColorGenerator.getRandomColor();
             tblScheduler.getColumnModel().getColumn(index).setCellRenderer(new DefaultTableCellRenderer() {
+                
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -680,6 +688,7 @@ public class StaffBooking extends TabbedForm {
                     }
                     
                }
+                
                 return this;
             }
             });
@@ -746,10 +755,11 @@ public class StaffBooking extends TabbedForm {
                   return;
                 }
 
-
                 int[] selectedRow = tblScheduler.getSelectedRows();
                 int[] selectedColumns = tblScheduler.getSelectedColumns();
-
+               
+                
+        
                 if (selectedColumns.length > 1)
                 {
                     MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
@@ -770,6 +780,28 @@ public class StaffBooking extends TabbedForm {
                             
                     return;
                 }
+                String dataShow = "";
+                for (int j = 0; j < selectedRow.length; j++)
+                {
+                    if (data[selectedRow[j]][selectedColumns[0]] != null )
+                    {   
+                        if (data[selectedRow[j]][selectedColumns[0]].toString().isEmpty())
+                        {
+                            Notifications.getInstance().show(Notifications.Type.INFO, dataShow);
+                            return;
+                        }
+                        else
+                        {
+                            dataShow += "\n" +  data[selectedRow[j]][selectedColumns[0]].toString();                            
+                        }
+                    }
+                }
+                if (!dataShow.isEmpty())
+                {
+                    Notifications.getInstance().show(Notifications.Type.INFO, dataShow);
+                    return;
+                }
+                
 
                 if (selectedRow.length > 0) {
                     // Assuming timeSlots is a List of LocalTime ranges
@@ -946,7 +978,7 @@ public class StaffBooking extends TabbedForm {
             {   String input = JOptionPane.showInputDialog(null, "Enter customer name", "Add Name", JOptionPane.QUESTION_MESSAGE);
 
                 // input sẽ chứa giá trị mà người dùng nhập vào. Nếu người dùng nhấn Cancel, input sẽ là null.
-                if (input != null) {
+                if (input != null && input.isBlank() == false) {
                     customer.setName(input);
                 } 
                
@@ -983,7 +1015,6 @@ public class StaffBooking extends TabbedForm {
                                 }
                             });
                             
-                setScheduler(dateSelected);
             } 
             catch (Exception e) {
                 e.printStackTrace();
@@ -1020,6 +1051,14 @@ public class StaffBooking extends TabbedForm {
                             });
             }
         }
+        String type = "all";
+        if (cbxTypeField.getSelectedIndex() == 1)
+            type = StaticStrings.FIELD_STYLE_5_A_SIZE;
+        else if (cbxTypeField.getSelectedIndex() == 2)
+            type = StaticStrings.FIELD_STYLE_7_A_SIZE;
+           
+        listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), type);
+        setScheduler(dateSelected);
         
     }
     public int getCol(int fieldId) {
