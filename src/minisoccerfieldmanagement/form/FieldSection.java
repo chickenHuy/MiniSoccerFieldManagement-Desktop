@@ -53,7 +53,7 @@ public class FieldSection extends javax.swing.JPanel {
         this.setEvent(new EventItem() {
             @Override
             public void fieldClick(Component com, Field item) {
-                System.out.println(item.getName());
+                System.out.println(item.getId());
                 setSelected(com);
             }
         });
@@ -69,6 +69,7 @@ public class FieldSection extends javax.swing.JPanel {
         scrollPane = new javax.swing.JScrollPane();
         panelField = new minisoccerfieldmanagement.form.PanelField();
 
+        scrollPane.setBackground(new java.awt.Color(242, 242, 242));
         scrollPane.setInheritsPopupMenu(true);
         scrollPane.setViewportView(panelField);
 
@@ -76,7 +77,7 @@ public class FieldSection extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

@@ -60,7 +60,7 @@
     <Container class="minisoccerfieldmanagement.util.PictureBox" name="pic">
       <Properties>
         <Property name="image" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/minisoccerfieldmanagement/image/profile.png"/>
+          <Image iconType="3" name="/minisoccerfieldmanagement/image/pitch.png"/>
         </Property>
       </Properties>
 

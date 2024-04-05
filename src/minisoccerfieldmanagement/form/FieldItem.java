@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import javax.swing.ImageIcon;
 import minisoccerfieldmanagement.model.Field;
 
 public class FieldItem extends javax.swing.JPanel {
@@ -33,7 +34,8 @@ public class FieldItem extends javax.swing.JPanel {
     
     public void setData(Field data) {
         this.data = data;
-        //pic.setImage(new ImageIcon(data.getImage()));
+        if (data.getImage() != null &&!data.getImage().isBlank())
+            pic.setImage(new ImageIcon(data.getImage()));
         lblFieldName.setText(data.getName());
     }
     
@@ -42,7 +44,7 @@ public class FieldItem extends javax.swing.JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         if (selected) {
-            g2.setColor(Color.blue);
+            g2.setColor(Color.green);
             g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
         }
         g2.dispose();
@@ -66,7 +68,7 @@ public class FieldItem extends javax.swing.JPanel {
         lblFieldName.setText("Field Name");
         lblFieldName.setToolTipText("");
 
-        pic.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/profile.png"))); // NOI18N
+        pic.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/pitch.png"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

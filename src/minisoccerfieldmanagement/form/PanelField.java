@@ -7,8 +7,8 @@ import minisoccerfieldmanagement.util.WrapLayout;
 public class PanelField extends JPanel{
         
     public PanelField() {
-        setBackground(Color.WHITE);
-        setLayout(new WrapLayout(WrapLayout.LEFT, 10, 10));
+//        setBackground();
+        setLayout(new WrapLayout(WrapLayout.LEFT, 15, 15));
     }
     
 }

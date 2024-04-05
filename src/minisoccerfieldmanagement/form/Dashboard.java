@@ -4,9 +4,13 @@
  */
 package minisoccerfieldmanagement.form;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.util.ArrayList;
 import java.util.List;
 import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 
 /**
@@ -18,8 +22,22 @@ public class Dashboard extends TabbedForm  {
     /**
      * Creates new form Dashboard
      */
+    IFieldService fieldService;
+  
     public Dashboard() {
         initComponents();
+        fieldService = new FieldServiceImpl();
+        loadField();
+        applyIcon();
+    }
+    
+    private void applyIcon() {
+        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
+    }
+    
+    private void loadField() {
+        List<Field> fields = fieldService.findAll();
+        fieldSection1.addData(fields);
     }
 
     /**
@@ -31,28 +49,94 @@ public class Dashboard extends TabbedForm  {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        crazyPanelField = new raven.crazypanel.CrazyPanel();
         fieldSection1 = new minisoccerfieldmanagement.form.FieldSection();
+        crazyPanel1 = new raven.crazypanel.CrazyPanel();
+        txtSearch = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+
+        setPreferredSize(new java.awt.Dimension(1188, 696));
+
+        crazyPanelField.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        javax.swing.GroupLayout crazyPanelFieldLayout = new javax.swing.GroupLayout(crazyPanelField);
+        crazyPanelField.setLayout(crazyPanelFieldLayout);
+        crazyPanelFieldLayout.setHorizontalGroup(
+            crazyPanelFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanelFieldLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(fieldSection1, javax.swing.GroupLayout.DEFAULT_SIZE, 727, Short.MAX_VALUE)
+                .addGap(7, 7, 7))
+        );
+        crazyPanelFieldLayout.setVerticalGroup(
+            crazyPanelFieldLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanelFieldLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(fieldSection1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46))
+        );
+
+        crazyPanel1.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        txtSearch.setText("Search");
+
+        jLabel1.setText("Live (1)");
+
+        javax.swing.GroupLayout crazyPanel1Layout = new javax.swing.GroupLayout(crazyPanel1);
+        crazyPanel1.setLayout(crazyPanel1Layout);
+        crazyPanel1Layout.setHorizontalGroup(
+            crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel1Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(jLabel1)
+                .addGap(35, 35, 35)
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        crazyPanel1Layout.setVerticalGroup(
+            crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addContainerGap(385, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(fieldSection1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(774, Short.MAX_VALUE))
+                .addGap(15, 15, 15)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crazyPanelField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(433, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(fieldSection1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(343, Short.MAX_VALUE))
+                .addGap(12, 12, 12)
+                .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private raven.crazypanel.CrazyPanel crazyPanel1;
+    private raven.crazypanel.CrazyPanel crazyPanelField;
     private minisoccerfieldmanagement.form.FieldSection fieldSection1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

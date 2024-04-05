@@ -555,9 +555,23 @@ public class FieldManagement extends TabbedForm {
             } else {
                 show7Type();
                 loadComboboxField();
+                Field field7 = fieldService.findById(Integer.parseInt(models.getValueAt(index, 0).toString()));
+                selectCombineField(cboSubField1, field7.getCombineField1());
+                selectCombineField(cboSubField2, field7.getCombineField2());
+                selectCombineField(cboSubField3, field7.getCombineField3());
+
             }
         }
     }//GEN-LAST:event_tblFieldMouseClicked
+
+    private void selectCombineField(JComboBox combobox, int fieldId) {
+        for (int i = 0; i < combobox.getItemCount(); i++) {
+            if (combobox.getItemAt(i).toString().equals(String.valueOf(fieldId))) {
+                combobox.setSelectedItem(combobox.getItemAt(i));
+                return;
+            }
+        }
+    }
 
     private void loadComboboxField() {
         loadField5Combobox(cboSubField1);
@@ -624,10 +638,11 @@ public class FieldManagement extends TabbedForm {
             }
             if (index == -1) {
                 boolean success;
-                if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
+                if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE)) {
                     success = fieldService.add7Field(field);
-                else
+                } else {
                     success = fieldService.add5Field(field);
+                }
                 if (success) {
                     MessageAlerts.getInstance().showMessage("Add Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                         @Override
@@ -639,7 +654,7 @@ public class FieldManagement extends TabbedForm {
                     });
                     List<Field> fields = fieldService.findAll();
                     models.setNumRows(0);
-                    for (Field fld: fields) {
+                    for (Field fld : fields) {
 
                         models.addRow(addFieldRow(fld));
                     }
@@ -685,30 +700,25 @@ public class FieldManagement extends TabbedForm {
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        if (index != -1){
+        if (index != -1) {
             MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.YES_OPTION )
-                    {
+                    if (i == MessageAlerts.YES_OPTION) {
                         int id = Integer.parseInt(models.getValueAt(index, 0).toString());
-                        if (fieldService.softDelete(id))
-                        {
+                        if (fieldService.softDelete(id)) {
                             MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
 
                                     }
                                 }
                             });
-                        models.removeRow(index);
-                        clearText();
-                        
-                        }
-                        else
-                        {
+                            models.removeRow(index);
+                            clearText();
+
+                        } else {
                             MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
@@ -719,35 +729,30 @@ public class FieldManagement extends TabbedForm {
                     }
                 }
             });
-            
+
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnDeleteIconActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteIconActionPerformed
-        if (index != -1){
+        if (index != -1) {
             MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.YES_OPTION )
-                    {
+                    if (i == MessageAlerts.YES_OPTION) {
                         int id = Integer.parseInt(models.getValueAt(index, 0).toString());
-                        if (fieldService.softDelete(id))
-                        {
+                        if (fieldService.softDelete(id)) {
                             MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
 
                                     }
                                 }
                             });
-                        models.removeRow(index);
-                        clearText();
-                        
-                        }
-                        else
-                        {
+                            models.removeRow(index);
+                            clearText();
+
+                        } else {
                             MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
@@ -758,7 +763,7 @@ public class FieldManagement extends TabbedForm {
                     }
                 }
             });
-            
+
         }
     }//GEN-LAST:event_btnDeleteIconActionPerformed
 
