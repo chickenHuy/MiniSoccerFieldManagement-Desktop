@@ -1,15 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package minisoccerfieldmanagement.login;
 
 import minisoccerfieldmanagement.model.User;
 
-/**
- *
- * @author trank
- */
 public class UserSession {
     private static UserSession instance;
 
@@ -31,7 +23,7 @@ public class UserSession {
     }
 
     public void cleanUserSession() {
-        user = null;// or nullify all fields
+        user = null;
         instance = null;
     }
 

@@ -12,13 +12,15 @@ import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author trank
  */
-public class PanelRound extends JPanel{
-     public int getRoundTopLeft() {
+public class PanelRound extends JPanel {
+
+    public int getRoundTopLeft() {
         return roundTopLeft;
     }
 
@@ -60,6 +62,11 @@ public class PanelRound extends JPanel{
     private int roundBottomRight = 0;
 
     public PanelRound() {
+        setOpaque(false);
+    }
+
+    public PanelRound(MigLayout migLayout) {
+        super(migLayout);
         setOpaque(false);
     }
 
