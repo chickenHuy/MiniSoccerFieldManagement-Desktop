@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import minisoccerfieldmanagement.main.Main;
+import minisoccerfieldmanagement.util.PanelRound;
 
 public class Login extends JPanel {
 
@@ -32,7 +33,7 @@ public class Login extends JPanel {
         }
         init();
     }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -46,11 +47,15 @@ public class Login extends JPanel {
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
         cmdLogin = new JButton("Login");
-        JPanel panel = new JPanel(new MigLayout("wrap,fillx,insets 50 45 55 45", "fill,220:150"));
+        PanelRound panel = new PanelRound(new MigLayout("wrap,fillx,insets 50 45 55 45", "fill,220:150"));
         panel.putClientProperty(FlatClientProperties.STYLE, ""
                 + "arc:20;"
                 + "[light]background:darken(@background,3%);"
                 + "[dark]background:lighten(@background,3%)");
+        panel.setRoundBottomLeft(30);
+        panel.setRoundBottomRight(30);
+        panel.setRoundTopLeft(30);
+        panel.setRoundTopRight(30);
 
         txtPassword.putClientProperty(FlatClientProperties.STYLE, ""
                 + "showRevealButton:true");
@@ -61,6 +66,7 @@ public class Login extends JPanel {
                 + "borderWidth:0;"
                 + "focusWidth:0;"
                 + "innerFocusWidth:0");
+        cmdLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         cmdLogin.addActionListener((e) -> {
             Main.main.showMainForm();
@@ -72,7 +78,8 @@ public class Login extends JPanel {
         lbTitle.putClientProperty(FlatClientProperties.STYLE, ""
                 + "font:bold +13");
         lbTitle.setHorizontalAlignment(SwingConstants.CENTER);
-
+        
+        panel.add(new JLabel(""), "gapy 8");
         panel.add(lbTitle);
         panel.add(new JLabel(""), "gapy 8");
         panel.add(new JLabel(""), "gapy 8");
@@ -97,6 +104,7 @@ public class Login extends JPanel {
 
         panel.add(new JLabel(""), "gapy 8");
         panel.add(cmdLogin, "gapy 10");
+        panel.add(new JLabel(""), "gapy 8");
         add(panel);
     }
 
