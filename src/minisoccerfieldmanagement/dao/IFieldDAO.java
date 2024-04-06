@@ -9,7 +9,9 @@ public interface IFieldDAO {
 
     Boolean add5Field(Field model);
     
-    Boolean update(Field model);
+    Boolean update7Field(Field model);
+    
+    Boolean update5Field(Field model);
 
     Boolean softDelete(int id);
 
