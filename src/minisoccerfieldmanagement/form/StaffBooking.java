@@ -893,7 +893,7 @@ public class StaffBooking extends TabbedForm {
                                 break;
                         }
                         DecimalFormat df = new DecimalFormat("#,##0.##");
-                        BigDecimal priceBigDecimal = new BigDecimal(String.valueOf(priceListService.findPriceByTime(sTime, eTime, dayOfWeekStr, fields.get(selectedColumns[0]).getType())));
+                        BigDecimal priceBigDecimal = new BigDecimal(String.valueOf(priceListService.findPriceByTime(sTime, eTime, dayOfWeekStr, fields.get(selectedColumns[0]-1).getType())));
                         tfPrice.setText(df.format(priceBigDecimal)+ " VND");
 
                         Duration duration = Duration.between(startTime, endTime);
