@@ -105,9 +105,9 @@ public class Login extends JPanel {
             tempUser.setUserName("admin");
             tempUser.setRole("admin");
             tempUser.setCreatedAt(Timestamp.valueOf("2024-04-06 17:00:00"));
-            UserSession.getInstance(tempUser);
+            UserSession.getInstance().loginUser(tempUser);
             Main.main.showMainForm();
-
+            
         });
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
         txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
