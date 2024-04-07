@@ -58,5 +58,10 @@ public class FieldServiceImpl implements IFieldService{
     public List<Field> findAllDeleted() {
         return fieldDAO.findAllDeleted();
     }
+
+    @Override
+    public List<Field> findParent(int id) {
+        return fieldDAO.findParent(id);
+    }
     
 }

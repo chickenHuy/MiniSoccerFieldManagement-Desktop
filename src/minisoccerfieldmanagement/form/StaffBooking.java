@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -87,6 +89,10 @@ public class StaffBooking extends TabbedForm {
     List<Booking> listBooking;
     Object[][] data;
     Booking[][] booked;
+    
+    List<Field> blockTime;
+    
+    
     public StaffBooking() {
         initComponents();
         loadData();
@@ -127,12 +133,13 @@ public class StaffBooking extends TabbedForm {
         crazyPanel6 = new raven.crazypanel.CrazyPanel();
         btnSave = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
-        btnAddNew = new javax.swing.JButton();
+        btnCheckin = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         taNote = new javax.swing.JTextArea();
         cbxFields1 = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         lblDuration = new javax.swing.JLabel();
+        lblId = new javax.swing.JLabel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblScheduler = new javax.swing.JTable();
@@ -169,6 +176,7 @@ public class StaffBooking extends TabbedForm {
         tfEndTime.setEnabled(false);
 
         cbxTypeField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "5 a side", "7 a side" }));
+        cbxTypeField.setEnabled(false);
         cbxTypeField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxTypeFieldActionPerformed(evt);
@@ -228,11 +236,16 @@ public class StaffBooking extends TabbedForm {
         });
 
         btnDelete.setText("Delete");
-
-        btnAddNew.setText("Add");
-        btnAddNew.addActionListener(new java.awt.event.ActionListener() {
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddNewActionPerformed(evt);
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        btnCheckin.setText("Checkin / Match");
+        btnCheckin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCheckinActionPerformed(evt);
             }
         });
 
@@ -241,16 +254,15 @@ public class StaffBooking extends TabbedForm {
         crazyPanel6Layout.setHorizontalGroup(
             crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(crazyPanel6Layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(btnSave)
-                        .addGap(7, 7, 7)
-                        .addComponent(btnDelete))
-                    .addGroup(crazyPanel6Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(btnAddNew)))
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addGap(7, 7, 7)
+                .addComponent(btnSave)
+                .addGap(7, 7, 7)
+                .addComponent(btnDelete)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(crazyPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnCheckin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         crazyPanel6Layout.setVerticalGroup(
             crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -260,7 +272,7 @@ public class StaffBooking extends TabbedForm {
                     .addComponent(btnSave)
                     .addComponent(btnDelete))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnAddNew)
+                .addComponent(btnCheckin)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -281,6 +293,9 @@ public class StaffBooking extends TabbedForm {
         lblDuration.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblDuration.setForeground(new java.awt.Color(195, 204, 90));
         lblDuration.setText("Duration:");
+
+        lblId.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblId.setForeground(new java.awt.Color(195, 204, 90));
 
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
@@ -332,18 +347,20 @@ public class StaffBooking extends TabbedForm {
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(tfEndTime, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(278, 278, 278))
+                        .addGap(284, 284, 284))
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
                             .addComponent(cbxFields1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addGap(47, 47, 47)
-                                .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(crazyPanel3Layout.createSequentialGroup()
                                 .addGap(81, 81, 81)
-                                .addComponent(lblDuration, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(lblDuration, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGap(47, 47, 47)
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         crazyPanel3Layout.setVerticalGroup(
@@ -354,7 +371,8 @@ public class StaffBooking extends TabbedForm {
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
                     .addComponent(jLabel3)
-                    .addComponent(cbxFields1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbxFields1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
@@ -471,28 +489,7 @@ public class StaffBooking extends TabbedForm {
     }//GEN-LAST:event_cbxStatusActionPerformed
 
     private void cbxTypeFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTypeFieldActionPerformed
-        if (cbxTypeField.getSelectedIndex() == 1) {
-            fields = fieldService.findAllNormalFiled();
-            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), StaticStrings.FIELD_STYLE_5_A_SIZE);
-        }
-        else if (cbxTypeField.getSelectedIndex() == 2) {
-            fields = fieldService.findAllCombinedField();
-            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), StaticStrings.FIELD_STYLE_7_A_SIZE);
-        }
-        else if (cbxTypeField.getSelectedIndex() == 0)
-        {
-            fields = fieldService.findAll();
-            listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), " ");
-        }
-        fieldModels = new DefaultComboBoxModel();
-        fieldModels.addAll(fields);
-        cbxFields1.setModel(fieldModels);
-        columnNames = new String[fields.size()+1];
-        columnNames[0] = "Time Slot";
-        for (int i = 1; i <= fields.size(); i++) {
-            columnNames[i] = fields.get(i-1).getName();
-        }
-        setScheduler(dateSelected);
+        
     }//GEN-LAST:event_cbxTypeFieldActionPerformed
 
     private void cbxFields1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxFields1ActionPerformed
@@ -558,25 +555,21 @@ public class StaffBooking extends TabbedForm {
                 
     }//GEN-LAST:event_txtSearchKeyReleased
 
-    private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
-        tfName.setText("");
-        tfPrice.setText("");
-        txtSearch.setText("");
-        tfEndTime.setValue(null);
-        tfStartTime.setValue(null);
-        tfDate.setValue(dateSelected);
-        taNote.setText("");
-        cbxStatus.setSelectedIndex(0);
-        cbxFields1.setSelectedIndex(0);
-    }//GEN-LAST:event_btnAddNewActionPerformed
+    private void btnCheckinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckinActionPerformed
+        clear();
+    }//GEN-LAST:event_btnCheckinActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         save();
     }//GEN-LAST:event_btnSaveActionPerformed
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        delete();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddNew;
+    private javax.swing.JButton btnCheckin;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private minisoccerfieldmanagement.util.Calendar calendarSchedule;
@@ -600,6 +593,7 @@ public class StaffBooking extends TabbedForm {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblDuration;
+    private javax.swing.JLabel lblId;
     private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblScheduler;
     private javax.swing.JFormattedTextField tfDate;
@@ -627,21 +621,57 @@ public class StaffBooking extends TabbedForm {
             long minutesDiff = Math.abs(booking.getTimeEnd().getTime() - booking.getTimeStart().getTime()) / (1000 * 60); // Chia cho 1000 để chuyển milliseconds thành giây, và chia cho 60 để chuyển giây thành phút
             long duration = minutesDiff / 30;
             Customer cus = customerService.findById(booking.getCustomerId());
+            
+            Field fieldTmp = fieldService.findById(booking.getFieldId());
+            if (fieldTmp != null)
+            {
+                List<Field> parentField = new ArrayList<>();
+                if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_5_A_SIZE))
+                {
+                    parentField = fieldService.findParent(fieldTmp.getId());
+                }
+                else if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
+                {
+                    
+                    List<Integer> listId = new ArrayList<>();
+                    
+                    listId.add(fieldTmp.getCombineField1());
+                    listId.add(fieldTmp.getCombineField2());
+                    listId.add(fieldTmp.getCombineField3());
+                    for (int i = 0; i < 3; i++)
+                    {
+                        Field tmp = fieldService.findById(listId.get(i));
+                        if (tmp != null)
+                        {
+                            parentField.add(tmp);
+                        }
+                        
+                    }
+                    
+                }
+                if ( !parentField.isEmpty())
+                {
+                    for (Field fp : parentField) {
+                         for (int i = 0; i < duration; i++)
+                        {
+                            String dataString = "X";
+                            LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
+                            data[getRow(st) + i][getCol(fp.getId())] = dataString;
+                            booked[getRow(st) + i][getCol(fp.getId())] = null;
+                        }
+                    }
+                }
+            }
             for (int i = 0; i < duration; i++)
             {
                 String dataString = "";
                 LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
-                if (i == 0){
-                    dataString = "ID: " + booking.getId();
-                }
-                else if (i == 1)
-                {
-                    
-                    dataString = "P: "+ cus.getPhoneNumber();
-                }
-                else if (i==2)
-                {
-                    dataString = "Cus: "+ cus.getName();
+                switch (i) {
+                    case 0 -> dataString += "ID: " + booking.getId();
+                    case 1 -> dataString += "P: "+ cus.getPhoneNumber();
+                    case 2 -> dataString += "Cus: "+ cus.getName();
+                    default -> {
+                    }
                 }
                 data[getRow(st) + i][getCol(booking.getFieldId())] = dataString;
                 booked[getRow(st) + i][getCol(booking.getFieldId())] = booking;
@@ -656,8 +686,8 @@ public class StaffBooking extends TabbedForm {
         tblScheduler.setRowSelectionAllowed(false);
         tblScheduler.setCellSelectionEnabled(true);
         
-        int index = 1;
-        for (Field field:fields) {
+       
+        for (int index = 1; index <= fields.size(); index ++) {
             Color color = ColorGenerator.getRandomColor();
             tblScheduler.getColumnModel().getColumn(index).setCellRenderer(new DefaultTableCellRenderer() {
                 
@@ -671,6 +701,10 @@ public class StaffBooking extends TabbedForm {
                 else
                 if (value != null) {
                     setBackground(color); //new Color(3,169,244)
+                    if (value.equals("X"))
+                    {
+                        setBackground(Color.DARK_GRAY);
+                    }
                 }
                 else {
                     setBackground(table.getBackground());
@@ -686,7 +720,6 @@ public class StaffBooking extends TabbedForm {
                 return this;
             }
             });
-            index ++;
         }
 
     }
@@ -698,12 +731,7 @@ public class StaffBooking extends TabbedForm {
             public void selected(MouseEvent evt, ModelDate date) {
                 dateSelected = date.toDate();
                 tfDate.setValue(dateSelected);
-                String type = "all";
-                if (cbxTypeField.getSelectedIndex() == 1)
-                    type = StaticStrings.FIELD_STYLE_5_A_SIZE;
-                else if (cbxTypeField.getSelectedIndex() == 2)
-                    type = StaticStrings.FIELD_STYLE_7_A_SIZE;
-                listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), type);
+                listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), "");
                 setScheduler(Utils.convertUtilDateToSqlDate(dateSelected));
             }
         });
@@ -755,6 +783,7 @@ public class StaffBooking extends TabbedForm {
                 if (e.getValueIsAdjusting()) {
                   return;
                 }
+                clear();
                 try {
                     int[] selectedRow = tblScheduler.getSelectedRows();
                     int[] selectedColumns = tblScheduler.getSelectedColumns();
@@ -762,7 +791,7 @@ public class StaffBooking extends TabbedForm {
 
 
                     if (selectedColumns.length > 1)
-                    {
+                    {   
                         MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                     @Override
                                     public void action(PopupController pc, int i) {
@@ -772,8 +801,7 @@ public class StaffBooking extends TabbedForm {
                                         }
                                     }
                                 });
-                        tfEndTime.setValue(null);
-                        tfStartTime.setValue(null);
+                       
 
 
 
@@ -785,6 +813,7 @@ public class StaffBooking extends TabbedForm {
                     Boolean isBooked = false;
                     if (isMoreOneSelected(selectedRow, selectedColumns[0]))
                     {
+                        
                         MessageAlerts.getInstance().showMessage("Choose only one", "You cannot choose both these areas", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                     @Override
                                     public void action(PopupController pc, int i) {
@@ -809,13 +838,15 @@ public class StaffBooking extends TabbedForm {
                     {   
 
                         Booking bg = booked[selectedRow[0]][selectedColumns[0]];
+                        lblId.setText("#" + bg.getId());
+                                
                         Customer cus = new Customer();
                         if (bg != null)
                         {
                             cus = customerService.findById(bg.getCustomerId());
                         }
 
-                        if ( cus != null)
+                        if (cus != null )
                         {
                             String notify = "ID: " + bg.getId() + "\nCustomer: " +  cus.getName() + "\nPhone: " + cus.getPhoneNumber();
                             Notifications.getInstance().show(Notifications.Type.INFO, notify);
@@ -843,6 +874,7 @@ public class StaffBooking extends TabbedForm {
                                 cbxStatus.setSelectedIndex(1);
                             }
                         }
+         
                         return;
                     }
 
@@ -901,11 +933,16 @@ public class StaffBooking extends TabbedForm {
                         long minutes = duration.toMinutes() % 60;
                         lblDuration.setText(hours + "h" + ":" + minutes + "m");
                         fieldModels.setSelectedItem(fields.get(selectedColumns[0]-1));
+                        
+                        cbxTypeField.setSelectedItem(fields.get(selectedColumns[0]-1).getType());
                 }
             } 
                 catch(Exception ex)
-                {}
+                {
+                    
+                }
             }
+            
         
            
         });
@@ -938,7 +975,7 @@ public class StaffBooking extends TabbedForm {
         listBooking = new ArrayList<>();
         fields = new ArrayList<>();
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
-        btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
+        btnCheckin.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
         fieldService = new FieldServiceImpl();
@@ -1103,13 +1140,8 @@ public class StaffBooking extends TabbedForm {
                             });
             }
         }
-        String type = "all";
-        if (cbxTypeField.getSelectedIndex() == 1)
-            type = StaticStrings.FIELD_STYLE_5_A_SIZE;
-        else if (cbxTypeField.getSelectedIndex() == 2)
-            type = StaticStrings.FIELD_STYLE_7_A_SIZE;
            
-        listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), type);
+        listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), "");
         setScheduler(dateSelected);
         
     }
@@ -1146,6 +1178,81 @@ public class StaffBooking extends TabbedForm {
                 return true;
         }
         return false;
+    }
+
+    private void clear() {
+        tfName.setText("");
+        tfPrice.setText("");
+        txtSearch.setText("");
+        tfEndTime.setValue(null);
+        tfStartTime.setValue(null);
+        tfDate.setValue(dateSelected);
+        taNote.setText("");
+        cbxStatus.setSelectedIndex(0);
+        cbxFields1.setSelectedIndex(0);
+        cbxTypeField.setSelectedIndex(0);
+        lblId.setText("");
+    }
+
+    private void delete() {
+        String id = lblId.getText();
+        try {
+            if (id.isEmpty())
+            {
+                throw new Exception("Id not found");
+            }
+            else 
+            {
+       
+                MessageAlerts.getInstance().showMessage("DELETE", "Field booking with id " + id + " will be deleted", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION)
+                                    {
+                                        String idnew = id.replace("#", "");
+                                        int idInt = Integer.parseInt(idnew);
+                                        if ( bookingService.softDelete(idInt))
+                                        {
+                                            listBooking = bookingService.findByDate(Utils.convertUtilDateToSqlDate(dateSelected));
+                                            setScheduler(dateSelected);
+                                            MessageAlerts.getInstance().showMessage("Delete Success", "", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                                        @Override
+                                                        public void action(PopupController pc, int i) {
+                                                            if (i == MessageAlerts.CLOSED_OPTION )
+                                                            {
+
+                                                            }
+                                                        }
+                                                    });
+
+                                        }
+                                        else{
+                                            try {
+                                                throw new Exception("These was an error during detection");
+                                            } catch (Exception ex) {
+                                                Logger.getLogger(StaffBooking.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+            
+                
+                
+            }
+            
+        }
+        catch (Exception e){
+            MessageAlerts.getInstance().showMessage("Delete Error", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION )
+                                    {
+
+                                    }
+                                }
+                            });
+        }
     }
 
 

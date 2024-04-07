@@ -24,4 +24,5 @@ public interface IFieldDAO {
     List<Field> findAllNormalFiled();
 
     List<Field> findAllDeleted();
+    List<Field> findParent(int id);
 }

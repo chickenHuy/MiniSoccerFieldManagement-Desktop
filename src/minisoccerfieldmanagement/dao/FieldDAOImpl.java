@@ -337,4 +337,43 @@ public class FieldDAOImpl implements IFieldDAO {
         return allLists;
     }
 
+    @Override
+    public List<Field> findParent(int id) {
+        List<Field> allLists = new ArrayList<>();
+        try {
+            String sql = "SELECT parent.* FROM `field` as child JOIN `field` as parent on child.id = parent.combineField1 or child.id = parent.combineField2 or  child.id = parent.combineField3 WHERE  child.id = ?;";
+
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Field pl = new Field();
+                pl.setId(rs.getInt("id"));
+                pl.setName(rs.getString("name"));
+                pl.setStatus(rs.getString("status"));
+                pl.setType(rs.getString("type"));
+                pl.setImage(rs.getString("image"));
+                pl.setCombineField1(rs.getInt("combineField1"));
+                pl.setCombineField2(rs.getInt("combineField2"));
+                pl.setCombineField3(rs.getInt("combineField3"));
+                pl.setDeleted(Boolean.FALSE);
+                pl.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    pl.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                allLists.add(pl);
+            }
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return allLists;
+    }
+
 }

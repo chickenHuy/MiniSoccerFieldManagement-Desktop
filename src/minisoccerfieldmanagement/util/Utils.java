@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Date;
 import java.sql.Timestamp;
 import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IFieldService;
 
 /**
  *
@@ -37,5 +40,25 @@ public class Utils {
     public static java.sql.Date convertUtilDateToSqlDate(Date date)
     {
         return new java.sql.Date(date.getTime());
+    }
+    
+    public static List<Field> blockTime(List<Field> listField7, List<Field> listField5)
+    {
+        List<Field> result = new ArrayList<>();
+        IFieldService fieldService = new FieldServiceImpl();
+        for (Field f7 : listField7)
+        {
+            Field f1 = fieldService.findById(f7.getCombineField1());
+            Field f2 = fieldService.findById(f7.getCombineField2());
+            Field f3 = fieldService.findById(f7.getCombineField3());
+            
+            if (f1 != null)
+                result.add(f1);
+            if (f2 != null)
+                result.add(f2);
+            if (f3 != null)
+                result.add(f3); 
+        }
+        return result;
     }
 }
