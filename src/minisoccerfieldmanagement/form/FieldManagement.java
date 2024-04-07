@@ -646,8 +646,11 @@ public class FieldManagement extends TabbedForm {
             field.setName(name);
             field.setType(type);
             field.setStatus(status);
-            field.setImage(tempPicture.getName());
-            if (!saveFile(tempPicture, tempPicture.getName()))
+            String picturePath = tempPicture.getAbsolutePath();
+            String newName = field.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
+            field.setImage(newName);
+            // Ghép tên + extension để tạo tên file mới
+            if (!saveFile(tempPicture, newName))
                 return;
             if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE)) {
                 String idField1 = cboSubField1.getSelectedItem().toString();
