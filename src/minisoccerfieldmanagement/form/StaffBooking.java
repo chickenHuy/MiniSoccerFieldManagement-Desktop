@@ -57,6 +57,7 @@ import minisoccerfieldmanagement.service.IPriceListService;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.PriceListServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
 import minisoccerfieldmanagement.util.ColorGenerator;
 import minisoccerfieldmanagement.util.StaticStrings;
@@ -556,7 +557,7 @@ public class StaffBooking extends TabbedForm {
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void btnCheckinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckinActionPerformed
-        clear();
+        WindowsTabbed.getInstance().addTab("Match ()", new MatchRecord());
     }//GEN-LAST:event_btnCheckinActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
