@@ -4,10 +4,30 @@
  */
 package minisoccerfieldmanagement.form;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.mysql.cj.util.Util;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 import javax.swing.JFrame;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Customer;
+import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.Match;
+import minisoccerfieldmanagement.model.MemberShip;
+import minisoccerfieldmanagement.service.IMemberShipService;
+import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
+import minisoccerfieldmanagement.util.TableGradientCell;
+import minisoccerfieldmanagement.util.Utils;
 import raven.datetime.component.time.TimePicker;
 
 /**
@@ -18,6 +38,12 @@ public class MatchRecord extends TabbedForm {
 
     TimePicker timePicker1;
     TimePicker timePicker2;
+    
+    private Field field;
+    private Match match;
+    private Customer customer;
+    private Booking booking;
+    BigDecimal total;
     private void setTimePicker() {
        timePicker1 = new  TimePicker();
        timePicker1.set24HourView(true);
@@ -35,6 +61,18 @@ public class MatchRecord extends TabbedForm {
     public MatchRecord() {
         initComponents();
         setTimePicker();
+    }
+    
+    public MatchRecord(Match match, Customer customer, Booking booking, Field field)
+    {
+        this.match = match;
+        this.customer = customer;
+        this.booking = booking;
+        this.field = field;
+        initComponents();
+        applyTableStyle(tblService);
+        setTimePicker();
+        setData();
     }
 
     /**
@@ -59,42 +97,42 @@ public class MatchRecord extends TabbedForm {
         lblDuration = new javax.swing.JLabel();
         crazyPanel9 = new raven.crazypanel.CrazyPanel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        lblCustomer = new javax.swing.JLabel();
         crazyPanel10 = new raven.crazypanel.CrazyPanel();
         jLabel5 = new javax.swing.JLabel();
-        lblDuration1 = new javax.swing.JLabel();
+        lblCheckin = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        lblDuration2 = new javax.swing.JLabel();
+        lblRemaining = new javax.swing.JLabel();
         crazyPanel11 = new raven.crazypanel.CrazyPanel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
+        lblField = new javax.swing.JLabel();
         crazyPanel6 = new raven.crazypanel.CrazyPanel();
         lblId2 = new javax.swing.JLabel();
         crazyPanel7 = new raven.crazypanel.CrazyPanel();
         lblId3 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblService = new javax.swing.JTable();
         crazyPanel8 = new raven.crazypanel.CrazyPanel();
         crazyPanel13 = new raven.crazypanel.CrazyPanel();
         jLabel13 = new javax.swing.JLabel();
-        lblDuration3 = new javax.swing.JLabel();
+        lblFieldPrice = new javax.swing.JLabel();
         crazyPanel14 = new raven.crazypanel.CrazyPanel();
         jLabel14 = new javax.swing.JLabel();
-        lblDuration4 = new javax.swing.JLabel();
+        lblServiceFees = new javax.swing.JLabel();
         crazyPanel15 = new raven.crazypanel.CrazyPanel();
         jLabel15 = new javax.swing.JLabel();
-        lblDuration5 = new javax.swing.JLabel();
+        lblDiscount = new javax.swing.JLabel();
         crazyPanel16 = new raven.crazypanel.CrazyPanel();
         jLabel16 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        tfPenaltyFee = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         crazyPanel12 = new raven.crazypanel.CrazyPanel();
         btnDelete = new javax.swing.JButton();
         btnCheckin = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         lblDuration6 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
+        lblTotal = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
@@ -148,7 +186,7 @@ public class MatchRecord extends TabbedForm {
         jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel6.setText("Customer");
 
-        jLabel7.setText("Trần Khang - 21110497");
+        lblCustomer.setText("Trần Khang - 21110497");
 
         javax.swing.GroupLayout crazyPanel9Layout = new javax.swing.GroupLayout(crazyPanel9);
         crazyPanel9.setLayout(crazyPanel9Layout);
@@ -158,7 +196,7 @@ public class MatchRecord extends TabbedForm {
                 .addContainerGap()
                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel7)
+                .addComponent(lblCustomer)
                 .addContainerGap(14, Short.MAX_VALUE))
         );
         crazyPanel9Layout.setVerticalGroup(
@@ -167,7 +205,7 @@ public class MatchRecord extends TabbedForm {
                 .addGap(17, 17, 17)
                 .addGroup(crazyPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel7))
+                    .addComponent(lblCustomer))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
 
@@ -179,19 +217,19 @@ public class MatchRecord extends TabbedForm {
         jLabel5.setText("Check-in");
         crazyPanel10.add(jLabel5);
 
-        lblDuration1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration1.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration1.setText("12:30:30");
-        crazyPanel10.add(lblDuration1);
+        lblCheckin.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblCheckin.setForeground(new java.awt.Color(195, 204, 90));
+        lblCheckin.setText("12:30:30");
+        crazyPanel10.add(lblCheckin);
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
         jLabel9.setText("Time remaining");
         crazyPanel10.add(jLabel9);
 
-        lblDuration2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration2.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration2.setText("12:30:30");
-        crazyPanel10.add(lblDuration2);
+        lblRemaining.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblRemaining.setForeground(new java.awt.Color(195, 204, 90));
+        lblRemaining.setText("12:30:30");
+        crazyPanel10.add(lblRemaining);
 
         crazyPanel11.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -201,7 +239,7 @@ public class MatchRecord extends TabbedForm {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Field");
 
-        jLabel12.setText("Field 5 -2");
+        lblField.setText("Field 5 -2");
 
         javax.swing.GroupLayout crazyPanel11Layout = new javax.swing.GroupLayout(crazyPanel11);
         crazyPanel11.setLayout(crazyPanel11Layout);
@@ -211,7 +249,7 @@ public class MatchRecord extends TabbedForm {
                 .addContainerGap()
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel12)
+                .addComponent(lblField)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         crazyPanel11Layout.setVerticalGroup(
@@ -220,7 +258,7 @@ public class MatchRecord extends TabbedForm {
                 .addGap(17, 17, 17)
                 .addGroup(crazyPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jLabel12))
+                    .addComponent(lblField))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
 
@@ -303,15 +341,20 @@ public class MatchRecord extends TabbedForm {
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel11.setText("Service");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblService.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
                 "Service", "Price / Product", "Quantity", "Total"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblService);
 
         javax.swing.GroupLayout crazyPanel7Layout = new javax.swing.GroupLayout(crazyPanel7);
         crazyPanel7.setLayout(crazyPanel7Layout);
@@ -354,10 +397,10 @@ public class MatchRecord extends TabbedForm {
         jLabel13.setText("Field Price");
         crazyPanel13.add(jLabel13);
 
-        lblDuration3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration3.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration3.setText("12:30:30");
-        crazyPanel13.add(lblDuration3);
+        lblFieldPrice.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblFieldPrice.setForeground(new java.awt.Color(195, 204, 90));
+        lblFieldPrice.setText("12:30:30");
+        crazyPanel13.add(lblFieldPrice);
 
         crazyPanel14.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -367,10 +410,10 @@ public class MatchRecord extends TabbedForm {
         jLabel14.setText("Service Fees");
         crazyPanel14.add(jLabel14);
 
-        lblDuration4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration4.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration4.setText("12:30:30");
-        crazyPanel14.add(lblDuration4);
+        lblServiceFees.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblServiceFees.setForeground(new java.awt.Color(195, 204, 90));
+        lblServiceFees.setText("12:30:30");
+        crazyPanel14.add(lblServiceFees);
 
         crazyPanel15.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -380,10 +423,10 @@ public class MatchRecord extends TabbedForm {
         jLabel15.setText("Discount");
         crazyPanel15.add(jLabel15);
 
-        lblDuration5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration5.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration5.setText("12:30:30");
-        crazyPanel15.add(lblDuration5);
+        lblDiscount.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblDiscount.setForeground(new java.awt.Color(195, 204, 90));
+        lblDiscount.setText("12:30:30");
+        crazyPanel15.add(lblDiscount);
 
         crazyPanel16.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -393,8 +436,8 @@ public class MatchRecord extends TabbedForm {
         jLabel16.setText("Penalty Fees");
         crazyPanel16.add(jLabel16);
 
-        jTextField1.setPreferredSize(new java.awt.Dimension(120, 22));
-        crazyPanel16.add(jTextField1);
+        tfPenaltyFee.setPreferredSize(new java.awt.Dimension(120, 22));
+        crazyPanel16.add(tfPenaltyFee);
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel17.setText("Payment Details");
@@ -462,8 +505,8 @@ public class MatchRecord extends TabbedForm {
         lblDuration6.setForeground(new java.awt.Color(195, 204, 90));
         lblDuration6.setText("Total");
 
-        jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel18.setText("2,000,000 VNĐ");
+        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblTotal.setText("2,000,000 VNĐ");
 
         javax.swing.GroupLayout crazyPanel12Layout = new javax.swing.GroupLayout(crazyPanel12);
         crazyPanel12.setLayout(crazyPanel12Layout);
@@ -471,18 +514,19 @@ public class MatchRecord extends TabbedForm {
             crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel12Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(crazyPanel12Layout.createSequentialGroup()
-                        .addComponent(btnCheckin)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnDelete))
-                    .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel12Layout.createSequentialGroup()
-                            .addComponent(lblDuration6)
-                            .addGap(18, 18, 18)
-                            .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(15, 15, 15))
+                .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel12Layout.createSequentialGroup()
+                        .addComponent(lblDuration6)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblTotal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(16, 16, 16))
+            .addGroup(crazyPanel12Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnCheckin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         crazyPanel12Layout.setVerticalGroup(
             crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -492,11 +536,11 @@ public class MatchRecord extends TabbedForm {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblDuration6)
-                    .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
-                .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCheckin)
-                    .addComponent(btnDelete))
+                    .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addComponent(btnCheckin)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnDelete)
                 .addGap(18, 18, 18))
         );
 
@@ -516,7 +560,7 @@ public class MatchRecord extends TabbedForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(crazyPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(117, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -570,35 +614,85 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel lblCheckin;
+    private javax.swing.JLabel lblCustomer;
+    private javax.swing.JLabel lblDiscount;
     private javax.swing.JLabel lblDuration;
-    private javax.swing.JLabel lblDuration1;
-    private javax.swing.JLabel lblDuration2;
-    private javax.swing.JLabel lblDuration3;
-    private javax.swing.JLabel lblDuration4;
-    private javax.swing.JLabel lblDuration5;
     private javax.swing.JLabel lblDuration6;
+    private javax.swing.JLabel lblField;
+    private javax.swing.JLabel lblFieldPrice;
     private javax.swing.JLabel lblId1;
     private javax.swing.JLabel lblId2;
     private javax.swing.JLabel lblId3;
+    private javax.swing.JLabel lblRemaining;
+    private javax.swing.JLabel lblServiceFees;
+    private javax.swing.JLabel lblTotal;
+    private javax.swing.JTable tblService;
     private javax.swing.JFormattedTextField tfDate;
     private javax.swing.JFormattedTextField tfEndTime;
+    private javax.swing.JTextField tfPenaltyFee;
     private javax.swing.JFormattedTextField tfStartTime;
     // End of variables declaration//GEN-END:variables
+
+    private void setData() {
+        lblCustomer.setText(customer.getName() + " - " + customer.getPhoneNumber());
+        lblCheckin.setText(match.getCheckIn().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm")));
+        lblField.setText(field.getName());
+        lblFieldPrice.setText(Utils.toVND(booking.getPrice()));
+        tfDate.setValue(Date.from(booking.getTimeStart().toLocalDateTime().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        total = booking.getPrice();
+        
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        tfStartTime.setText(formatter.format(booking.getTimeStart().toLocalDateTime().toLocalTime()));
+        tfEndTime.setText(formatter.format(booking.getTimeEnd().toLocalDateTime().toLocalTime()));
+        
+        IMemberShipService memberShipService = new MemberShipServiceImpl();
+        int rate = memberShipService.findDiscountByCustomer(customer.getId());
+        BigDecimal percent = (new BigDecimal(rate).divide(new BigDecimal(100)));
+        BigDecimal disBigDecimal = total.multiply(percent);
+        lblDiscount.setText(Utils.toVND(disBigDecimal));
+        
+        total = total.subtract(disBigDecimal);
+        
+        lblTotal.setText(Utils.toVND(total));
+    }
+    private Object[] getRow(MemberShip membership) {
+        DecimalFormat df = new DecimalFormat("#,##0.##");
+        return new Object[]{membership.getId(), membership.getName(),df.format(membership.getMinimumSpendAmount())+ " VND", String.valueOf(membership.getDiscountRate())};
+    }
+    
+
+    private void applyTableStyle(JTable table) {
+
+        btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
+        btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
+        btnCheckin.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));  
+       
+        
+        table.setDefaultRenderer(Object.class, new TableGradientCell());
+        table.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:1,1,1,1,$TableHeader.bottomSeparatorColor,,10");
+        table.getTableHeader().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverBackground:null;"
+                + "pressedBackground:null;"
+                + "separatorColor:$TableHeader.background");
+        jScrollPane1.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:3,0,3,0,$Table.background,10,10");
+        jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverTrackColor:null");
+
+    }
 }

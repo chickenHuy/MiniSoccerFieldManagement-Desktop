@@ -30,7 +30,7 @@ public class MatchServiceImpl implements IMatchService {
     }
 
     @Override
-    public List<Match> findByBooking(int bookingId) {
+    public Match findByBooking(int bookingId) {
         return matchDaoImpl.findByBooking(bookingId);
     }
 

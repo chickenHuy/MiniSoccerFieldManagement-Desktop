@@ -5,11 +5,13 @@
 package minisoccerfieldmanagement.util;
 
 import java.awt.Point;
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
@@ -30,6 +32,15 @@ public class Utils {
         }
     }
     return coordinates;
+    }
+    public static String toVND(BigDecimal price)
+    {
+        DecimalFormat df = new DecimalFormat("#,##0.## VND");
+        return df.format(price);
+    }
+    public  static BigDecimal toBigDecimal(String price)
+    {
+        return new BigDecimal(price.replace(" VND", price).replace(",", ""));
     }
     
     public static LocalTime convertTimestampToLocalTime(Timestamp t)

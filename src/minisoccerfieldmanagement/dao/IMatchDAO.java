@@ -15,7 +15,7 @@ public interface IMatchDAO {
 
     Match findById(int id);
 
-    List<Match> findByBooking(int bookingId);
+    Match findByBooking(int bookingId);
 
     List<Match> findByDate(Date date);
 

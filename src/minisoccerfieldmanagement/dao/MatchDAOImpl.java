@@ -19,7 +19,7 @@ public class MatchDAOImpl implements IMatchDAO {
     @Override
     public Boolean checkIn(int bookingId) {
         try {
-            String sql = "INSERT INTO Match (bookingId, checkIn, createAt) VALUES (?, NOW(), NOW())";
+            String sql = "INSERT INTO `Match` (bookingId, checkIn, createdAt) VALUES (?, NOW(), NOW())";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -42,7 +42,7 @@ public class MatchDAOImpl implements IMatchDAO {
     @Override
     public void checkOut(int id) {
         try {
-            String sql = "UPDATE Match SET checkOut = NOW() WHERE id = ?";
+            String sql = "UPDATE `Match` SET checkOut = NOW() WHERE id = ?";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -59,7 +59,7 @@ public class MatchDAOImpl implements IMatchDAO {
     @Override
     public Boolean softDelete(int id) {
         try {
-            String sql = "UPDATE Match SET isDeleted = 1 WHERE id = ?";
+            String sql = "UPDATE `Match` SET isDeleted = 1 WHERE id = ?";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -83,7 +83,7 @@ public class MatchDAOImpl implements IMatchDAO {
     public Match findById(int id) {
         Match match = null;
         try {
-            String sql = "SELECT * FROM Match WHERE id = ? AND isDeleted = 0";
+            String sql = "SELECT * FROM `Match` WHERE id = ? AND isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -118,22 +118,21 @@ public class MatchDAOImpl implements IMatchDAO {
     }
 
     @Override
-    public List<Match> findByBooking(int bookingId) {
-        List<Match> matches = new ArrayList<>();
+    public Match findByBooking(int bookingId) {
+        Match match;
         try {
-            String sql = "SELECT * FROM Match WHERE bookingId = ? AND isDeleted = 0";
+            String sql = "SELECT * FROM `Match` WHERE bookingId = ? AND isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
             ps.setInt(1, bookingId);
             rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Match match = new Match();
-
+            if (rs.next()) {
+                match = new Match();
                 match.setId(rs.getInt("id"));
                 match.setBookingId(rs.getInt("bookingId"));
-                match.setCheckIn(new Timestamp(rs.getDate("checkIn").getTime()));
+                match.setCheckIn(new Timestamp(rs.getTimestamp("checkIn").getTime()));
                 java.util.Date checkOutDate = rs.getDate("checkOut");
                 if (checkOutDate != null) {
                     match.setCheckOut(new Timestamp(checkOutDate.getTime()));
@@ -144,19 +143,19 @@ public class MatchDAOImpl implements IMatchDAO {
                 if (updatedAtDate != null) {
                     match.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
                 }
-                matches.add(match);
+                return match;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return matches;
+        return null;
     }
 
     @Override
     public List<Match> findByDate(Date date) {
         List<Match> matches = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Match WHERE DATE(checkIn) = DATE(?) AND isDeleted = 0";
+            String sql = "SELECT * FROM `Match` WHERE DATE(checkIn) = DATE(?) AND isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -174,7 +173,7 @@ public class MatchDAOImpl implements IMatchDAO {
                     match.setCheckOut(new Timestamp(checkOutDate.getTime()));
                 }
                 match.setIsDeleted(rs.getBoolean("isDeleted"));
-                match.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                match.setCreatedAt(new Timestamp(rs.getDate("createddAt").getTime()));
                 java.util.Date updatedAtDate = rs.getDate("updatedAt");
                 if (updatedAtDate != null) {
                     match.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
@@ -191,7 +190,7 @@ public class MatchDAOImpl implements IMatchDAO {
     public List<Match> findByField(int fieldId) {
         List<Match> matches = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Match WHERE fieldId = ? AND isDeleted = 0";
+            String sql = "SELECT * FROM `Match` WHERE fieldId = ? AND isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
@@ -226,7 +225,7 @@ public class MatchDAOImpl implements IMatchDAO {
     public List<Match> findByDateAndField(Date date, int fieldId) {
         List<Match> matches = new ArrayList<>();
         try {
-            String sql = "SELECT * FROM Match WHERE DATE(checkIn) = DATE(?) AND fieldId = ? AND isDeleted = 0";
+            String sql = "SELECT * FROM `Match` WHERE DATE(checkIn) = DATE(?) AND fieldId = ? AND isDeleted = 0";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);

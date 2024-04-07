@@ -44,6 +44,7 @@ import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.Match;
 import minisoccerfieldmanagement.model.ModelDate;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.BookingServiceImpl;
@@ -52,8 +53,10 @@ import minisoccerfieldmanagement.service.FieldServiceImpl;
 import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.IPriceListService;
+import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.PriceListServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
@@ -90,7 +93,6 @@ public class StaffBooking extends TabbedForm {
     List<Booking> listBooking;
     Object[][] data;
     Booking[][] booked;
-    
     List<Field> blockTime;
     
     
@@ -557,7 +559,7 @@ public class StaffBooking extends TabbedForm {
     }//GEN-LAST:event_txtSearchKeyReleased
 
     private void btnCheckinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckinActionPerformed
-        WindowsTabbed.getInstance().addTab("Match ()", new MatchRecord());
+        findMatch();
     }//GEN-LAST:event_btnCheckinActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
@@ -1252,6 +1254,30 @@ public class StaffBooking extends TabbedForm {
                                     }
                                 }
                             });
+        }
+    }
+
+    private void findMatch() {
+        String idString = lblId.getText().replace("#", "");
+        if (!idString.isEmpty())
+        {
+            IMatchService matchService = new MatchServiceImpl();
+            Match match = matchService.findByBooking(Integer.parseInt(idString));
+            if (match == null)
+            {
+                MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+                                        matchService.checkIn(Integer.parseInt(idString));
+                                    }
+                                }
+                            });
+            }
+            else {
+                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, customer, booked[tblScheduler.getSelectedRows()[0]][tblScheduler.getSelectedColumns()[0]], fields.get(tblScheduler.getSelectedColumns()[0] - 1)));
+            }
         }
     }
 
