@@ -9,7 +9,9 @@ public interface IFieldService {
 
     Boolean add5Field(Field model);
     
-    Boolean update(Field model);
+    Boolean update7Field(Field model);
+    
+    Boolean update5Field(Field model);
 
     Boolean softDelete(int id);
 
@@ -24,4 +26,5 @@ public interface IFieldService {
     List<Field> findAllNormalFiled();
     
     List<Field> findAllDeleted();
+    List<Field> findParent(int id);
 }

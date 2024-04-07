@@ -137,7 +137,7 @@
                           <Component id="jLabel2" min="-2" pref="35" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="tfEndTime" min="-2" pref="90" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="278" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="284" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -145,13 +145,16 @@
                               <Component id="cbxFields1" max="32767" attributes="0"/>
                           </Group>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
-                                  <Component id="crazyPanel6" min="-2" max="-2" attributes="0"/>
-                              </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="-2" pref="81" max="-2" attributes="0"/>
                                   <Component id="lblDuration" min="-2" pref="73" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="lblId" min="-2" pref="115" max="-2" attributes="0"/>
+                                      <Component id="crazyPanel6" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
@@ -169,6 +172,7 @@
                       <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="cbxFields1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="lblId" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -266,6 +270,7 @@
                 <StringItem index="2" value="7 a side"/>
               </StringArray>
             </Property>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbxTypeFieldActionPerformed"/>
@@ -367,19 +372,16 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace min="7" pref="7" max="-2" attributes="0"/>
-                              <Component id="btnSave" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="7" pref="7" max="-2" attributes="0"/>
-                              <Component id="btnDelete" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="btnAddNew" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace pref="35" max="32767" attributes="0"/>
+                      <EmptySpace min="7" pref="7" max="-2" attributes="0"/>
+                      <Component id="btnSave" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="7" pref="7" max="-2" attributes="0"/>
+                      <Component id="btnDelete" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnCheckin" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -392,7 +394,7 @@
                           <Component id="btnDelete" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="btnAddNew" min="-2" max="-2" attributes="0"/>
+                      <Component id="btnCheckin" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -411,13 +413,16 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Delete"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeleteActionPerformed"/>
+              </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="btnAddNew">
+            <Component class="javax.swing.JButton" name="btnCheckin">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Add"/>
+                <Property name="text" type="java.lang.String" value="Checkin / Match"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddNewActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCheckinActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>
@@ -467,6 +472,16 @@
               <Color blue="5a" green="cc" red="c3" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Duration:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lblId">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="12" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="5a" green="cc" red="c3" type="rgb"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

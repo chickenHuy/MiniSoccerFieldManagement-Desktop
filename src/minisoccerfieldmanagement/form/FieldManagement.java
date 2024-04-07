@@ -4,16 +4,24 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -29,9 +37,10 @@ import raven.popup.component.PopupController;
 public class FieldManagement extends TabbedForm {
 
     private int index;
+    private File tempPicture = null;
     IFieldService fieldService;
     DefaultTableModel models;
-
+    
     public FieldManagement() {
         initComponents();
         fieldService = new FieldServiceImpl();
@@ -169,7 +178,7 @@ public class FieldManagement extends TabbedForm {
         tblField = new javax.swing.JTable();
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
         btnUpload = new javax.swing.JButton();
-        ptbServiceImage = new minisoccerfieldmanagement.util.PictureBox();
+        ptbFieldImage = new minisoccerfieldmanagement.util.PictureBox();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         cboFieldType = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
@@ -293,9 +302,13 @@ public class FieldManagement extends TabbedForm {
         ));
 
         btnUpload.setText("Upload");
+        btnUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUploadActionPerformed(evt);
+            }
+        });
 
-        ptbServiceImage.setBackground(new java.awt.Color(153, 153, 255));
-        ptbServiceImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
+        ptbFieldImage.setBackground(new java.awt.Color(153, 153, 255));
 
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
@@ -303,7 +316,7 @@ public class FieldManagement extends TabbedForm {
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ptbServiceImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ptbFieldImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
                 .addContainerGap(108, Short.MAX_VALUE)
@@ -314,7 +327,7 @@ public class FieldManagement extends TabbedForm {
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ptbServiceImage, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+                .addComponent(ptbFieldImage, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnUpload)
                 .addContainerGap())
@@ -520,6 +533,9 @@ public class FieldManagement extends TabbedForm {
     private void clearText() {
         tfName.setText("");
         tfName.requestFocus();
+        tempPicture = null;
+        ptbFieldImage.setImage(null);
+        ptbFieldImage.repaint();
         index = -1;
     }
 
@@ -550,6 +566,20 @@ public class FieldManagement extends TabbedForm {
             String type = models.getValueAt(index, 2).toString();
             cboStatus.setSelectedItem(models.getValueAt(index, 3).toString());
             cboFieldType.setSelectedItem(type);
+            Field field = fieldService.findById(Integer.parseInt(models.getValueAt(index, 0).toString()));
+            if (field.getImage() == null) {
+                ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/pitch.png"));
+                ptbFieldImage.repaint();
+            } else {
+                File file = new File("src/minisoccerfieldmanagement/image/field/" + field.getImage());
+                if (!file.exists()) {
+                    ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/pitch.png"));
+                    ptbFieldImage.repaint();
+                } else {
+                    ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/field/" + field.getImage()));
+                    ptbFieldImage.repaint();
+                }
+            }
             if (type.equals(StaticStrings.FIELD_STYLE_5_A_SIZE)) {
                 hide7Type();
             } else {
@@ -616,6 +646,12 @@ public class FieldManagement extends TabbedForm {
             field.setName(name);
             field.setType(type);
             field.setStatus(status);
+            String picturePath = tempPicture.getAbsolutePath();
+            String newName = field.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
+            field.setImage(newName);
+            // Ghép tên + extension để tạo tên file mới
+            if (!saveFile(tempPicture, newName))
+                return;
             if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE)) {
                 String idField1 = cboSubField1.getSelectedItem().toString();
                 String idField2 = cboSubField2.getSelectedItem().toString();
@@ -670,7 +706,12 @@ public class FieldManagement extends TabbedForm {
                 }
             } else {
                 field.setId(Integer.parseInt(models.getValueAt(index, 0).toString()));
-                if (fieldService.update(field)) {
+                boolean isSuccess;
+                if (field.getType().equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
+                    isSuccess = fieldService.update7Field(field);
+                else 
+                    isSuccess = fieldService.update5Field(field);
+                if (isSuccess) {
                     MessageAlerts.getInstance().showMessage("Updated Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                         @Override
                         public void action(PopupController pc, int i) {
@@ -767,6 +808,48 @@ public class FieldManagement extends TabbedForm {
         }
     }//GEN-LAST:event_btnDeleteIconActionPerformed
 
+    private void btnUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadActionPerformed
+        // TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+        chooser.addChoosableFileFilter(new FileNameExtensionFilter("* .Image", "jpg", "png"));
+        chooser.setFileFilter(chooser.getChoosableFileFilters()[1]);
+        int r = chooser.showDialog(this, null);
+        if (r != JFileChooser.APPROVE_OPTION) return;
+        ptbFieldImage.setImage(new ImageIcon(chooser.getSelectedFile().getAbsolutePath()));
+        ptbFieldImage.repaint();
+        tempPicture = chooser.getSelectedFile();
+        System.out.print(tempPicture);
+    }//GEN-LAST:event_btnUploadActionPerformed
+
+    private boolean saveFile(File file, String fileName) {
+        File destinationFolder = new File("src/minisoccerfieldmanagement/image/field");
+        System.out.println(destinationFolder.getAbsolutePath());
+        try {
+            // Create the destination folder if it doesn't exist
+            if (!destinationFolder.exists()) {
+                destinationFolder.mkdirs();
+            }
+            // Create the destination file
+            File destinationFile = new File(destinationFolder, fileName);
+            System.out.println(destinationFile.getAbsolutePath());
+
+            // Copy the selected file to the destination folder
+            Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            MessageAlerts.getInstance().showMessage("Upload Image failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                        @Override
+                        public void action(PopupController pc, int i) {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
+                            }
+                        }
+                    });
+            return false;
+        }
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNew;
@@ -795,7 +878,7 @@ public class FieldManagement extends TabbedForm {
     private javax.swing.JLabel lblCombineField1;
     private javax.swing.JLabel lblCombineField2;
     private javax.swing.JLabel lblCombineField3;
-    private minisoccerfieldmanagement.util.PictureBox ptbServiceImage;
+    private minisoccerfieldmanagement.util.PictureBox ptbFieldImage;
     private javax.swing.JTable tblField;
     private javax.swing.JTextField tfName;
     private javax.swing.JTextField txtSearch;
