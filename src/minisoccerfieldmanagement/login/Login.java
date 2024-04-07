@@ -8,17 +8,21 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import minisoccerfieldmanagement.main.Main;
+import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.util.PanelRound;
+import raven.alerts.MessageAlerts;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 public class Login extends JPanel {
 
@@ -47,7 +51,7 @@ public class Login extends JPanel {
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
         cmdLogin = new JButton("Login");
-        PanelRound panel = new PanelRound(new MigLayout("wrap,fillx,insets 50 45 55 45", "fill,220:150"));
+        PanelRound panel = new PanelRound(new MigLayout("wrap,fillx,insets 50 45 55 45", "fill,250:200"));
         panel.putClientProperty(FlatClientProperties.STYLE, ""
                 + "arc:20;"
                 + "[light]background:darken(@background,3%);"
@@ -69,7 +73,41 @@ public class Login extends JPanel {
         cmdLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         cmdLogin.addActionListener((e) -> {
+//            String username = txtUsername.getText();
+//            String password = txtPassword.getText();
+//            if (username.equals("") || password.equals("")) {
+//                MessageAlerts.getInstance().showMessage("Login failed", "Username and password are not empty!!!", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+//                    @Override
+//                    public void action(PopupController pc, int i) {
+//                    }
+//                });
+//            } else {
+//                UserServiceImpl userServiceImpl = new UserServiceImpl();
+//                User user = userServiceImpl.verifyLoginData(username, password);
+//                if (user == null) {
+//                    MessageAlerts.getInstance().showMessage("Login failed", "Username or password is incorrect!!!", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+//                        @Override
+//                        public void action(PopupController pc, int i) {
+//                        }
+//                    });
+//                } else {
+//                    UserSession.getInstance(user);
+//                    Main.main.showMainForm();
+//                }
+//            }
+
+            User tempUser = new User();
+            tempUser.setName("Thanh Huy");
+            tempUser.setGender("Male");
+            tempUser.setDateOfBirth(Timestamp.valueOf("2003-06-25 00:00:00"));
+            tempUser.setPhoneNumber("0869017464");
+            tempUser.setPassword("admin");
+            tempUser.setUserName("admin");
+            tempUser.setRole("admin");
+            tempUser.setCreatedAt(Timestamp.valueOf("2024-04-06 17:00:00"));
+            UserSession.getInstance(tempUser);
             Main.main.showMainForm();
+
         });
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
         txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
@@ -78,7 +116,7 @@ public class Login extends JPanel {
         lbTitle.putClientProperty(FlatClientProperties.STYLE, ""
                 + "font:bold +13");
         lbTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         panel.add(new JLabel(""), "gapy 8");
         panel.add(lbTitle);
         panel.add(new JLabel(""), "gapy 8");
@@ -96,8 +134,11 @@ public class Login extends JPanel {
         forgetPasswordLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
-                JOptionPane.showMessageDialog(Login.this, "Đừng thử, chưa làm chức năng này");
+                MessageAlerts.getInstance().showMessage("Message", "Please contact management for help!!!", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                    @Override
+                    public void action(PopupController pc, int i) {
+                    }
+                });
             }
         });
         panel.add(forgetPasswordLabel, "alignx right, wrap");

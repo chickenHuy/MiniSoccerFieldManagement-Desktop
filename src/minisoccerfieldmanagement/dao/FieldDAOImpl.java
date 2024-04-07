@@ -69,7 +69,7 @@ public class FieldDAOImpl implements IFieldDAO {
     }
 
     @Override
-    public Boolean update(Field model) {
+    public Boolean update7Field(Field model) {
         try {
             String sql = "UPDATE `field` SET `name`=?,`status`=?,`type`=?,`image`=?,`combineField1`=?, `combineField2`=?, `combineField3`=?, `updatedAt`=NOW() WHERE `id`= ? ;";
 
@@ -84,6 +84,29 @@ public class FieldDAOImpl implements IFieldDAO {
             ps.setInt(6, model.getCombineField2());
             ps.setInt(7, model.getCombineField3());
             ps.setInt(8, model.getId());
+
+            ps.executeUpdate();
+            conn.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    @Override
+    public Boolean update5Field(Field model) {
+        try {
+            String sql = "UPDATE `field` SET `name`=?,`status`=?,`type`=?,`image`=?, `updatedAt`=NOW() WHERE `id`= ? ;";
+
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+
+            ps.setString(1, model.getName());
+            ps.setString(2, model.getStatus());
+            ps.setString(3, model.getType());
+            ps.setString(4, model.getImage());
+            ps.setInt(5, model.getId());
 
             ps.executeUpdate();
             conn.close();

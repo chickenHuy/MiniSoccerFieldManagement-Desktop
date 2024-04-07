@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.io.File;
 import javax.swing.ImageIcon;
 import minisoccerfieldmanagement.model.Field;
 
@@ -20,7 +21,7 @@ public class FieldItem extends javax.swing.JPanel {
         this.selected = selected;
         repaint();
     }
-    
+
     public FieldItem() {
         initComponents();
         setOpaque(false);
@@ -31,27 +32,30 @@ public class FieldItem extends javax.swing.JPanel {
     public Field getData() {
         return data;
     }
-    
+
     public void setData(Field data) {
         this.data = data;
-        if (data.getImage() != null &&!data.getImage().isBlank())
-            pic.setImage(new ImageIcon(data.getImage()));
+        if (data.getImage() != null && !data.getImage().isBlank()) {
+            File file = new File("src/minisoccerfieldmanagement/image/field/" + data.getImage());
+            if (file.exists()) {
+                pic.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/field/" + data.getImage()));
+                pic.repaint();
+            }
+        }
         lblFieldName.setText(data.getName());
     }
-    
+
     @Override
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         if (selected) {
             g2.setColor(Color.green);
-            g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 20, 20);
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
         }
         g2.dispose();
-        super.paint(g); 
+        super.paint(g);
     }
-    
-    
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

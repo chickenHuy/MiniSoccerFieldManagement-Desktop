@@ -20,8 +20,13 @@ public class FieldServiceImpl implements IFieldService{
     }
 
     @Override
-    public Boolean update(Field model) {
-        return fieldDAO.update(model);
+    public Boolean update7Field(Field model) {
+        return fieldDAO.update7Field(model);
+    }
+    
+    @Override
+    public Boolean update5Field(Field model) {
+        return fieldDAO.update5Field(model);
     }
 
     @Override

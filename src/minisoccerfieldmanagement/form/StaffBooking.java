@@ -1094,17 +1094,17 @@ public class StaffBooking extends TabbedForm {
             newBooking.setCustomerId(customer.getId());
             
             if (bookingService.add(newBooking))
-                MessageAlerts.getInstance().showMessage("Success", "Booking has been saved", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+            {   
+                listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), "");
+                setScheduler(dateSelected);
+                MessageAlerts.getInstance().showMessage("Success", "Booking has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                 @Override
                                 public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
-
-                                    }
                                 }
                             });
                             
             } 
+            }
             catch (Exception e) {
                 e.printStackTrace();
                 MessageAlerts.getInstance().showMessage("Save error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
@@ -1141,8 +1141,7 @@ public class StaffBooking extends TabbedForm {
             }
         }
            
-        listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), "");
-        setScheduler(dateSelected);
+        
         
     }
     private int getCol(int fieldId) {
