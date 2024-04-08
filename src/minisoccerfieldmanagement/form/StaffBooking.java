@@ -64,6 +64,7 @@ import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.CalendarSelectedListener;
 import minisoccerfieldmanagement.util.ColorGenerator;
 import minisoccerfieldmanagement.util.StaticStrings;
+import minisoccerfieldmanagement.util.TableGradientCell;
 import minisoccerfieldmanagement.util.Utils;
 import raven.alerts.MessageAlerts;
 import raven.toast.Notifications;
@@ -101,6 +102,7 @@ public class StaffBooking extends TabbedForm {
         loadData();
         setScheduler((Date)tfDate.getValue());
         setEvents();
+        applyTableStyle(tblScheduler);
         user = new User();
         user.setId(1);
         
@@ -1279,6 +1281,19 @@ public class StaffBooking extends TabbedForm {
                 WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, customer, booked[tblScheduler.getSelectedRows()[0]][tblScheduler.getSelectedColumns()[0]], fields.get(tblScheduler.getSelectedColumns()[0] - 1)));
             }
         }
+    }
+    private void applyTableStyle(JTable table) {        
+        table.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:1,1,1,1,$TableHeader.bottomSeparatorColor,,10");
+        table.getTableHeader().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverBackground:null;"
+                + "pressedBackground:null;"
+                + "separatorColor:$TableHeader.background");
+        jScrollPane1.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:3,0,3,0,$Table.background,10,10");
+        jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverTrackColor:null");
+
     }
 
 

@@ -16,10 +16,12 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import minisoccerfieldmanagement.form.Dashboard;
 import net.miginfocom.swing.MigLayout;
 import minisoccerfieldmanagement.main.Main;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.UserServiceImpl;
+import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.PanelRound;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
@@ -94,6 +96,7 @@ public class Login extends JPanel {
                 } else {
                     UserSession.getInstance().loginUser(user);
                     Main.main.showMainForm();
+                    WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                 }
             }
 

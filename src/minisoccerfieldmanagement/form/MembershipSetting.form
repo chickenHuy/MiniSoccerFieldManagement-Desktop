@@ -42,7 +42,7 @@
                       <Component id="crazyPanel3" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="crazyPanel5" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="329" max="32767" attributes="0"/>
                   </Group>
                   <Component id="crazyPanel1" pref="676" max="32767" attributes="0"/>
               </Group>
