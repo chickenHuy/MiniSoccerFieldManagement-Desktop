@@ -6,6 +6,7 @@ import minisoccerfieldmanagement.model.MemberShip;
 
 
 public interface IMemberShipService {
+    
     Boolean add(MemberShip model);
 
     List<MemberShip> findAll();
@@ -19,4 +20,7 @@ public interface IMemberShipService {
     Boolean softDelete(int id);
 
     Boolean update(MemberShip model);
+    
+    int findIdByName(String name);
+    
 }

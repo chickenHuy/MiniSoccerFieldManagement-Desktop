@@ -45,4 +45,9 @@ public class MemberShipServiceImpl implements IMemberShipService{
         return memberShipDAO.update(model);
     }
     
+    @Override
+    public int findIdByName(String name) {
+        return memberShipDAO.findIdByName(name);
+    }
+    
 }

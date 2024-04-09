@@ -7,10 +7,10 @@ import minisoccerfieldmanagement.dao.ICustomerDAO;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.MemberShip;
 
-public class CustomerServiceImpl implements ICustomerService{
-    
+public class CustomerServiceImpl implements ICustomerService {
+
     ICustomerDAO customerDAO = new CustomerDAOImpl();
-    
+
     @Override
     public Boolean add(Customer model) {
         return customerDAO.add(model);
@@ -28,7 +28,7 @@ public class CustomerServiceImpl implements ICustomerService{
 
     @Override
     public Customer findByPhoneNumber(String phoneNumber) {
-       return customerDAO.findByPhoneNumber(phoneNumber);
+        return customerDAO.findByPhoneNumber(phoneNumber);
     }
 
     @Override
@@ -42,15 +42,31 @@ public class CustomerServiceImpl implements ICustomerService{
     }
 
     @Override
-    public Boolean updateTotalSpend(int id, BigDecimal increment) {        
+    public Boolean updateTotalSpend(int id, BigDecimal increment) {
         Customer customer = customerDAO.findById(id);
         IMemberShipService memberShipService = new MemberShipServiceImpl();
-        if (customer == null)
+        if (customer == null) {
             return false;
+        }
         customer.setTotalSpend(customer.getTotalSpend().add(increment));
         MemberShip newMemberShip = memberShipService.findBySpendAmount(customer.getTotalSpend());
         customer.setMemberShipId(newMemberShip.getId());
         return update(customer);
     }
-    
+
+    @Override
+    public List<Customer> findAll() {
+        return customerDAO.findAll();
+    }
+
+    @Override
+    public Boolean checkPhoneNumberExist(String phoneNumber) {
+        return customerDAO.checkPhoneNumberExist(phoneNumber);
+    }
+
+    @Override
+    public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
+        return customerDAO.checkPhoneNumberExistExceptCurrent(id, phoneNumber);
+    }
+
 }

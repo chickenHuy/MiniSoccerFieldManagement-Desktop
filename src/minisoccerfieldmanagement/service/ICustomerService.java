@@ -5,6 +5,7 @@ import java.util.List;
 import minisoccerfieldmanagement.model.Customer;
 
 public interface ICustomerService {
+    
     Boolean add(Customer model);
 
     Customer findById(int id);
@@ -18,4 +19,11 @@ public interface ICustomerService {
     Boolean update(Customer model);
 
     Boolean updateTotalSpend(int id, BigDecimal increment);
+    
+    List<Customer> findAll();
+    
+    Boolean checkPhoneNumberExist(String phoneNumber);
+    
+    Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
 }

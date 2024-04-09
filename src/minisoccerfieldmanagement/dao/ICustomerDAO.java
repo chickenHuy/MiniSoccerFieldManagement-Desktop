@@ -26,4 +26,10 @@ public interface ICustomerDAO {
 
     Boolean update(Customer model);
     
+    List<Customer> findAll();
+    
+    Boolean checkPhoneNumberExist(String phoneNumber);
+    
+    Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
 }

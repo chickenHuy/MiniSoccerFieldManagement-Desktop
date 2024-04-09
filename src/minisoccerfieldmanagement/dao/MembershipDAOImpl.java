@@ -197,4 +197,24 @@ public class MembershipDAOImpl implements IMembershipDAO{
         }  
         return discount;
     }
+    
+    @Override
+    public int findIdByName(String name) {
+        int id = -1;
+        try {
+            String sql = "SELECT id FROM membership WHERE name = ?";
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, name);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                id = rs.getInt("id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+    
 }

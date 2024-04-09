@@ -28,4 +28,6 @@ public interface IMembershipDAO {
 
     Boolean update(MemberShip model);
     
+    int findIdByName(String name);
+    
 }
