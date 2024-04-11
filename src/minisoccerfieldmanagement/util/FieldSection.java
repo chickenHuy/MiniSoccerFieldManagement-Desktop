@@ -1,8 +1,10 @@
-package minisoccerfieldmanagement.form;
+package minisoccerfieldmanagement.util;
 
+import minisoccerfieldmanagement.util.FieldItem;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeSupport;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import minisoccerfieldmanagement.model.Field;
@@ -11,8 +13,21 @@ import minisoccerfieldmanagement.util.ScrollBar;
 
 public class FieldSection extends javax.swing.JPanel {
 
+    private int selectedFieldId = -1;
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
+    public void setSelectedFieldId(int selectedFieldId) {
+        int oldSelectedFieldId = this.selectedFieldId;
+        this.selectedFieldId = selectedFieldId;  
+        propertyChangeSupport.firePropertyChange("selectedFieldId", oldSelectedFieldId, selectedFieldId);
+    }
     private EventItem event;
 
+    public int getSelectedFieldId() {
+        return selectedFieldId;
+    }
+
+    
     public void setEvent(EventItem event) {
         this.event = event;
     }
@@ -29,7 +44,10 @@ public class FieldSection extends javax.swing.JPanel {
             @Override
             public void mousePressed(MouseEvent me) {
                 if (SwingUtilities.isLeftMouseButton(me)) {
-                    event.fieldClick(item, data);
+                    setSelectedFieldId(data.getId());
+                    setSelected(item);
+                    if (event != null)
+                        event.fieldClick(item, data);
                 }
             }
         });
@@ -46,14 +64,15 @@ public class FieldSection extends javax.swing.JPanel {
                 i.setSelected(false);
             }
         }
-        ((FieldItem)item).setSelected(true);
+        if (item != null)
+            ((FieldItem)item).setSelected(true);
     }
     
     public void addData(List<Field> data) {
         this.setEvent(new EventItem() {
             @Override
             public void fieldClick(Component com, Field item) {
-                System.out.println(item.getId());
+                setSelectedFieldId(item.getId());
                 setSelected(com);
             }
         });
@@ -67,7 +86,7 @@ public class FieldSection extends javax.swing.JPanel {
     private void initComponents() {
 
         scrollPane = new javax.swing.JScrollPane();
-        panelField = new minisoccerfieldmanagement.form.PanelField();
+        panelField = new minisoccerfieldmanagement.util.PanelField();
 
         scrollPane.setBackground(new java.awt.Color(242, 242, 242));
         scrollPane.setInheritsPopupMenu(true);
@@ -87,7 +106,7 @@ public class FieldSection extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private minisoccerfieldmanagement.form.PanelField panelField;
+    private minisoccerfieldmanagement.util.PanelField panelField;
     private javax.swing.JScrollPane scrollPane;
     // End of variables declaration//GEN-END:variables
 }

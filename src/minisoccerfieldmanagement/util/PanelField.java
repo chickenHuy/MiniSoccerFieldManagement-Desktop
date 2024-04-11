@@ -1,4 +1,4 @@
-package minisoccerfieldmanagement.form;
+package minisoccerfieldmanagement.util;
 
 import java.awt.Color;
 import javax.swing.JPanel;
