@@ -40,6 +40,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatter;
+import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.MemberShip;
@@ -103,8 +104,7 @@ public class StaffBooking extends TabbedForm {
         setScheduler((Date)tfDate.getValue());
         setEvents();
         applyTableStyle(tblScheduler);
-        user = new User();
-        user.setId(1);
+        user = UserSession.getInstance().getUser();
         
     }
 
@@ -798,14 +798,14 @@ public class StaffBooking extends TabbedForm {
                     if (selectedColumns.length > 1)
                     {   
                         MessageAlerts.getInstance().showMessage("Choose only one", "You can only chosse one soccer field", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                    @Override
-                                    public void action(PopupController pc, int i) {
-                                        if (i == MessageAlerts.CLOSED_OPTION )
-                                        {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.CLOSED_OPTION )
+                                {
 
-                                        }
-                                    }
-                                });
+                                }
+                            }
+                        });
                        
 
 
@@ -820,14 +820,14 @@ public class StaffBooking extends TabbedForm {
                     {
                         
                         MessageAlerts.getInstance().showMessage("Choose only one", "You cannot choose both these areas", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                    @Override
-                                    public void action(PopupController pc, int i) {
-                                        if (i == MessageAlerts.CLOSED_OPTION )
-                                        {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.CLOSED_OPTION )
+                                {
 
-                                        }
-                                    }
-                                });
+                                }
+                            }
+                        });
                     }
                     Boolean isBookedSelect = false;
                     for (int j = 0; j < selectedRow.length; j++)
@@ -942,20 +942,18 @@ public class StaffBooking extends TabbedForm {
                         cbxTypeField.setSelectedItem(fields.get(selectedColumns[0]-1).getType());
                 }
             } 
-                catch(Exception ex)
-                {
-                    
-                }
+            catch(Exception ex)
+            {
+                ex.printStackTrace();
+
             }
-            
-        
-           
+        }
         });
 
 
               
-        
     }
+    
     
     private void setTimePicker() {
         timePicker1 = new  TimePicker();
@@ -1012,94 +1010,75 @@ public class StaffBooking extends TabbedForm {
         listBooking = bookingService.findByDate(new java.sql.Date(dateSelected.getTime()));
     }
 
-    private void save() {
-        if (true)
-        {   
+    private void save() { 
             try {
-              String phoneNumber = txtSearch.getText();
-              String customerName = tfName.getText();
-              String note = taNote.getText();
-              String priceString = tfPrice.getText();
-              priceString = priceString.trim().replace(",", "").replace(" VND","");
-              
-              BigDecimal price = new BigDecimal(priceString);
-              
-              if (phoneNumber.isEmpty() || phoneNumber.length() != 10)
-              {
-                    MessageAlerts.getInstance().showMessage("Phone is required", "Please enter customer phone", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
+                if (!lblId.getText().isEmpty()) throw new Exception("Plase select another time");
 
-                                    }
-                                }
-                            });
-                    return;
-              }
-              if (customerName.isEmpty())
-              {
-                customer = new Customer();
-                
-                IMemberShipService memberShipService = new MemberShipServiceImpl();
-                MemberShip membership = memberShipService.findBySpendAmount(BigDecimal.ZERO);
-                customer.setName("New Customer");
-                customer.setPhoneNumber(phoneNumber);
-                customer.setMemberShipId(membership.getId());
-              }
-              Booking newBooking = new Booking();
-              Field fiedBooking = (Field)fieldModels.getSelectedItem();
-              newBooking.setFieldId(fiedBooking.getId());
-              newBooking.setNote(note);
-              newBooking.setPrice(price);
-              
-              LocalDate dateBooking = ((Date)tfDate.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();;
-              String ts = String.valueOf(tfStartTime.getValue());
-              String te = String.valueOf(tfEndTime.getValue());
-              
-              LocalDateTime dateTimeBooking = dateBooking.atTime(Integer.parseInt(ts.substring(0, 2)), Integer.parseInt(ts.substring(3, 5)));
-              LocalDateTime dateTimeEndBooking = dateBooking.atTime(Integer.parseInt(te.substring(0, 2)), Integer.parseInt(te.substring(3, 5)));
-              Timestamp startBooking = Timestamp.valueOf(dateTimeBooking);
-              Timestamp endBooking = Timestamp.valueOf(dateTimeEndBooking);
-              
-              newBooking.setTimeStart(startBooking);
-              newBooking.setTimeEnd(endBooking);
-              newBooking.setUserId(user.getId());
-              newBooking.setStatus(StaticStrings.ACTIVE);
-              
-           
-            if (tfName.getText().isEmpty())
-            {   String input = JOptionPane.showInputDialog(null, "Enter customer name", "Add Name", JOptionPane.QUESTION_MESSAGE);
+                String phoneNumber = txtSearch.getText();
+                String customerName = tfName.getText();
+                String note = taNote.getText();
 
-                // input sẽ chứa giá trị mà người dùng nhập vào. Nếu người dùng nhấn Cancel, input sẽ là null.
+                String priceString = tfPrice.getText();
+                priceString = priceString.trim().replace(",", "").replace(" VND","");
+                BigDecimal price = new BigDecimal(priceString);
+
+                if (phoneNumber.isEmpty() || phoneNumber.length() != 10) throw new Exception("Please enter customer phone");
+                if (customerName.isEmpty())
+                {
+                    customer = new Customer();
+
+                    IMemberShipService memberShipService = new MemberShipServiceImpl();
+                    MemberShip membership = memberShipService.findBySpendAmount(BigDecimal.ZERO);
+                    customer.setName("New Customer");
+                    customer.setPhoneNumber(phoneNumber);
+                    customer.setMemberShipId(membership.getId());
+                }
+
+                Booking newBooking = new Booking();
+                Field fiedBooking = (Field)fieldModels.getSelectedItem();
+                newBooking.setFieldId(fiedBooking.getId());
+                newBooking.setNote(note);
+                newBooking.setPrice(price);
+
+                LocalDate dateBooking = ((Date)tfDate.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();;
+                String ts = String.valueOf(tfStartTime.getValue());
+                String te = String.valueOf(tfEndTime.getValue());
+
+                LocalDateTime dateTimeBooking = dateBooking.atTime(Integer.parseInt(ts.substring(0, 2)), Integer.parseInt(ts.substring(3, 5)));
+                LocalDateTime dateTimeEndBooking = dateBooking.atTime(Integer.parseInt(te.substring(0, 2)), Integer.parseInt(te.substring(3, 5)));
+                Timestamp startBooking = Timestamp.valueOf(dateTimeBooking);
+                Timestamp endBooking = Timestamp.valueOf(dateTimeEndBooking);
+
+                if (startBooking.before(new Timestamp(System.currentTimeMillis()))) throw  new Exception("Plase select time >= now");
+
+                newBooking.setTimeStart(startBooking);
+                newBooking.setTimeEnd(endBooking);
+                newBooking.setUserId(user.getId());
+                newBooking.setStatus(StaticStrings.ACTIVE);
+
+
+              if (tfName.getText().isEmpty()) {   
+                String input = JOptionPane.showInputDialog(null, "Enter customer name", "Add Name", JOptionPane.QUESTION_MESSAGE);
+
                 if (input != null && input.isBlank() == false) {
                     customer.setName(input);
                 } 
-               
+
                 if (customerService.add(customer)){
                     Notifications.getInstance().show(Notifications.Type.SUCCESS, Notifications.Location.TOP_CENTER, "New customer has been added");
                     customer = customerService.findByPhoneNumber(phoneNumber);
                 }
                 else
                 {
-                    MessageAlerts.getInstance().showMessage("Add Customer Failed", "Please check the information about customer", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
-
-                                    }
-                                }
-                            });
-                    return;
+                    throw new Exception("Add Customer Failed");
                 }
 
-            }
-            
-            newBooking.setCustomerId(customer.getId());
-            
-            if (bookingService.add(newBooking))
-            {   
+              }
+
+              newBooking.setCustomerId(customer.getId());
+
+              if (bookingService.add(newBooking))
+              {   
                 listBooking = bookingService.findByDateAndFieldType(Utils.convertUtilDateToSqlDate(dateSelected), "");
                 setScheduler(dateSelected);
                 MessageAlerts.getInstance().showMessage("Success", "Booking has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
@@ -1107,48 +1086,26 @@ public class StaffBooking extends TabbedForm {
                                 public void action(PopupController pc, int i) {
                                 }
                             });
-                            
-            } 
+
+              } 
             }
             catch (Exception e) {
                 e.printStackTrace();
-                MessageAlerts.getInstance().showMessage("Save error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
+                MessageAlerts.getInstance().showMessage("Save error", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                    @Override
+                    public void action(PopupController pc, int i) {
+                        if (i == MessageAlerts.CLOSED_OPTION )
+                        {
 
-                                    }
-                                }
-                            });
+                        }
+                    }
+                });
                 
-            }
-            
-            
+            } 
         }
-        else
-        {
-            try {
-                
-              
-                
-                
-            } catch (Exception e) {
-                MessageAlerts.getInstance().showMessage("Save Error", "Please check the information again", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION )
-                                    {
-
-                                    }
-                                }
-                            });
-            }
-        }
-           
+      
         
-        
-    }
+    
     private int getCol(int fieldId) {
         if (fields == null) return -1;
         for (int i = 0; i < fields.size(); i++) {
@@ -1209,37 +1166,37 @@ public class StaffBooking extends TabbedForm {
             {
        
                 MessageAlerts.getInstance().showMessage("DELETE", "Field booking with id " + id + " will be deleted", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.OK_OPTION)
-                                    {
-                                        String idnew = id.replace("#", "");
-                                        int idInt = Integer.parseInt(idnew);
-                                        if ( bookingService.softDelete(idInt))
-                                        {
-                                            listBooking = bookingService.findByDate(Utils.convertUtilDateToSqlDate(dateSelected));
-                                            setScheduler(dateSelected);
-                                            MessageAlerts.getInstance().showMessage("Delete Success", "", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                                        @Override
-                                                        public void action(PopupController pc, int i) {
-                                                            if (i == MessageAlerts.CLOSED_OPTION )
-                                                            {
+                    @Override
+                    public void action(PopupController pc, int i) {
+                        if (i == MessageAlerts.OK_OPTION)
+                        {
+                            String idnew = id.replace("#", "");
+                            int idInt = Integer.parseInt(idnew);
+                            if ( bookingService.softDelete(idInt))
+                            {
+                                listBooking = bookingService.findByDate(Utils.convertUtilDateToSqlDate(dateSelected));
+                                setScheduler(dateSelected);
+                                MessageAlerts.getInstance().showMessage("Delete Success", "", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                            @Override
+                                            public void action(PopupController pc, int i) {
+                                                if (i == MessageAlerts.CLOSED_OPTION )
+                                                {
 
-                                                            }
-                                                        }
-                                                    });
-
-                                        }
-                                        else{
-                                            try {
-                                                throw new Exception("These was an error during detection");
-                                            } catch (Exception ex) {
-                                                Logger.getLogger(StaffBooking.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
                                             }
-                                        }
-                                    }
+                                        });
+
+                            }
+                            else{
+                                try {
+                                    throw new Exception("These was an error during detection");
+                                } catch (Exception ex) {
+                                    Logger.getLogger(StaffBooking.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                            });
+                            }
+                        }
+                    }
+                });
             
                 
                 
@@ -1273,6 +1230,18 @@ public class StaffBooking extends TabbedForm {
                                     if (i == MessageAlerts.OK_OPTION )
                                     {
                                         matchService.checkIn(Integer.parseInt(idString));
+                                    }
+                                }
+                            });
+            }
+            else if (match.getCheckOut() != null)
+            {
+                MessageAlerts.getInstance().showMessage("The match was over", "",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+              
                                     }
                                 }
                             });

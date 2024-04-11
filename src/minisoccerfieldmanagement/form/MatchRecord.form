@@ -301,7 +301,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="5a" green="cc" red="c3" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="12:30:30"/>
+                <Property name="text" type="java.lang.String" value="00:00:00"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -531,7 +531,7 @@
                   <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="jLabel7" min="-2" pref="46" max="-2" attributes="0"/>
-                      <Component id="btnSave1" alignment="0" pref="122" max="32767" attributes="0"/>
+                      <Component id="btnSaveNote" alignment="0" pref="122" max="32767" attributes="0"/>
                       <Component id="jScrollPane2" alignment="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
@@ -560,7 +560,7 @@
                       <Group type="102" attributes="0">
                           <Component id="jScrollPane2" min="-2" pref="154" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btnSave1" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnSaveNote" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace pref="41" max="32767" attributes="0"/>
@@ -678,12 +678,12 @@
             <Property name="text" type="java.lang.String" value="Note"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="btnSave1">
+        <Component class="javax.swing.JButton" name="btnSaveNote">
           <Properties>
             <Property name="text" type="java.lang.String" value="Save Note"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSave1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveNoteActionPerformed"/>
           </Events>
         </Component>
         <Container class="javax.swing.JScrollPane" name="jScrollPane2">
@@ -693,7 +693,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTextArea" name="jTextArea1">
+            <Component class="javax.swing.JTextArea" name="taNote">
               <Properties>
                 <Property name="columns" type="int" value="20"/>
                 <Property name="rows" type="int" value="5"/>

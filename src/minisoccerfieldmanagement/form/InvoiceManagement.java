@@ -4,6 +4,37 @@
  */
 package minisoccerfieldmanagement.form;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import java.awt.Color;
+import java.awt.Component;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Random;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.Transaction;
+import minisoccerfieldmanagement.service.CustomerServiceImpl;
+import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.ICustomerService;
+import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IServiceItemsService;
+import minisoccerfieldmanagement.service.IServiceService;
+import minisoccerfieldmanagement.service.IServiceUsageService;
+import minisoccerfieldmanagement.service.ITransactionService;
+import minisoccerfieldmanagement.service.IUserService;
+import minisoccerfieldmanagement.service.ServiceItemsServiceImpl;
+import minisoccerfieldmanagement.service.ServiceServiceImpl;
+import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
+import minisoccerfieldmanagement.service.TransactionServiceImpl;
+import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 
 /**
@@ -12,11 +43,22 @@ import minisoccerfieldmanagement.tabbed.TabbedForm;
  */
 public class InvoiceManagement extends TabbedForm {
 
-    /**
-     * Creates new form Invoice
-     */
+    ITransactionService transactionService;
+    ICustomerService customerService;
+    IFieldService fieldService;
+    IServiceItemsService serviceItemsService;
+    IServiceUsageService serviceUsageService;
+    IServiceService serviceService;
+    IUserService userService;
+    List<Transaction> transactions;
+    private DefaultTableModel invoiceModel;
     public InvoiceManagement() {
         initComponents();
+        FlatLaf.registerCustomDefaultsSource("tableview");
+        applyTableStyle(tblInvoice);
+        invoiceModel = (DefaultTableModel) tblInvoice.getModel();
+        setService();
+        
     }
 
     /**
@@ -28,22 +70,369 @@ public class InvoiceManagement extends TabbedForm {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lblCustomer = new javax.swing.JLabel();
+        crazyPanel8 = new raven.crazypanel.CrazyPanel();
+        crazyPanel2 = new raven.crazypanel.CrazyPanel();
+        txtSearch = new javax.swing.JTextField();
+        btnPrint = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblInvoice = new javax.swing.JTable();
+        crazyPanel9 = new raven.crazypanel.CrazyPanel();
+        lblId5 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblItem = new javax.swing.JTable();
+        lblCustomer2 = new javax.swing.JLabel();
+        crazyPanel10 = new raven.crazypanel.CrazyPanel();
+        tfName = new javax.swing.JTextField();
+        tfPhoneNumber = new javax.swing.JTextField();
+        lblPhoneNumber = new javax.swing.JLabel();
+        lblName = new javax.swing.JLabel();
+        lblPhoneNumber1 = new javax.swing.JLabel();
+        tfPhoneNumber1 = new javax.swing.JTextField();
+        lblCustomer1 = new javax.swing.JLabel();
+        lblPhoneNumber2 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+
+        lblCustomer.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblCustomer.setText("Customer");
+
         setPreferredSize(new java.awt.Dimension(1188, 696));
         setRequestFocusEnabled(false);
+
+        crazyPanel8.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        crazyPanel2.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background",
+            new String[]{
+                "JTextField.placeholderText=Search;background:@background",
+                "background:lighten(@background,8%);borderWidth:1",
+                "background:lighten(@background,8%);borderWidth:1",
+                "background:lighten(@background,8%);borderWidth:1"
+            }
+        ));
+        crazyPanel2.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "",
+            "[]push[][]",
+            "",
+            new String[]{
+                "width 200"
+            }
+        ));
+        crazyPanel2.add(txtSearch);
+
+        btnPrint.setText("Print");
+        crazyPanel2.add(btnPrint);
+
+        tblInvoice.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "Total Amount", "Additional Fee", "Discount", "Final Amount", "Type", "Date"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblInvoice);
+
+        javax.swing.GroupLayout crazyPanel8Layout = new javax.swing.GroupLayout(crazyPanel8);
+        crazyPanel8.setLayout(crazyPanel8Layout);
+        crazyPanel8Layout.setHorizontalGroup(
+            crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel8Layout.createSequentialGroup()
+                .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(crazyPanel8Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(crazyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 717, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel8Layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 711, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+        crazyPanel8Layout.setVerticalGroup(
+            crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel8Layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addComponent(crazyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 576, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
+
+        crazyPanel9.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        lblId5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblId5.setForeground(new java.awt.Color(195, 204, 90));
+
+        tblItem.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id", "Name", "Quantity", "Price"
+            }
+        ));
+        jScrollPane2.setViewportView(tblItem);
+
+        lblCustomer2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblCustomer2.setForeground(new java.awt.Color(196, 204, 90));
+        lblCustomer2.setText("Service & Match");
+
+        javax.swing.GroupLayout crazyPanel9Layout = new javax.swing.GroupLayout(crazyPanel9);
+        crazyPanel9.setLayout(crazyPanel9Layout);
+        crazyPanel9Layout.setHorizontalGroup(
+            crazyPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblId5, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(344, 344, 344))
+            .addGroup(crazyPanel9Layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(crazyPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblCustomer2, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        crazyPanel9Layout.setVerticalGroup(
+            crazyPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel9Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(lblCustomer2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblId5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        crazyPanel10.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        lblPhoneNumber.setText("Phone");
+
+        lblName.setText("Customer");
+
+        lblPhoneNumber1.setText("Cashier");
+
+        lblCustomer1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblCustomer1.setForeground(new java.awt.Color(196, 204, 90));
+        lblCustomer1.setText("Info");
+
+        lblPhoneNumber2.setText("Note");
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane3.setViewportView(jTextArea1);
+
+        javax.swing.GroupLayout crazyPanel10Layout = new javax.swing.GroupLayout(crazyPanel10);
+        crazyPanel10.setLayout(crazyPanel10Layout);
+        crazyPanel10Layout.setHorizontalGroup(
+            crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel10Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(lblCustomer1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(crazyPanel10Layout.createSequentialGroup()
+                .addGap(39, 39, 39)
+                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel10Layout.createSequentialGroup()
+                        .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(crazyPanel10Layout.createSequentialGroup()
+                                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblPhoneNumber)
+                                    .addComponent(lblName))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(tfPhoneNumber1, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+                                    .addComponent(tfName)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel10Layout.createSequentialGroup()
+                                .addComponent(lblPhoneNumber1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                                .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane3))
+                        .addGap(48, 48, 48))
+                    .addGroup(crazyPanel10Layout.createSequentialGroup()
+                        .addComponent(lblPhoneNumber2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+        crazyPanel10Layout.setVerticalGroup(
+            crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel10Layout.createSequentialGroup()
+                .addComponent(lblCustomer1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(1, 1, 1)
+                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblName)
+                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPhoneNumber)
+                    .addComponent(tfPhoneNumber1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(21, 21, 21)
+                .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPhoneNumber1)
+                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(lblPhoneNumber2)
+                .addGap(26, 26, 26)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(crazyPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(crazyPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(crazyPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 389, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(crazyPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(crazyPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnPrint;
+    private raven.crazypanel.CrazyPanel crazyPanel10;
+    private raven.crazypanel.CrazyPanel crazyPanel2;
+    private raven.crazypanel.CrazyPanel crazyPanel8;
+    private raven.crazypanel.CrazyPanel crazyPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblCustomer;
+    private javax.swing.JLabel lblCustomer1;
+    private javax.swing.JLabel lblCustomer2;
+    private javax.swing.JLabel lblId5;
+    private javax.swing.JLabel lblName;
+    private javax.swing.JLabel lblPhoneNumber;
+    private javax.swing.JLabel lblPhoneNumber1;
+    private javax.swing.JLabel lblPhoneNumber2;
+    private javax.swing.JTable tblInvoice;
+    private javax.swing.JTable tblItem;
+    private javax.swing.JTextField tfName;
+    private javax.swing.JTextField tfPhoneNumber;
+    private javax.swing.JTextField tfPhoneNumber1;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
+   
+    private Object[] getRow(Transaction transaction) {
+        DecimalFormat df = new DecimalFormat("#,##0.##");
+        return new Object[]{transaction.getId(), transaction.getTotalAmount(),df.format(transaction.getAdditionalFee()),  df.format(transaction.getDiscountAmount()), df.format(transaction.getFinalAmount()), transaction.getType(), transaction.getCreateAt()};
+    }
+    
+    private double getAmount(int from, int to) {
+        Random ran = new Random();
+        return (ran.nextInt(to - from) + from) * ran.nextDouble();
+    }
+
+    private void applyTableStyle(JTable table) {
+
+      
+        btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg",0.35f));
+        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
+        //  Change scroll style
+        JScrollPane scroll = (JScrollPane) table.getParent().getParent();
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "background:$Table.background;"
+                + "track:$Table.background;"
+                + "trackArc:999");
+
+        table.getTableHeader().putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+        table.putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+
+        //  To Create table alignment
+        table.getTableHeader().setDefaultRenderer(getAlignmentCellRender(table.getTableHeader().getDefaultRenderer(), true));
+        table.setDefaultRenderer(Object.class, getAlignmentCellRender(table.getDefaultRenderer(Object.class), false));
+    }
+
+    private TableCellRenderer getAlignmentCellRender(TableCellRenderer oldRender, boolean header) {
+        return new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component com = oldRender.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (com instanceof JLabel) {
+                    JLabel label = (JLabel) com;
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                   
+                    if (header == false) {
+                        if (column == 3) {
+                         
+                       
+                            label.setText("-" + value);
+                             com.setForeground(new Color(202, 48, 48));
+                        }
+                        if (column == 4) {
+                            
+                            label.setText("+" + value);
+                            com.setForeground(new Color(17, 182, 60));
+                            
+                        }
+                        else {
+                            if (isSelected) {
+                                com.setForeground(table.getSelectionForeground());
+                            } else {
+                                com.setForeground(table.getForeground());
+                            }
+                        }
+                    }
+                }
+                return com;
+            }
+        };
+    }
+
+    private void setService() {
+        transactionService = new TransactionServiceImpl();
+        customerService = new CustomerServiceImpl();
+        fieldService = new FieldServiceImpl();
+        serviceItemsService = new ServiceItemsServiceImpl();
+        serviceUsageService = new ServiceUsageServiceImpl();
+        serviceService = new ServiceServiceImpl();
+        userService = new UserServiceImpl();
+        
+    }
+    
+    private void loadData()
+    {
+     
+        transactions = transactionService.findAll();
+        for (Transaction transaction : transactions)
+        {
+            invoiceModel.addRow(getRow(transaction));
+        }
+    }
+
 }
