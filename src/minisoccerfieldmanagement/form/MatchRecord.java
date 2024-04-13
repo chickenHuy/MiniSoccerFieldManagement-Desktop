@@ -37,7 +37,9 @@ import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.BookingServiceImpl;
+import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.IBookingService;
+import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.IServiceUsageService;
@@ -76,6 +78,7 @@ public class MatchRecord extends TabbedForm {
     BigDecimal discount;
     BigDecimal rateBig;
     private ServiceUsage serviceUsage;
+    ICustomerService customerService;
     private void setTimePicker() {
        timePicker1 = new  TimePicker();
        timePicker1.set24HourView(true);
@@ -732,7 +735,7 @@ public class MatchRecord extends TabbedForm {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         tfStartTime.setText(formatter.format(booking.getTimeStart().toLocalDateTime().toLocalTime()));
         tfEndTime.setText(formatter.format(booking.getTimeEnd().toLocalDateTime().toLocalTime()));
-        
+        customerService = new CustomerServiceImpl();
         IMemberShipService memberShipService = new MemberShipServiceImpl();
         int rate = memberShipService.findDiscountByCustomer(customer.getId());
         rateBig = (new BigDecimal(rate).divide(new BigDecimal(100)));
@@ -886,7 +889,7 @@ public class MatchRecord extends TabbedForm {
                     {
                         IMatchService matchService = new MatchServiceImpl();
                         matchService.checkOut(match.getId());
-
+                        customerService.updateTotalSpend(customer.getId(), total.subtract(feesBigDecimal));
                         removeAll();
                         PanelTransaction panelTransaction = new PanelTransaction(transaction);
                         panelTransaction.setSize(1188, 696);

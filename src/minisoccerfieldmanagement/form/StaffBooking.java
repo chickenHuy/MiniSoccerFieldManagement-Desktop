@@ -628,6 +628,7 @@ public class StaffBooking extends TabbedForm {
             Customer cus = customerService.findById(booking.getCustomerId());
             
             Field fieldTmp = fieldService.findById(booking.getFieldId());
+            if (fieldTmp == null) continue;
             if (fieldTmp != null)
             {
                 List<Field> parentField = new ArrayList<>();
