@@ -659,7 +659,7 @@ public class StaffBooking extends TabbedForm {
                 {
                     for (Field fp : parentField) {
                          for (int i = 0; i < duration; i++)
-                        {
+                        {   
                             String dataString = "X";
                             LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
                             data[getRow(st) + i][getCol(fp.getId())] = dataString;
@@ -843,12 +843,12 @@ public class StaffBooking extends TabbedForm {
                     if (isBookedSelect)
                     {   
 
-                        Booking bg = booked[selectedRow[0]][selectedColumns[0]];
-                        lblId.setText("#" + bg.getId());
+                        Booking bg = booked[selectedRow[0]][selectedColumns[0]];           
                                 
                         Customer cus = new Customer();
                         if (bg != null)
                         {
+                            lblId.setText("#" + bg.getId());
                             cus = customerService.findById(bg.getCustomerId());
                         }
 
@@ -1219,38 +1219,37 @@ public class StaffBooking extends TabbedForm {
 
     private void findMatch() {
         String idString = lblId.getText().replace("#", "");
-        if (!idString.isEmpty())
+        if (idString.isEmpty()) return;
+        IMatchService matchService = new MatchServiceImpl();
+        Match match = matchService.findByBooking(Integer.parseInt(idString));
+        if (match == null)
         {
-            IMatchService matchService = new MatchServiceImpl();
-            Match match = matchService.findByBooking(Integer.parseInt(idString));
-            if (match == null)
-            {
-                MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.OK_OPTION )
-                                    {
-                                        matchService.checkIn(Integer.parseInt(idString));
-                                    }
+            MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.OK_OPTION )
+                                {
+                                    matchService.checkIn(Integer.parseInt(idString));
                                 }
-                            });
-            }
-            else if (match.getCheckOut() != null)
-            {
-                MessageAlerts.getInstance().showMessage("The match was over", "",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.OK_OPTION )
-                                    {
-              
-                                    }
-                                }
-                            });
-            }
-            else {
-                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, customer, booked[tblScheduler.getSelectedRows()[0]][tblScheduler.getSelectedColumns()[0]], fields.get(tblScheduler.getSelectedColumns()[0] - 1)));
-            }
+                            }
+                        });
         }
+        else if (match.getCheckOut() != null)
+        {
+            MessageAlerts.getInstance().showMessage("The match was over", "",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.OK_OPTION )
+                                {
+
+                                }
+                            }
+                        });
+        }
+        else {
+                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, customer, booked[tblScheduler.getSelectedRows()[0]][tblScheduler.getSelectedColumns()[0]], fields.get(tblScheduler.getSelectedColumns()[0] - 1)));
+        }
+        
     }
     private void applyTableStyle(JTable table) {        
         table.putClientProperty(FlatClientProperties.STYLE, ""

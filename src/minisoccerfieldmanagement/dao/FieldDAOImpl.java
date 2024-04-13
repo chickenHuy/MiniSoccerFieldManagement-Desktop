@@ -364,7 +364,7 @@ public class FieldDAOImpl implements IFieldDAO {
     public List<Field> findParent(int id) {
         List<Field> allLists = new ArrayList<>();
         try {
-            String sql = "SELECT parent.* FROM `field` as child JOIN `field` as parent on child.id = parent.combineField1 or child.id = parent.combineField2 or  child.id = parent.combineField3 WHERE  child.id = ?;";
+            String sql = "SELECT parent.* FROM `field` as child JOIN `field` as parent on child.id = parent.combineField1 or child.id = parent.combineField2 or  child.id = parent.combineField3 WHERE  child.id = ? and parent.isDeleted = 0 ;";
 
             conn = new DBConnection().getConnection();
 
