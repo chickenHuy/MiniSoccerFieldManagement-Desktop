@@ -56,7 +56,7 @@
                       <Component id="crazyPanel9" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="21" max="32767" attributes="0"/>
+              <EmptySpace pref="10" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -111,11 +111,59 @@
           </Properties>
           <SubComponents>
             <Component class="javax.swing.JTextField" name="txtSearch">
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtSearchKeyReleased"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="btnPrint">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Print"/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JFormattedTextField" name="ftfCalendar">
+              <Properties>
+                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[120, 22]"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ftfCalendarMouseClicked"/>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ftfCalendarMouseReleased"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JComboBox" name="cbxDirection">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="3">
+                    <StringItem index="0" value="Normal"/>
+                    <StringItem index="1" value="Increase"/>
+                    <StringItem index="2" value="Decrease"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbxDirectionActionPerformed"/>
+              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
+            </Component>
+            <Component class="javax.swing.JComboBox" name="cbxType">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                  <StringArray count="3">
+                    <StringItem index="0" value="All"/>
+                    <StringItem index="1" value="Booking Service"/>
+                    <StringItem index="2" value="Retail"/>
+                  </StringArray>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbxTypeActionPerformed"/>
+              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
@@ -182,6 +230,9 @@
                   <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tblInvoiceMouseClicked"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -248,10 +299,10 @@
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="4" rowCount="0">
-                    <Column editable="true" title="Id" type="java.lang.Object"/>
-                    <Column editable="true" title="Name" type="java.lang.Object"/>
-                    <Column editable="true" title="Quantity" type="java.lang.Object"/>
-                    <Column editable="true" title="Price" type="java.lang.Object"/>
+                    <Column editable="false" title="Name" type="java.lang.Object"/>
+                    <Column editable="false" title="Price" type="java.lang.Object"/>
+                    <Column editable="false" title="Quantity" type="java.lang.Object"/>
+                    <Column editable="false" title="Total" type="java.lang.Object"/>
                   </Table>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -325,14 +376,14 @@
                                   </Group>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="tfPhoneNumber1" pref="205" max="32767" attributes="0"/>
+                                      <Component id="tfPhoneNumber" pref="205" max="32767" attributes="0"/>
                                       <Component id="tfName" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="lblPhoneNumber1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace pref="59" max="32767" attributes="0"/>
-                                  <Component id="tfPhoneNumber" min="-2" pref="205" max="-2" attributes="0"/>
+                                  <Component id="tfCashier" min="-2" pref="205" max="-2" attributes="0"/>
                               </Group>
                               <Component id="jScrollPane3" alignment="1" max="32767" attributes="0"/>
                           </Group>
@@ -358,12 +409,12 @@
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="lblPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="tfPhoneNumber1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="tfPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="lblPhoneNumber1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="tfPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="tfCashier" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="lblPhoneNumber2" min="-2" max="-2" attributes="0"/>
@@ -377,7 +428,7 @@
       <SubComponents>
         <Component class="javax.swing.JTextField" name="tfName">
         </Component>
-        <Component class="javax.swing.JTextField" name="tfPhoneNumber">
+        <Component class="javax.swing.JTextField" name="tfCashier">
         </Component>
         <Component class="javax.swing.JLabel" name="lblPhoneNumber">
           <Properties>
@@ -394,7 +445,7 @@
             <Property name="text" type="java.lang.String" value="Cashier"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="tfPhoneNumber1">
+        <Component class="javax.swing.JTextField" name="tfPhoneNumber">
         </Component>
         <Component class="javax.swing.JLabel" name="lblCustomer1">
           <Properties>
@@ -419,7 +470,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTextArea" name="jTextArea1">
+            <Component class="javax.swing.JTextArea" name="taNote">
               <Properties>
                 <Property name="columns" type="int" value="20"/>
                 <Property name="rows" type="int" value="5"/>

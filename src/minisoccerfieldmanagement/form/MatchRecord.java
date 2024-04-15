@@ -882,6 +882,7 @@ public class MatchRecord extends TabbedForm {
             transaction.setType("Booking Service");
             if (transactionService.add(transaction))
             {
+                Transaction transaction1 = transactionService.findByServiceUsage(serviceUsage.getId());
                 MessageAlerts.getInstance().showMessage("CHECKOUT", "You won be able to go back", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
@@ -891,7 +892,7 @@ public class MatchRecord extends TabbedForm {
                         matchService.checkOut(match.getId());
                         customerService.updateTotalSpend(customer.getId(), total.subtract(feesBigDecimal));
                         removeAll();
-                        PanelTransaction panelTransaction = new PanelTransaction(transaction);
+                        PanelTransaction panelTransaction = new PanelTransaction(transaction1);
                         panelTransaction.setSize(1188, 696);
                         add(panelTransaction);
                         validate();

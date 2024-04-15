@@ -72,5 +72,10 @@ public class TransactionServiceImpl implements ITransactionService{
         return  transactionDAO.findAll();
     }
 
+    @Override
+    public List<Transaction> findByFilter(String search, String type, String order, Timestamp date) {
+        return  transactionDAO.findByFilter(search, type, order, date);
+    }
+
     
 }
