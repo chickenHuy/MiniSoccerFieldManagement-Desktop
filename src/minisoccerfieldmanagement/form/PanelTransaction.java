@@ -9,21 +9,40 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.mysql.cj.util.Util;
 import java.awt.Color;
 import java.awt.Component;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import minisoccerfieldmanagement.login.UserSession;
+import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
+import minisoccerfieldmanagement.model.Match;
+import minisoccerfieldmanagement.model.Service;
+import minisoccerfieldmanagement.model.ServiceItems;
+import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
 import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
+import minisoccerfieldmanagement.service.IMatchService;
+import minisoccerfieldmanagement.service.IServiceItemsService;
+import minisoccerfieldmanagement.service.IServiceService;
+import minisoccerfieldmanagement.service.IServiceUsageService;
 import minisoccerfieldmanagement.service.IUserService;
+import minisoccerfieldmanagement.service.MatchServiceImpl;
+import minisoccerfieldmanagement.service.ServiceItemsServiceImpl;
+import minisoccerfieldmanagement.service.ServiceServiceImpl;
+import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.util.Utils;
 
@@ -38,12 +57,24 @@ public class PanelTransaction extends javax.swing.JPanel {
      */
     Transaction transaction;
     Customer customer;
-
+    IMatchService matchService;
+    IBookingService bookingService;
+    DefaultTableModel tableModel;
+    IServiceItemsService serviceItemsService;
+    IServiceService serviceService;
+    IServiceUsageService serviceUsageService;
     public PanelTransaction(Transaction transaction) {
         initComponents();
         this.transaction = transaction;
         applyTableStyle(tblInvoice);
+        matchService = new MatchServiceImpl();
+        bookingService = new BookingServiceImpl();
+        serviceItemsService = new ServiceItemsServiceImpl();
+        serviceService = new ServiceServiceImpl();
+        serviceUsageService = new ServiceUsageServiceImpl();
+        tableModel = (DefaultTableModel) tblInvoice.getModel();
         setData();
+        
     }
     
     private void applyTableStyle(JTable table) {
@@ -371,7 +402,14 @@ public class PanelTransaction extends javax.swing.JPanel {
         lblAddtionFees.setText(Utils.toVND(transaction.getAdditionalFee()));
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
         lblDate.setText(dateFormat.format(transaction.getCreateAt()));
-        lblDiscount.setText(Utils.toVND(transaction.getDiscountAmount()));
+        if (transaction.getDiscountAmount().equals(BigDecimal.ZERO))
+        {
+            lblDiscount.setText(Utils.toVND(transaction.getDiscountAmount()));
+        }
+        else
+        {
+            lblDiscount.setText("-"+ Utils.toVND(transaction.getDiscountAmount()));
+        }
         lblTotal.setText(Utils.toVND(transaction.getTotalAmount()));
         lblFinalAmount.setText(Utils.toVND(transaction.getFinalAmount()));
         lblId.setText(String.valueOf(transaction.getId()));
@@ -380,9 +418,47 @@ public class PanelTransaction extends javax.swing.JPanel {
         ICustomerService customerService = new CustomerServiceImpl();
         customer = customerService.findById(transaction.getUserID());
         lblCustomer.setText(customer.getName());
+        LoadService(transaction.getServiceUsageId());
         } catch (Exception e) {
             e.printStackTrace();
         }
        
+    }
+    
+    private Object[] getRowItem(ServiceItems serviceItems)
+    {   
+        Service service = serviceService.findById(serviceItems.getServiceId());
+        DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
+        if (service == null)
+        {
+            return new Object[]{"Not found", "Not found",serviceItems.getQuantity(),  "Not found"};
+        }
+        return new Object[]{service.getName(), df.format(service.getPrice()),serviceItems.getQuantity(),  df.format(service.getPrice().multiply(new BigDecimal(serviceItems.getQuantity())))};
+    }
+    
+    private void LoadService(int serviceUsageId)
+    {
+        ServiceUsage serviceUsage = serviceUsageService.findById(serviceUsageId);
+        tableModel.setNumRows(0);
+        Match match = matchService.findById(serviceUsage.getMatchId());
+        if (match != null){
+            DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
+            Booking booking  = bookingService.findById(match.getBookingId());
+            if (booking != null)
+            {
+                Object[] fieldItem = new Object[]{"Field Service",df.format(booking.getPrice()), 1, df.format(booking.getPrice())};
+
+                tableModel.addRow(fieldItem);
+            }
+        }
+        List<ServiceItems> serviceItems = serviceItemsService.findByServiceUsage(serviceUsageId);
+        
+        
+        if (!serviceItems.isEmpty())
+        {
+            for (ServiceItems serviceItem : serviceItems) {
+                tableModel.addRow(getRowItem(serviceItem));
+            }
+        }
     }
 }

@@ -18,14 +18,15 @@ import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
-import minisoccerfieldmanagement.util.TableGradientCell;
 import raven.alerts.MessageAlerts;
-import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -66,17 +67,18 @@ public class CustomerManagement extends TabbedForm {
         btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg", 0.35f));
         btnUpload.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/upload.svg", 0.35f));
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
-        tblCustomer.setDefaultRenderer(Object.class, new TableGradientCell());
-        tblCustomer.putClientProperty(FlatClientProperties.STYLE, ""
-                + "border:1,1,1,1,$TableHeader.bottomSeparatorColor,,10");
-        tblCustomer.getTableHeader().putClientProperty(FlatClientProperties.STYLE, ""
-                + "hoverBackground:null;"
-                + "pressedBackground:null;"
-                + "separatorColor:$TableHeader.background");
-        jScrollPane1.putClientProperty(FlatClientProperties.STYLE, ""
-                + "border:3,0,3,0,$Table.background,10,10");
-        jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
-                + "hoverTrackColor:null");
+        JScrollPane scroll = (JScrollPane) table.getParent().getParent();
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "background:$Table.background;"
+                + "track:$Table.background;"
+                + "trackArc:999");
+        table.getTableHeader().putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+        table.putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+        table.getTableHeader().setDefaultRenderer(getAlignmentCellRender(table.getTableHeader().getDefaultRenderer(), true));
+        table.setDefaultRenderer(Object.class, getAlignmentCellRender(table.getDefaultRenderer(Object.class), false));
+        tfTotalSpend.setText("0");
+        tfTotalSpend.setEnabled(false);
     }
 
     private void loadDataCustomerManagement() {
@@ -86,27 +88,34 @@ public class CustomerManagement extends TabbedForm {
         for (Customer customer : customers) {
             customerModels.addRow(getRow(customer));
         }
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        tblCustomer.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        tblCustomer.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-        TableCellRenderer backgroundRenderer = new DefaultTableCellRenderer() {
+    }
+
+    private TableCellRenderer getAlignmentCellRender(TableCellRenderer oldRender, boolean header) {
+        return new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (isSelected) {
-                    setBackground(table.getSelectionBackground());
-                } else {
-                    setBackground(table.getBackground());
+                Component com = oldRender.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (com instanceof JLabel) {
+                    JLabel label = (JLabel) com;
+                    if (column == 0 || column == 3) {
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else if (column == 4) {
+                        label.setHorizontalAlignment(SwingConstants.TRAILING);
+                    } else {
+                        label.setHorizontalAlignment(SwingConstants.LEADING);
+                    }
+                    if (header == false) {
+                        if (isSelected) {
+                            com.setForeground(table.getSelectionForeground());
+                        } else {
+                            com.setForeground(table.getForeground());
+                        }
+
+                    }
                 }
-                return this;
+                return com;
             }
         };
-        tblCustomer.getColumnModel().getColumn(1).setCellRenderer(backgroundRenderer);
-        tblCustomer.getColumnModel().getColumn(3).setCellRenderer(backgroundRenderer);
-        tblCustomer.getColumnModel().getColumn(4).setCellRenderer(backgroundRenderer);
-        tblCustomer.setModel(customerModels);
-        tblCustomer.getTableHeader().setReorderingAllowed(false);
     }
 
     private Object[] getRow(Customer customer) {
@@ -120,13 +129,13 @@ public class CustomerManagement extends TabbedForm {
     }
 
     private void clearText() {
-        cboMembership.setSelectedItem("Standard");
+        lblId.setText("#Id");
         tfName.setText("");
         tfPhoneNumber.setText("");
         tfTotalSpend.setText("");
         tfName.requestFocus();
         tempPicture = null;
-        ptbCustomerImage.setImage(null);
+        ptbCustomerImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/empty_service.png"));
         ptbCustomerImage.repaint();
         index = -1;
     }
@@ -142,9 +151,7 @@ public class CustomerManagement extends TabbedForm {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCustomer = new javax.swing.JTable();
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
-        cboMembership = new javax.swing.JComboBox<>();
         lblCustomer = new javax.swing.JLabel();
-        lblMembershipId = new javax.swing.JLabel();
         btnUpload = new javax.swing.JButton();
         lblName = new javax.swing.JLabel();
         tfName = new javax.swing.JTextField();
@@ -161,7 +168,7 @@ public class CustomerManagement extends TabbedForm {
         panelOneBookingHistory = new raven.crazypanel.CrazyPanel();
         lblCustomerName = new com.formdev.flatlaf.extras.components.FlatLabel();
         lblSan = new com.formdev.flatlaf.extras.components.FlatLabel();
-        flatLabel3 = new com.formdev.flatlaf.extras.components.FlatLabel();
+        lblTotalSpendBookingHistory = new com.formdev.flatlaf.extras.components.FlatLabel();
         ptbBookingHistoryImage = new minisoccerfieldmanagement.util.PictureBox();
         ptbCustomerImage = new minisoccerfieldmanagement.util.PictureBox();
 
@@ -246,12 +253,8 @@ public class CustomerManagement extends TabbedForm {
         ));
         crazyPanel3.setName(""); // NOI18N
 
-        cboMembership.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Standard", "Silver", "Gold", "Platinum", "Diamond" }));
-
         lblCustomer.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblCustomer.setText("Customer");
-
-        lblMembershipId.setText("Membership");
 
         btnUpload.setText("Upload");
         btnUpload.addActionListener(new java.awt.event.ActionListener() {
@@ -298,7 +301,7 @@ public class CustomerManagement extends TabbedForm {
 
         lblSan.setText("Sân A - 2h30:4h30");
 
-        flatLabel3.setText("100.000 VND");
+        lblTotalSpendBookingHistory.setText("100000VND");
 
         ptbBookingHistoryImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
         ptbBookingHistoryImage.setMinimumSize(new java.awt.Dimension(70, 70));
@@ -308,28 +311,29 @@ public class CustomerManagement extends TabbedForm {
         panelOneBookingHistoryLayout.setHorizontalGroup(
             panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelOneBookingHistoryLayout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(26, 26, 26)
+                .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(flatLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(130, Short.MAX_VALUE))
+                    .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTotalSpendBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelOneBookingHistoryLayout.setVerticalGroup(
             panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelOneBookingHistoryLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelOneBookingHistoryLayout.createSequentialGroup()
-                        .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(flatLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblTotalSpendBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOneBookingHistoryLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout panelListBookingHistoryLayout = new javax.swing.GroupLayout(panelListBookingHistory);
@@ -346,7 +350,7 @@ public class CustomerManagement extends TabbedForm {
             .addGroup(panelListBookingHistoryLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(panelOneBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(192, Short.MAX_VALUE))
+                .addContainerGap(227, Short.MAX_VALUE))
         );
 
         ptbCustomerImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
@@ -360,43 +364,36 @@ public class CustomerManagement extends TabbedForm {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel3Layout.createSequentialGroup()
                         .addGap(15, 15, 15)
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                        .addGap(31, 31, 31)
-                                        .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(18, 18, 18)
-                                .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(31, 31, 31)
+                                .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addContainerGap(31, Short.MAX_VALUE)
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                    .addComponent(lblName)
+                                    .addGap(64, 64, 64)
+                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                    .addComponent(lblPhoneNumber)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                    .addComponent(lblTotalSpend)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
                                 .addComponent(btnAddNew)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnSave)
                                 .addGap(18, 18, 18)
-                                .addComponent(btnDelete))
-                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                    .addComponent(lblTotalSpend)
-                                    .addGap(37, 37, 37)
-                                    .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                                        .addComponent(lblName)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                        .addComponent(lblMembershipId)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(cboMembership, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                                        .addComponent(lblPhoneNumber)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                                .addComponent(btnDelete)))))
                 .addGap(27, 27, 27))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
                 .addContainerGap()
@@ -425,10 +422,6 @@ public class CustomerManagement extends TabbedForm {
                     .addComponent(lblName))
                 .addGap(18, 18, 18)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cboMembership, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblMembershipId))
-                .addGap(18, 18, 18)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblPhoneNumber))
                 .addGap(18, 18, 18)
@@ -440,11 +433,11 @@ public class CustomerManagement extends TabbedForm {
                     .addComponent(btnAddNew)
                     .addComponent(btnSave)
                     .addComponent(btnDelete))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(lblBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelListBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addContainerGap(7, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -453,19 +446,19 @@ public class CustomerManagement extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 808, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 806, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(8, 8, 8))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 665, Short.MAX_VALUE))
-                .addContainerGap())
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -474,7 +467,6 @@ public class CustomerManagement extends TabbedForm {
         if (index != -1) {
             lblId.setText("#" + customerModels.getValueAt(index, 0).toString());
             tfName.setText(customerModels.getValueAt(index, 1).toString());
-            cboMembership.setSelectedItem(customerModels.getValueAt(index, 2).toString());
             tfPhoneNumber.setText(customerModels.getValueAt(index, 3).toString());
             tfTotalSpend.setText(customerModels.getValueAt(index, 4).toString().replace(" VND", "").replace(",", ""));
             Customer customer = customerService.findById(Integer.parseInt(customerModels.getValueAt(index, 0).toString()));
@@ -492,56 +484,48 @@ public class CustomerManagement extends TabbedForm {
                 }
             }
         }
+        tfTotalSpend.setEnabled(false);
     }//GEN-LAST:event_tblCustomerMouseClicked
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
         clearText();
         index = -1;
+        tfTotalSpend.setText("0");
+        tfTotalSpend.setEnabled(false);
     }//GEN-LAST:event_btnAddNewActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         Customer customer = new Customer();
         String name = tfName.getText().trim();
-        String membershipName = cboMembership.getSelectedItem().toString().trim();
         String phoneNumber = tfPhoneNumber.getText().trim();
         String totalSpendText = tfTotalSpend.getText().trim();
         if (name.isBlank() || phoneNumber.isBlank() || totalSpendText.isBlank()) {
-            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
 
-                    }
                 }
             });
         } else {
             if (!phoneNumber.matches("\\d{10}")) {
-                MessageAlerts.getInstance().showMessage("Wrong format", "PhoneNumber must contain exactly 10 digits, cannot contain special characters", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-                        if (i == MessageAlerts.CLOSED_OPTION) {
+                MessageAlerts.getInstance().showMessage("Wrong format", "Phone number must contain exactly 10 digits, cannot contain special characters", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
 
-                        }
                     }
                 });
                 return;
             }
             if (!totalSpendText.matches("\\d+")) {
-                MessageAlerts.getInstance().showMessage("Wrong format", "TotalSpend cannot contain special characters, cannot be negative, must be a positive integer >= 0", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-                        if (i == MessageAlerts.CLOSED_OPTION) {
+                MessageAlerts.getInstance().showMessage("Wrong format", "Total spend cannot contain special characters, cannot be negative, must be a positive integer >= 0", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
 
-                        }
                     }
                 });
                 return;
             }
-            int membershipId = membershipService.findIdByName(membershipName);
-            customer.setMemberShipId(membershipId);
             customer.setName(name);
             customer.setPhoneNumber(phoneNumber);
             BigDecimal totalSpend = new BigDecimal(totalSpendText);
+            customer.setTotalSpend(totalSpend);
             if (tempPicture != null) {
                 String picturePath = tempPicture.getAbsolutePath();
                 String newName = customer.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
@@ -549,85 +533,75 @@ public class CustomerManagement extends TabbedForm {
                 if (!saveFile(tempPicture, newName)) {
                     return;
                 }
+            } else {
+                customer.setImage(customer.getImage());
             }
-            try {
-                customer.setTotalSpend(totalSpend);
-                if (index == -1) {
-                    if (customerService.checkPhoneNumberExist(phoneNumber)) {
-                        MessageAlerts.getInstance().showMessage("Add failed", "This phone number already exists. Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
+            if (index == -1) {
+                String membershipName = "Standard";
+                int membershipId = membershipService.findIdByName(membershipName);
+                customer.setMemberShipId(membershipId);
+                if (customerService.checkPhoneNumberExist(phoneNumber)) {
+                    MessageAlerts.getInstance().showMessage("Add failed", "This phone number already exists. Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                        if (i == MessageAlerts.CLOSED_OPTION) {
 
-                                }
-                            }
-                        });
-                        return;
-                    }
-                    if (customerService.add(customer)) {
-                        MessageAlerts.getInstance().showMessage("Add Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
+                        }
+                    });
+                    return;
+                }
+                if (customerService.add(customer)) {
+                    MessageAlerts.getInstance().showMessage("Add Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                        if (i == MessageAlerts.CLOSED_OPTION) {
 
-                                }
-                            }
-                        });
-                        loadDataCustomerManagement();
-                    } else {
-                        MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
-
-                                }
-                            }
-                        });
-                    }
-
+                        }
+                    });
+                    loadDataCustomerManagement();
                 } else {
-                    customer.setId(Integer.parseInt(customerModels.getValueAt(index, 0).toString()));
-                    if (customerService.checkPhoneNumberExistExceptCurrent(customer.getId(), phoneNumber)) {
-                        MessageAlerts.getInstance().showMessage("Update failed", "This phone number already exists! Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
+                    MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                        if (i == MessageAlerts.CLOSED_OPTION) {
 
-                                }
-                            }
-                        });
-                        return;
-                    }
+                        }
+                    });
+                }
+
+            } else {
+                int customerId = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
+                customer.setId(customerId);
+                Customer cus = customerService.findById(customerId);
+                customer.setMemberShipId(cus.getMemberShipId());
+                if (customerService.checkPhoneNumberExistExceptCurrent(customer.getId(), phoneNumber)) {
+                    MessageAlerts.getInstance().showMessage("Update failed", "This phone number already exists! Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                        if (i == MessageAlerts.CLOSED_OPTION) {
+
+                        }
+                    });
+                    return;
+                }
+                if (tblCustomer.getSelectedRowCount() == 1) {
                     if (customerService.update(customer)) {
-                        MessageAlerts.getInstance().showMessage("Update Success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
+                        MessageAlerts.getInstance().showMessage("Update success", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
 
-                                }
                             }
                         });
+                        clearText();
+                        tfTotalSpend.setText("0");
                         loadDataCustomerManagement();
                     } else {
-                        MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
+                        MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
 
-                                }
+                            }
+                        });
+                    }
+                } else {
+                    if (tblCustomer.getSelectedRowCount() == 0) {
+                        MessageAlerts.getInstance().showMessage("Update failed", "Please select a customer to update", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+
                             }
                         });
                     }
                 }
-            } catch (Exception e) {
-                MessageAlerts.getInstance().showMessage("Add/Update failed", "Please check the format again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-                        if (i == MessageAlerts.CLOSED_OPTION) {
-
-                        }
-                    }
-                });
             }
         }
     }//GEN-LAST:event_btnSaveActionPerformed
@@ -641,30 +615,21 @@ public class CustomerManagement extends TabbedForm {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         if (index != -1) {
-            MessageAlerts.getInstance().showMessage("Delete Customer", "You definitely want to delete the customer with id: " + customerModels.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.YES_OPTION) {
-                        int id = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
-                        if (customerService.softDelete(id)) {
-                            MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                                    }
-                                }
-                            });
-                            customerModels.removeRow(index);
-                            clearText();
-                        } else {
-                            MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-
-                                }
-                            });
-                        }
+            MessageAlerts.getInstance().showMessage("Delete customer", "You definitely want to delete the customer with id : " + customerModels.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.YES_OPTION) {
+                    int id = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
+                    if (customerService.softDelete(id)) {
+                        MessageAlerts.getInstance().showMessage("Deleted", "Successfully deleted customer", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc1, int i1) -> {
+                            if (i1 == MessageAlerts.CLOSED_OPTION) {
+                            }
+                        });
+                        customerModels.removeRow(index);
+                        clearText();
+                        tfTotalSpend.setText("0");
+                        tfTotalSpend.setEnabled(false);
+                    } else {
+                        MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc1, int i1) -> {
+                        });
                     }
                 }
             });
@@ -690,19 +655,11 @@ public class CustomerManagement extends TabbedForm {
                     tempPicture = fileChooser.getSelectedFile();
                     System.out.print(tempPicture);
                 } else {
-                    MessageAlerts.getInstance().showMessage("Select failed", "Select image file, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                        @Override
-                        public void action(PopupController pc, int i) {
-
-                        }
+                    MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                     });
                 }
             } else {
-                MessageAlerts.getInstance().showMessage("Select failed", "Select image file, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-
-                    }
+                MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 });
             }
         }
@@ -720,12 +677,9 @@ public class CustomerManagement extends TabbedForm {
             Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
-            MessageAlerts.getInstance().showMessage("Upload Image failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
+            MessageAlerts.getInstance().showMessage("Upload image failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
 
-                    }
                 }
             });
             return false;
@@ -738,21 +692,19 @@ public class CustomerManagement extends TabbedForm {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpload;
-    private javax.swing.JComboBox<String> cboMembership;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanel2;
     private raven.crazypanel.CrazyPanel crazyPanel3;
-    private com.formdev.flatlaf.extras.components.FlatLabel flatLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBookingHistory;
     private javax.swing.JLabel lblCustomer;
     private com.formdev.flatlaf.extras.components.FlatLabel lblCustomerName;
     private javax.swing.JLabel lblId;
-    private javax.swing.JLabel lblMembershipId;
     private javax.swing.JLabel lblName;
     private javax.swing.JLabel lblPhoneNumber;
     private com.formdev.flatlaf.extras.components.FlatLabel lblSan;
     private javax.swing.JLabel lblTotalSpend;
+    private com.formdev.flatlaf.extras.components.FlatLabel lblTotalSpendBookingHistory;
     private raven.crazypanel.CrazyPanel panelListBookingHistory;
     private raven.crazypanel.CrazyPanel panelOneBookingHistory;
     private minisoccerfieldmanagement.util.PictureBox ptbBookingHistoryImage;
