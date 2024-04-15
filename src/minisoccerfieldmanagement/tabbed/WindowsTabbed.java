@@ -23,6 +23,8 @@ public class WindowsTabbed {
     private PanelTabbed panelTabbed;
     private JPanel body;
     private TabbedForm temp;
+    private final int LIMIT = 5; // -1 for unlimit
+    private final boolean REMOVE_WHEN_LIMIT = true;
 
     public static WindowsTabbed getInstance() {
         if (instance == null) {
@@ -77,7 +79,14 @@ public class WindowsTabbed {
         return scroll;
     }
 
-    public void addTab(String title, TabbedForm component) {
+    public boolean addTab(String title, TabbedForm component) {
+        if (LIMIT != -1 && panelTabbed.getComponentCount() >= LIMIT) {
+            if (REMOVE_WHEN_LIMIT) {
+                panelTabbed.remove(0);
+            } else {
+                return false;
+            }
+        }
         TabbedItem item = new TabbedItem(title, component);
         item.addActionListener(new ActionListener() {
             @Override
@@ -88,6 +97,7 @@ public class WindowsTabbed {
         panelTabbed.addTab(item);
         showForm(component);
         item.setSelected(true);
+        return true;
     }
 
     public void removeTab(TabbedItem tab) {
@@ -112,5 +122,14 @@ public class WindowsTabbed {
         panelTabbed.revalidate();
         component.formOpen();
         temp = component;
+    }
+    
+       public void removeAllTabbed() {
+        panelTabbed.removeAll();
+        panelTabbed.repaint();
+        panelTabbed.revalidate();
+        body.removeAll();
+        body.revalidate();
+        body.repaint();
     }
 }

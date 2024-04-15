@@ -4,7 +4,14 @@
  */
 package minisoccerfieldmanagement.form;
 
+import java.awt.LayoutManager;
+import minisoccerfieldmanagement.panel.statistics.BookingStatistics;
+import minisoccerfieldmanagement.panel.statistics.CusNewStatistics;
+import minisoccerfieldmanagement.panel.statistics.EmployeeStatistics;
+import minisoccerfieldmanagement.panel.statistics.IncomeStatistics;
+import minisoccerfieldmanagement.panel.statistics.ServiceStatistics;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import raven.crazypanel.CrazyPanel;
 
 /**
  *
@@ -17,6 +24,7 @@ public class Statistics extends TabbedForm {
      */
     public Statistics() {
         initComponents();
+        loadStatistics();
     }
 
     /**
@@ -28,21 +36,130 @@ public class Statistics extends TabbedForm {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        pnlService = new raven.crazypanel.CrazyPanel();
+        pnlIncome = new raven.crazypanel.CrazyPanel();
+        pnlEmployee = new raven.crazypanel.CrazyPanel();
+        pnlBooking = new raven.crazypanel.CrazyPanel();
+        pnlCusNew = new raven.crazypanel.CrazyPanel();
+
         setPreferredSize(new java.awt.Dimension(1188, 696));
+
+        pnlService.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        pnlService.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
+
+        pnlIncome.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        pnlIncome.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
+
+        pnlEmployee.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        pnlEmployee.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
+
+        pnlBooking.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        pnlBooking.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
+
+        pnlCusNew.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        pnlCusNew.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pnlBooking, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pnlCusNew, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pnlService, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pnlEmployee, javax.swing.GroupLayout.PREFERRED_SIZE, 699, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(pnlIncome, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(pnlEmployee, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
+                    .addComponent(pnlService, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlIncome, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(pnlBooking, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                    .addComponent(pnlCusNew, javax.swing.GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private raven.crazypanel.CrazyPanel pnlBooking;
+    private raven.crazypanel.CrazyPanel pnlCusNew;
+    private raven.crazypanel.CrazyPanel pnlEmployee;
+    private raven.crazypanel.CrazyPanel pnlIncome;
+    private raven.crazypanel.CrazyPanel pnlService;
     // End of variables declaration//GEN-END:variables
+
+    private void loadStatistics() {
+        overridePanel(pnlService, new ServiceStatistics());
+        overridePanel(pnlCusNew, new CusNewStatistics());
+        overridePanel(pnlEmployee, new EmployeeStatistics());
+        overridePanel(pnlIncome, new IncomeStatistics());
+        overridePanel(pnlBooking, new BookingStatistics());
+    }
+    
+    private void overridePanel(CrazyPanel A, CrazyPanel B)
+    {
+        A.setLayout(new java.awt.BorderLayout());
+        A.add(B);
+        A.validate();
+        A.repaint();
+    }
+
+    private CrazyPanel EmployeeStatistics() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
