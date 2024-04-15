@@ -18,4 +18,6 @@ public interface IUserService {
     
     Boolean changePassword(int id, String oldPass, String newPass);
     
+    Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
 }

@@ -17,5 +17,7 @@ public interface IUserDAO {
     Boolean changeRole(int id, String role);
 
     Boolean changePassword(int id, String oldPass, String newPass);
+    
+    Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
 
 }
