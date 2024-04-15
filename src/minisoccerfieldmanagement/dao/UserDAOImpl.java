@@ -221,5 +221,29 @@ public class UserDAOImpl implements IUserDAO {
         }
         return false;
     }
+    
+    @Override
+    public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
+        boolean exists = false;
+        try {
+            String sql = "SELECT COUNT(*) AS count FROM user WHERE phoneNumber = ? AND id != ? AND `isDeleted` = 0;";
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+
+            ps.setString(1, phoneNumber);
+            ps.setInt(2, id);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int count = rs.getInt("count");
+                if (count > 0) {
+                    exists = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return exists;
+    }
 
 }

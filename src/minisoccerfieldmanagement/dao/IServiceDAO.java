@@ -21,4 +21,7 @@ public interface IServiceDAO {
 
     Boolean updateSoldAndQuantity(int id, int qty);
 
+    List<Service> loadDataIntoJTable(String keyword, String status, int limit, int offset, String orderBy, String field);
+
+    List<String> loadServiceNameByKeyword(String keyword, String status);
 }

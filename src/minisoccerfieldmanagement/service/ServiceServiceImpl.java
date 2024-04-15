@@ -58,4 +58,13 @@ public class ServiceServiceImpl implements IServiceService {
         }
     }
 
+    @Override
+    public List<Service> loadDataIntoJTable(String keyword, String status, int limit, int offset, String orderBy, String field) {
+        return serviceDAO.loadDataIntoJTable(keyword, status, limit, offset, orderBy, field);
+    }
+
+    @Override
+    public List<String> loadServiceNameByKeyword(String keyword, String status) {
+        return serviceDAO.loadServiceNameByKeyword(keyword, status);
+    }
 }
