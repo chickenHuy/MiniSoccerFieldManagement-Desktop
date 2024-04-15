@@ -480,6 +480,11 @@ public class MatchRecord extends TabbedForm {
         crazyPanel16.add(jLabel16);
 
         tfPenaltyFee.setPreferredSize(new java.awt.Dimension(120, 22));
+        tfPenaltyFee.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tfPenaltyFeeKeyReleased(evt);
+            }
+        });
         crazyPanel16.add(tfPenaltyFee);
 
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -667,6 +672,10 @@ public class MatchRecord extends TabbedForm {
     private void btnSaveNoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveNoteActionPerformed
         setSaveNote();
     }//GEN-LAST:event_btnSaveNoteActionPerformed
+
+    private void tfPenaltyFeeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPenaltyFeeKeyReleased
+        setTotal();
+    }//GEN-LAST:event_tfPenaltyFeeKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -877,7 +886,7 @@ public class MatchRecord extends TabbedForm {
             transaction.setAdditionalFee(feesBigDecimal);
             transaction.setCreateAt(new java.sql.Timestamp(System.currentTimeMillis()));
             transaction.setDiscountAmount(discount);
-            transaction.setFinalAmount(total);
+            transaction.setFinalAmount(total.subtract(feesBigDecimal));
             transaction.setTotalAmount(firstTotal);
             transaction.setType("Booking Service");
             if (transactionService.add(transaction))
@@ -936,6 +945,29 @@ public class MatchRecord extends TabbedForm {
     private void completedBooking() {
         IBookingService bookingService = new BookingServiceImpl();
         bookingService.updateStatus(booking.getId(), "completed");
+    }
+
+    private void setTotal() {
+        try{
+            BigDecimal addionalFee = new BigDecimal(tfPenaltyFee.getText());
+            if (addionalFee.compareTo(BigDecimal.ZERO) < 0) throw new Exception("Plase add fee >= 0");
+            BigDecimal result = total.subtract(addionalFee);
+            lblTotal.setText(String.valueOf(result));
+        }
+        catch(Exception e)
+        {
+            tfPenaltyFee.setText("0");
+            lblTotal.setText(String.valueOf(total));
+            MessageAlerts.getInstance().showMessage("Add Fee Failed", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                                        @Override
+                                                        public void action(PopupController pc, int i) {
+                                                            if (i == MessageAlerts.CLOSED_OPTION )
+                                                            {
+
+                                                            }
+                                                        }
+                                                    });
+        }
     }
     
 }
