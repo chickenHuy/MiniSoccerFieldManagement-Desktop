@@ -112,8 +112,9 @@ public class ServiceUsageDAOImpl implements IServiceUsageDAO{
                 Date updatedAtDate = rs.getDate("updatedAt");
                 if (updatedAtDate != null) {
                     su.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
-                return su;
+               
                 }
+                return su;
             }
 			
             conn.close();
@@ -145,14 +146,15 @@ public class ServiceUsageDAOImpl implements IServiceUsageDAO{
                 Date updatedAtDate = rs.getDate("updatedAt");
                 if (updatedAtDate != null) {
                     su.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
-                return su;
                 }
+                return su;
             }
 			
             conn.close();
             
         } 
             catch (Exception e) {
+                e.printStackTrace();
         }
         return null;
     }
@@ -180,9 +182,8 @@ public class ServiceUsageDAOImpl implements IServiceUsageDAO{
                 Date updatedAtDate = rs.getDate("updatedAt");
                 if (updatedAtDate != null) {
                     su.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
-                
-                    sus.add(su);
                 }
+                sus.add(su);
             }
 			
             conn.close();

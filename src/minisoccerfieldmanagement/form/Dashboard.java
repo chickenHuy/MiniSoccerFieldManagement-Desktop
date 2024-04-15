@@ -7,11 +7,17 @@ package minisoccerfieldmanagement.form;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
+import java.awt.Component;
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,14 +26,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.Match;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
+import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
+import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IMatchService;
+import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.tabbed.WindowsTabbed;
+import minisoccerfieldmanagement.util.EventItem;
+import raven.alerts.MessageAlerts;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 /**
  *
@@ -39,14 +67,70 @@ public class Dashboard extends TabbedForm {
      * Creates new form Dashboard
      */
     IFieldService fieldService;
+    IBookingService bookingService;
+    ICustomerService customerService;
+    IMatchService matchService;
+    DefaultTableModel models;
+    private int liveBooking = 0;
+    private List<Integer> listBookingId = new ArrayList<>();
 
     public Dashboard() {
         initComponents();
         fieldService = new FieldServiceImpl();
+        bookingService = new BookingServiceImpl();
+        customerService = new CustomerServiceImpl();
+        matchService = new MatchServiceImpl();
+        models = (DefaultTableModel) tblBooking.getModel();
+
         loadField();
         applyIcon();
+        applyTableStyle(tblBooking);
+    }
+    
+    private void applyTableStyle(JTable table) {
+        //  Change scroll style
+        JScrollPane scroll = (JScrollPane) table.getParent().getParent();
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "background:$Table.background;"
+                + "track:$Table.background;"
+                + "trackArc:999");
+
+        table.getTableHeader().putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+        table.putClientProperty(FlatClientProperties.STYLE_CLASS, "table_style");
+
+        //  To Create table alignment
+        table.getTableHeader().setDefaultRenderer(getAlignmentCellRender(table.getTableHeader().getDefaultRenderer(), true));
+        table.setDefaultRenderer(Object.class, getAlignmentCellRender(table.getDefaultRenderer(Object.class), false));
     }
 
+    private TableCellRenderer getAlignmentCellRender(TableCellRenderer oldRender, boolean header) {
+        return new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component com = oldRender.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (com instanceof JLabel) {
+                    JLabel label = (JLabel) com;
+                    if (column == 0 || column == 4) {
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setHorizontalAlignment(SwingConstants.LEADING);
+                    }
+                    if (header == false) {
+                        if (isSelected) {
+                            com.setForeground(table.getSelectionForeground());
+                        } else {
+                            com.setForeground(table.getForeground());
+                        }
+
+                    }
+                }
+                return com;
+            }
+        };
+    }
+
+    
     private void applyIcon() {
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         btnOpenCalendar.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/calendar.svg", 0.35f));
@@ -71,14 +155,45 @@ public class Dashboard extends TabbedForm {
         txtDate.setText(txtDate.getText());
     }
 
+    private void loadBooking() {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date chooseDate = dateFormat.parse(txtDate.getText());
+            java.sql.Date sqlDate = new java.sql.Date(chooseDate.getTime());
+            List<Booking> bookings;
+            if (fieldSection1.getSelectedFieldId() == -1) {
+                bookings = bookingService.findByDate(sqlDate);
+            } else {
+                bookings = bookingService.findByDateAndField(sqlDate, fieldSection1.getSelectedFieldId());
+            }
+            models.setNumRows(0);
+            liveBooking = 0;
+            listBookingId.clear();
+            for (Booking book : bookings) {
+                models.addRow(getRow(book));
+                listBookingId.add(book.getId());
+            }
+            lblLive.setText("Live ("+liveBooking+")");
+        } catch (ParseException ex) {
+            Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private void loadField() {
         List<Field> fields = fieldService.findAll();
         fieldSection1.addData(fields);
+
+        fieldSection1.setEvent(new EventItem() {
+            @Override
+            public void fieldClick(Component com, Field item) {
+                loadBooking();
+            }
+        });
     }
 
     private void changeDayLabel(int index, LocalDate date, LocalDate mainDay) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Border selectedBorder = new LineBorder(Color.RED, 1);
+        Border selectedBorder = new LineBorder(new Color(0,160,30), 1);
 
         switch (index) {
             case 0:
@@ -203,10 +318,10 @@ public class Dashboard extends TabbedForm {
 
         dateChooser1 = new com.raven.datechooser.DateChooser();
         crazyPanelField = new raven.crazypanel.CrazyPanel();
-        fieldSection1 = new minisoccerfieldmanagement.form.FieldSection();
+        fieldSection1 = new minisoccerfieldmanagement.util.FieldSection();
         crazyPanel1 = new raven.crazypanel.CrazyPanel();
         txtSearch = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
+        lblLive = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         txtDate = new javax.swing.JTextField();
         btnOpenCalendar = new javax.swing.JButton();
@@ -231,6 +346,9 @@ public class Dashboard extends TabbedForm {
         pnlSunday = new minisoccerfieldmanagement.util.PanelRound();
         lblSunday = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblBooking = new javax.swing.JTable();
+        btnAllField = new javax.swing.JButton();
 
         dateChooser1.setDateFormat("dd/MM/yyyy");
         dateChooser1.setTextRefernce(txtDate);
@@ -256,7 +374,7 @@ public class Dashboard extends TabbedForm {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanelFieldLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(fieldSection1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46))
+                .addGap(47, 47, 47))
         );
 
         crazyPanel1.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -266,7 +384,7 @@ public class Dashboard extends TabbedForm {
 
         txtSearch.setText("Search");
 
-        jLabel1.setText("Live (1)");
+        lblLive.setText("Live (1)");
 
         btnOpenCalendar.setText("View Calendar");
         btnOpenCalendar.addActionListener(new java.awt.event.ActionListener() {
@@ -280,7 +398,7 @@ public class Dashboard extends TabbedForm {
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(txtDate)
-            .addComponent(btnOpenCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
+            .addComponent(btnOpenCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,14 +433,14 @@ public class Dashboard extends TabbedForm {
                         .addGap(13, 13, 13)
                         .addComponent(jLabel3))
                     .addComponent(lblMonday))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlMondayLayout.setVerticalGroup(
             pnlMondayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlMondayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblMonday)
                 .addGap(5, 5, 5))
         );
@@ -353,14 +471,14 @@ public class Dashboard extends TabbedForm {
                         .addGap(13, 13, 13)
                         .addComponent(jLabel5))
                     .addComponent(lblTuesday))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlTuesdayLayout.setVerticalGroup(
             pnlTuesdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlTuesdayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblTuesday)
                 .addGap(5, 5, 5))
         );
@@ -389,14 +507,14 @@ public class Dashboard extends TabbedForm {
                 .addGroup(pnlWednesdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblWednesday)
                     .addComponent(jLabel7))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addGap(12, 12, 12))
         );
         pnlWednesdayLayout.setVerticalGroup(
             pnlWednesdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlWednesdayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblWednesday)
                 .addGap(5, 5, 5))
         );
@@ -425,14 +543,14 @@ public class Dashboard extends TabbedForm {
                 .addGroup(pnlThursdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblThursday)
                     .addComponent(jLabel9))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlThursdayLayout.setVerticalGroup(
             pnlThursdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlThursdayLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(6, 6, 6)
                 .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(6, 6, 6)
                 .addComponent(lblThursday)
                 .addGap(5, 5, 5))
         );
@@ -463,19 +581,19 @@ public class Dashboard extends TabbedForm {
                         .addGap(13, 13, 13)
                         .addComponent(jLabel11))
                     .addComponent(lblFriday))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlFridayLayout.setVerticalGroup(
             pnlFridayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlFridayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblFriday)
                 .addGap(5, 5, 5))
         );
 
-        pnlSaturday.setPreferredSize(new java.awt.Dimension(80, 49));
+        pnlSaturday.setPreferredSize(new java.awt.Dimension(80, 54));
         pnlSaturday.setRoundBottomLeft(20);
         pnlSaturday.setRoundBottomRight(20);
         pnlSaturday.setRoundTopLeft(20);
@@ -499,19 +617,19 @@ public class Dashboard extends TabbedForm {
                 .addGroup(pnlSaturdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblSaturday)
                     .addComponent(jLabel13))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlSaturdayLayout.setVerticalGroup(
             pnlSaturdayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlSaturdayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel13)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblSaturday)
-                .addGap(5, 5, 5))
+                .addGap(7, 7, 7))
         );
 
-        pnlSunday.setPreferredSize(new java.awt.Dimension(80, 50));
+        pnlSunday.setPreferredSize(new java.awt.Dimension(80, 54));
         pnlSunday.setRoundBottomLeft(20);
         pnlSunday.setRoundBottomRight(20);
         pnlSunday.setRoundTopLeft(20);
@@ -537,26 +655,60 @@ public class Dashboard extends TabbedForm {
                         .addGap(13, 13, 13)
                         .addComponent(jLabel15))
                     .addComponent(lblSunday))
-                .addContainerGap(13, Short.MAX_VALUE))
+                .addGap(13, 13, 13))
         );
         pnlSundayLayout.setVerticalGroup(
             pnlSundayLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlSundayLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addComponent(jLabel15)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addGap(7, 7, 7)
                 .addComponent(lblSunday)
-                .addGap(5, 5, 5))
+                .addGap(7, 7, 7))
         );
+
+        tblBooking.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Time Start", "Field Name", "Field Type", "Customer Name", "Duration", "Note", ""
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblBooking.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblBookingMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblBooking);
+
+        btnAllField.setText("All Field");
+        btnAllField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAllFieldActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout crazyPanel1Layout = new javax.swing.GroupLayout(crazyPanel1);
         crazyPanel1.setLayout(crazyPanel1Layout);
         crazyPanel1Layout.setHorizontalGroup(
             crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel1Layout.createSequentialGroup()
                 .addGap(17, 17, 17)
-                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(crazyPanel1Layout.createSequentialGroup()
+                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
                         .addComponent(pnlMonday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnlTuesday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -570,33 +722,43 @@ public class Dashboard extends TabbedForm {
                         .addComponent(pnlSaturday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(crazyPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
+                        .addComponent(lblLive)
                         .addGap(35, 35, 35)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAllField)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(25, 25, 25))
         );
         crazyPanel1Layout.setVerticalGroup(
             crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(8, 8, 8)
+                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel1Layout.createSequentialGroup()
+                        .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblLive))
+                        .addGap(8, 8, 8))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel1Layout.createSequentialGroup()
+                        .addComponent(btnAllField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(pnlThursday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                        .addComponent(pnlWednesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
-                        .addComponent(pnlTuesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                        .addComponent(pnlThursday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                        .addComponent(pnlWednesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                        .addComponent(pnlTuesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                         .addComponent(pnlMonday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(pnlFriday, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                        .addComponent(pnlFriday, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
                         .addComponent(pnlSaturday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(274, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -608,16 +770,16 @@ public class Dashboard extends TabbedForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(crazyPanelField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(381, Short.MAX_VALUE))
+                .addContainerGap(420, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -638,6 +800,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -655,6 +818,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -672,6 +836,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -689,6 +854,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -706,6 +872,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -723,6 +890,7 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -740,19 +908,111 @@ public class Dashboard extends TabbedForm {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
             dateChooser1.setSelectedDate(date);
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_pnlSundayMouseClicked
 
+    private void btnAllFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAllFieldActionPerformed
+        // TODO add your handling code here:
+        fieldSection1.setSelectedFieldId(-1);
+        fieldSection1.setSelected(null);
+        loadBooking();
+    }//GEN-LAST:event_btnAllFieldActionPerformed
+
+    private void tblBookingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblBookingMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2 && !evt.isConsumed()) {
+            evt.consume();
+            DefaultTableModel temp = (DefaultTableModel)tblBooking.getModel();
+            if (temp.getValueAt(tblBooking.getSelectedRow(), 0).toString().equals("LIVE")) {
+                if (!temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkout")) {
+                    findMatch(tblBooking.getSelectedRow());
+                }
+            }
+        }
+    }//GEN-LAST:event_tblBookingMouseClicked
+
+    private void findMatch(int index) {
+        String idString = listBookingId.get(index).toString();
+        if (!idString.isEmpty())
+        {
+            IMatchService matchService = new MatchServiceImpl();
+            Match match = matchService.findByBooking(Integer.parseInt(idString));
+            if (match == null)
+            {
+                MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.OK_OPTION )
+                                    {
+                                        matchService.checkIn(Integer.parseInt(idString));
+                                        loadBooking();
+                                    }
+                                }
+                            });
+            }
+            else {
+                Booking selectedBooking = bookingService.findById(Integer.parseInt(idString));
+                Customer thisCustomer = customerService.findById(selectedBooking.getCustomerId());
+                Field thisField = fieldService.findById(selectedBooking.getFieldId());
+                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, thisCustomer, selectedBooking, thisField));
+            }
+        }
+    }
+    
+    private Object[] getRow(Booking booking) {
+        Timestamp timeStart = booking.getTimeStart();
+        Timestamp timeEnd = booking.getTimeEnd();
+        Field field = fieldService.findById(booking.getFieldId());
+        Customer customer = customerService.findById(booking.getCustomerId());
+        String note = booking.getNote();
+        String status = booking.getStatus();
+        Match match = matchService.findByBooking(booking.getId());
+
+        // Convert Timestamp objects to LocalDateTime
+        LocalDateTime tStart = timeStart.toLocalDateTime();
+        LocalDateTime tEnd = timeEnd.toLocalDateTime();
+
+        // Calculate the duration between the two timestamps
+        Duration duration = Duration.between(tStart, tEnd);
+        // Extract hours and minutes from the duration
+        long hours = duration.toHours();
+        long minutes = duration.toMinutesPart();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTimeDifference = LocalTime.of((int) hours, (int) minutes).format(formatter);
+
+        String matchInfo;
+        if (match == null) {
+            matchInfo = "Chưa Checkin";
+        } else {
+            if (match.getCheckOut() == null) {
+                matchInfo = "Đã Checkin";
+            } else {
+                matchInfo = "Đã Checkout";
+            }
+        }
+        String formattedStartTime = LocalTime.of((int) tStart.getHour(), (int) tStart.getMinute()).format(formatter);
+        long currentTimeMillis = System.currentTimeMillis();
+        Timestamp now = new Timestamp(currentTimeMillis);
+        if (now.after(timeStart) && now.before(timeEnd)) {
+            formattedStartTime = "LIVE";
+            liveBooking += 1;
+        } else if (now.after(timeEnd)) {
+            formattedStartTime = "END";
+        }
+
+        return new Object[]{formattedStartTime, field.getName(), field.getType(), customer.getName(), formattedTimeDifference, booking.getNote(), matchInfo};
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAllField;
     private javax.swing.JButton btnOpenCalendar;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanelField;
     private com.raven.datechooser.DateChooser dateChooser1;
-    private minisoccerfieldmanagement.form.FieldSection fieldSection1;
-    private javax.swing.JLabel jLabel1;
+    private minisoccerfieldmanagement.util.FieldSection fieldSection1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
@@ -761,7 +1021,9 @@ public class Dashboard extends TabbedForm {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblFriday;
+    private javax.swing.JLabel lblLive;
     private javax.swing.JLabel lblMonday;
     private javax.swing.JLabel lblSaturday;
     private javax.swing.JLabel lblSunday;
@@ -775,6 +1037,7 @@ public class Dashboard extends TabbedForm {
     private minisoccerfieldmanagement.util.PanelRound pnlThursday;
     private minisoccerfieldmanagement.util.PanelRound pnlTuesday;
     private minisoccerfieldmanagement.util.PanelRound pnlWednesday;
+    private javax.swing.JTable tblBooking;
     private javax.swing.JTextField txtDate;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables

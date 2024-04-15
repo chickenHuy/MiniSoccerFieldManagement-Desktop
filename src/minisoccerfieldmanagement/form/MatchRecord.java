@@ -7,31 +7,56 @@ package minisoccerfieldmanagement.form;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.mysql.cj.util.Util;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.math.BigDecimal;
+import java.security.Timestamp;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Timer;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.Match;
 import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.ServiceUsage;
+import minisoccerfieldmanagement.model.Transaction;
+import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
+import minisoccerfieldmanagement.service.CustomerServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
+import minisoccerfieldmanagement.service.ICustomerService;
+import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.IServiceUsageService;
+import minisoccerfieldmanagement.service.ITransactionService;
+import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
+import minisoccerfieldmanagement.service.TransactionServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.tabbed.TabbedItem;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.TableGradientCell;
 import minisoccerfieldmanagement.util.Utils;
+import raven.alerts.MessageAlerts;
 import raven.datetime.component.time.TimePicker;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 
 /**
  *
@@ -41,12 +66,19 @@ public class MatchRecord extends TabbedForm {
 
     TimePicker timePicker1;
     TimePicker timePicker2;
+    private BigDecimal serviceFee;
     
     private Field field;
     private Match match;
     private Customer customer;
     private Booking booking;
+    IServiceUsageService serviceUsageService;
     BigDecimal total;
+    BigDecimal firstTotal;
+    BigDecimal discount;
+    BigDecimal rateBig;
+    private ServiceUsage serviceUsage;
+    ICustomerService customerService;
     private void setTimePicker() {
        timePicker1 = new  TimePicker();
        timePicker1.set24HourView(true);
@@ -61,21 +93,25 @@ public class MatchRecord extends TabbedForm {
        timePicker1.setEditor(tfStartTime);
        timePicker2.setEditor(tfEndTime);
    }
-    public MatchRecord() {
-        initComponents();
-        setTimePicker();
-    }
+
     
     public MatchRecord(Match match, Customer customer, Booking booking, Field field)
-    {
+    {   
         this.match = match;
         this.customer = customer;
         this.booking = booking;
         this.field = field;
+        serviceUsage = new ServiceUsage();
+        discount = BigDecimal.ZERO;
+        total = BigDecimal.ZERO;
+        firstTotal = BigDecimal.ZERO;
+        serviceFee = BigDecimal.ZERO;
         initComponents();
         applyTableStyle(tblService);
         setTimePicker();
         setData();
+        completedBooking();
+        createServiceUsage();
     }
 
     /**
@@ -131,9 +167,9 @@ public class MatchRecord extends TabbedForm {
         tfPenaltyFee = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        btnSave1 = new javax.swing.JButton();
+        btnSaveNote = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        taNote = new javax.swing.JTextArea();
         crazyPanel12 = new raven.crazypanel.CrazyPanel();
         btnDelete = new javax.swing.JButton();
         btnCheckin = new javax.swing.JButton();
@@ -235,7 +271,7 @@ public class MatchRecord extends TabbedForm {
 
         lblRemaining.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblRemaining.setForeground(new java.awt.Color(195, 204, 90));
-        lblRemaining.setText("12:30:30");
+        lblRemaining.setText("00:00:00");
         crazyPanel10.add(lblRemaining);
 
         crazyPanel11.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -451,16 +487,16 @@ public class MatchRecord extends TabbedForm {
 
         jLabel7.setText("Note");
 
-        btnSave1.setText("Save Note");
-        btnSave1.addActionListener(new java.awt.event.ActionListener() {
+        btnSaveNote.setText("Save Note");
+        btnSaveNote.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSave1ActionPerformed(evt);
+                btnSaveNoteActionPerformed(evt);
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        taNote.setColumns(20);
+        taNote.setRows(5);
+        jScrollPane2.setViewportView(taNote);
 
         javax.swing.GroupLayout crazyPanel8Layout = new javax.swing.GroupLayout(crazyPanel8);
         crazyPanel8.setLayout(crazyPanel8Layout);
@@ -478,7 +514,7 @@ public class MatchRecord extends TabbedForm {
                 .addGap(18, 18, 18)
                 .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSave1, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
+                    .addComponent(btnSaveNote, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(15, 15, 15))
         );
@@ -502,7 +538,7 @@ public class MatchRecord extends TabbedForm {
                     .addGroup(crazyPanel8Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSave1)))
+                        .addComponent(btnSaveNote)))
                 .addContainerGap(41, Short.MAX_VALUE))
         );
 
@@ -617,7 +653,7 @@ public class MatchRecord extends TabbedForm {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-
+        checkOut();
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
@@ -628,16 +664,16 @@ public class MatchRecord extends TabbedForm {
     
     }//GEN-LAST:event_btnCheckinActionPerformed
 
-    private void btnSave1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSave1ActionPerformed
-    
-    }//GEN-LAST:event_btnSave1ActionPerformed
+    private void btnSaveNoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveNoteActionPerformed
+        setSaveNote();
+    }//GEN-LAST:event_btnSaveNoteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCheckin;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
-    private javax.swing.JButton btnSave1;
+    private javax.swing.JButton btnSaveNote;
     private raven.crazypanel.CrazyPanel crazyPanel10;
     private raven.crazypanel.CrazyPanel crazyPanel11;
     private raven.crazypanel.CrazyPanel crazyPanel12;
@@ -668,7 +704,6 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblCheckin;
     private javax.swing.JLabel lblCustomer;
     private javax.swing.JLabel lblDiscount;
@@ -682,6 +717,7 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel lblRemaining;
     private javax.swing.JLabel lblServiceFees;
     private javax.swing.JLabel lblTotal;
+    private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblService;
     private javax.swing.JFormattedTextField tfDate;
     private javax.swing.JFormattedTextField tfEndTime;
@@ -690,28 +726,48 @@ public class MatchRecord extends TabbedForm {
     // End of variables declaration//GEN-END:variables
 
     private void setData() {
-        btnSave1.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
+        btnSaveNote.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         lblCustomer.setText(customer.getName() + " - " + customer.getPhoneNumber());
         lblCheckin.setText(match.getCheckIn().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm")));
         lblField.setText(field.getName());
         lblFieldPrice.setText(Utils.toVND(booking.getPrice()));
         tfDate.setValue(Date.from(booking.getTimeStart().toLocalDateTime().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        total = booking.getPrice();
-        
-        
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
         tfStartTime.setText(formatter.format(booking.getTimeStart().toLocalDateTime().toLocalTime()));
         tfEndTime.setText(formatter.format(booking.getTimeEnd().toLocalDateTime().toLocalTime()));
-        
+        customerService = new CustomerServiceImpl();
         IMemberShipService memberShipService = new MemberShipServiceImpl();
         int rate = memberShipService.findDiscountByCustomer(customer.getId());
-        BigDecimal percent = (new BigDecimal(rate).divide(new BigDecimal(100)));
-        BigDecimal disBigDecimal = total.multiply(percent);
-        lblDiscount.setText(Utils.toVND(disBigDecimal));
-        
-        total = total.subtract(disBigDecimal);
+        rateBig = (new BigDecimal(rate).divide(new BigDecimal(100)));
+       
+        updateFee(booking.getPrice());
         
         lblTotal.setText(Utils.toVND(total));
+        lblDiscount.setText(Utils.toVND(discount));
+        lblServiceFees.setText(Utils.toVND(serviceFee));
+        
+        javax.swing.Timer timer = new javax.swing.Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateRemainingTime(booking.getTimeEnd().getTime());
+            }
+        });
+        timer.start();
+    }
+    private void updateRemainingTime(long endTime) {
+        long currentTime = System.currentTimeMillis();
+        long remainingTime = endTime - currentTime;
+        if (remainingTime < 0) {
+            remainingTime = 0;
+            lblRemaining.setForeground(Color.red);
+        }
+                long hours = remainingTime / 3600000;
+        long minutes = (remainingTime % 3600000) / 60000;
+        long seconds = ((remainingTime % 3600000) % 60000) / 1000;
+
+
+        String remainingTimeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        lblRemaining.setText(remainingTimeString);
     }
     private Object[] getRow(MemberShip membership) {
         DecimalFormat df = new DecimalFormat("#,##0.##");
@@ -741,13 +797,145 @@ public class MatchRecord extends TabbedForm {
     }
     private void createServiceUsage()
     {
-        IServiceUsageService serviceUsageService = new ServiceUsageServiceImpl();
-        ServiceUsage su = serviceUsageService.findById(match.getId());
+        serviceUsageService = new ServiceUsageServiceImpl();
+        ServiceUsage su = serviceUsageService.findByMatch(match.getId());
         if (su == null)
         {
             su = new ServiceUsage();
             su.setCustomerId(customer.getId());
-            su.setMatchId(su.getMatchId());
+            su.setMatchId(match.getId());
+            su.setNote("");
+            if (serviceUsageService.add(su))
+            {
+                su = serviceUsageService.findByMatch(match.getId());
+            }
+                    
+            
+            
+          
+        }
+        taNote.setText(su.getNote());
+        serviceUsage = su;
+        
+    }
+    
+    
+    private void setSaveNote()
+    {
+        try {
+            String note = taNote.getText();
+            if (note.isEmpty()) throw  new Exception("Note is empty");
+            serviceUsage.setNote(note);
+            if (serviceUsageService.update(serviceUsage))
+            {
+                 MessageAlerts.getInstance().showMessage("Success", "The note has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                                        @Override
+                                                        public void action(PopupController pc, int i) {
+                                                            if (i == MessageAlerts.CLOSED_OPTION )
+                                                            {
+
+                                                            }
+                                                        }
+                                                    });
+            }
+            else
+            {
+                throw  new Exception("Add Note failed");
+            }
+        } catch (Exception e) {
+             MessageAlerts.getInstance().showMessage("ERROR", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                                        @Override
+                                                        public void action(PopupController pc, int i) {
+                                                            if (i == MessageAlerts.CLOSED_OPTION )
+                                                            {
+
+                                                            }
+                                                        }
+                                                    });
         }
     }
+
+    private void checkOut() {
+        
+        try
+        {  
+            
+            ITransactionService transactionService = new TransactionServiceImpl();
+            Transaction transaction = new Transaction();
+            transaction.setServiceUsageId(serviceUsage.getId());
+
+            User user = UserSession.getInstance().getUser();
+            transaction.setUserID(user.getId());
+            transaction.setServiceUsageId(serviceUsage.getId());
+            
+            String fee = tfPenaltyFee.getText();
+            if (fee == null || fee.isBlank())
+                fee = "0";
+            BigDecimal feesBigDecimal = new BigDecimal(fee);
+            if (feesBigDecimal.compareTo(BigDecimal.ZERO) < 0)
+                throw  new Exception("Please Input fee >= 0");
+            transaction.setAdditionalFee(feesBigDecimal);
+            transaction.setCreateAt(new java.sql.Timestamp(System.currentTimeMillis()));
+            transaction.setDiscountAmount(discount);
+            transaction.setFinalAmount(total);
+            transaction.setTotalAmount(firstTotal);
+            transaction.setType("Booking Service");
+            if (transactionService.add(transaction))
+            {
+                Transaction transaction1 = transactionService.findByServiceUsage(serviceUsage.getId());
+                MessageAlerts.getInstance().showMessage("CHECKOUT", "You won be able to go back", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.OK_OPTION )
+                    {
+                        IMatchService matchService = new MatchServiceImpl();
+                        matchService.checkOut(match.getId());
+                        customerService.updateTotalSpend(customer.getId(), total.subtract(feesBigDecimal));
+                        removeAll();
+                        PanelTransaction panelTransaction = new PanelTransaction(transaction1);
+                        panelTransaction.setSize(1188, 696);
+                        add(panelTransaction);
+                        validate();
+                        repaint(); 
+                    }
+                }
+            });
+                
+                
+               
+            }
+            else{
+                throw  new Exception("Make error when save transaction");
+            }
+        }
+        catch(Exception e)
+        {
+            MessageAlerts.getInstance().showMessage("CHECKOUT ERROR", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                                        @Override
+                                                        public void action(PopupController pc, int i) {
+                                                            if (i == MessageAlerts.CLOSED_OPTION )
+                                                            {
+
+                                                            }
+                                                        }
+                                                    });
+            e.printStackTrace();
+        }
+        
+        
+        
+    }
+    private void updateFee(BigDecimal price)
+    {
+        firstTotal = firstTotal.add(price);
+        discount = firstTotal.multiply(rateBig);
+        total = firstTotal.subtract(discount);
+        
+    }
+
+    private void completedBooking() {
+        IBookingService bookingService = new BookingServiceImpl();
+        bookingService.updateStatus(booking.getId(), "completed");
+    }
+    
 }
