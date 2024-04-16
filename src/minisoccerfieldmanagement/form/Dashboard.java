@@ -351,6 +351,7 @@ public class Dashboard extends TabbedForm {
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
 
+        dateChooser1.setForeground(new java.awt.Color(51, 51, 51));
         dateChooser1.setDateFormat("dd/MM/yyyy");
         dateChooser1.setTextRefernce(txtDate);
 

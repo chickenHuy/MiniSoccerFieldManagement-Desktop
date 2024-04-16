@@ -7,11 +7,15 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -535,6 +539,7 @@ public class FieldManagement extends TabbedForm {
         tfName.requestFocus();
         tempPicture = null;
         ptbFieldImage.setImage(null);
+        ptbFieldImage.revalidate();
         ptbFieldImage.repaint();
         index = -1;
     }
@@ -562,6 +567,7 @@ public class FieldManagement extends TabbedForm {
         // TODO add your handling code here:
         index = tblField.getSelectedRow();
         if (index != -1) {
+            tempPicture = null;
             tfName.setText(models.getValueAt(index, 1).toString());
             String type = models.getValueAt(index, 2).toString();
             cboStatus.setSelectedItem(models.getValueAt(index, 3).toString());
@@ -584,16 +590,31 @@ public class FieldManagement extends TabbedForm {
                 hide7Type();
             } else {
                 show7Type();
-                loadComboboxField();
                 Field field7 = fieldService.findById(Integer.parseInt(models.getValueAt(index, 0).toString()));
+                loadComboboxField();
+                loadComboboxWithDeletedField(cboSubField1,field7);
+                loadComboboxWithDeletedField(cboSubField2,field7);
+                loadComboboxWithDeletedField(cboSubField3,field7);
                 selectCombineField(cboSubField1, field7.getCombineField1());
                 selectCombineField(cboSubField2, field7.getCombineField2());
                 selectCombineField(cboSubField3, field7.getCombineField3());
 
             }
+            System.out.println("pictureBox " + ptbFieldImage.getImage().toString());
+            File file = new File(ptbFieldImage.getImage().toString());
+            System.out.println("pictureBox " + file.getName());
         }
     }//GEN-LAST:event_tblFieldMouseClicked
 
+    private void loadComboboxWithDeletedField(JComboBox cboField, Field field7) {
+        List<Field> deletedField = fieldService.findAllDeleted();
+        for (Field field: deletedField) {
+            if (field.getId() == field7.getCombineField1() || field.getId() == field7.getCombineField2() || field.getId() == field.getCombineField3())
+                cboField.addItem(field.getId());
+
+        }
+    }
+    
     private void selectCombineField(JComboBox combobox, int fieldId) {
         for (int i = 0; i < combobox.getItemCount(); i++) {
             if (combobox.getItemAt(i).toString().equals(String.valueOf(fieldId))) {
@@ -646,12 +667,17 @@ public class FieldManagement extends TabbedForm {
             field.setName(name);
             field.setType(type);
             field.setStatus(status);
-            String picturePath = tempPicture.getAbsolutePath();
-            String newName = field.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
-            field.setImage(newName);
-            // Ghép tên + extension để tạo tên file mới
-            if (!saveFile(tempPicture, newName))
-                return;
+            if (tempPicture != null) {
+                String picturePath = tempPicture.getAbsolutePath();
+                String uuid = UUID.randomUUID().toString();
+                String newName = uuid + picturePath.substring(picturePath.lastIndexOf('.'));
+//                String newName = field.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
+                field.setImage(newName);
+                // Ghép tên + extension để tạo tên file mới
+                if (!saveFile(tempPicture, newName)) {
+                    return;
+                }
+            }
             if (type.equals(StaticStrings.FIELD_STYLE_7_A_SIZE)) {
                 String idField1 = cboSubField1.getSelectedItem().toString();
                 String idField2 = cboSubField2.getSelectedItem().toString();
@@ -706,6 +732,14 @@ public class FieldManagement extends TabbedForm {
                 }
             } else {
                 field.setId(Integer.parseInt(models.getValueAt(index, 0).toString()));
+                Field oldField = fieldService.findById(field.getId());
+                if (tempPicture == null) {
+                    field.setImage(oldField.getImage());
+                } else {
+                    File destinationFolder = new File("src/minisoccerfieldmanagement/image/field");
+                    if (oldField.getImage() != null)
+                        deleteFile(destinationFolder, oldField.getImage());
+                }
                 boolean isSuccess;
                 if (field.getType().equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
                     isSuccess = fieldService.update7Field(field);
@@ -819,12 +853,23 @@ public class FieldManagement extends TabbedForm {
         ptbFieldImage.setImage(new ImageIcon(chooser.getSelectedFile().getAbsolutePath()));
         ptbFieldImage.repaint();
         tempPicture = chooser.getSelectedFile();
-        System.out.print(tempPicture);
+        System.out.print("Chon file " + tempPicture);
     }//GEN-LAST:event_btnUploadActionPerformed
 
+    private void deleteFile(File folderPath, String fileName) {
+        File destinationFile = new File(folderPath, fileName);
+        if (destinationFile.exists()) {
+            try {
+                System.out.println("delete "+ destinationFile.toURI().toString());
+                Files.delete(Paths.get(destinationFile.toURI()));
+            } catch (IOException ex) {
+                Logger.getLogger(FieldManagement.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
     private boolean saveFile(File file, String fileName) {
         File destinationFolder = new File("src/minisoccerfieldmanagement/image/field");
-        System.out.println(destinationFolder.getAbsolutePath());
         try {
             // Create the destination folder if it doesn't exist
             if (!destinationFolder.exists()) {
@@ -832,7 +877,6 @@ public class FieldManagement extends TabbedForm {
             }
             // Create the destination file
             File destinationFile = new File(destinationFolder, fileName);
-            System.out.println(destinationFile.getAbsolutePath());
 
             // Copy the selected file to the destination folder
             Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
