@@ -27,4 +27,5 @@ public interface IFieldDAO {
 
     List<Field> findAllDeleted();
     List<Field> findParent(int id);
+    List<Field> findByNameALike(String str, boolean isFindDeleted);
 }

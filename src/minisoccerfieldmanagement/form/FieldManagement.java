@@ -42,6 +42,7 @@ public class FieldManagement extends TabbedForm {
 
     private int index;
     private File tempPicture = null;
+    private boolean isSearchDeleted = false;
     IFieldService fieldService;
     DefaultTableModel models;
     
@@ -232,6 +233,12 @@ public class FieldManagement extends TabbedForm {
                 "width 200"
             }
         ));
+
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
         crazyPanel2.add(txtSearch);
 
         btnField.setText("Field");
@@ -521,11 +528,13 @@ public class FieldManagement extends TabbedForm {
     private void btnDeletedFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletedFieldActionPerformed
         // TODO add your handling code here:
         tableModelDeleted();
+        isSearchDeleted = true;
     }//GEN-LAST:event_btnDeletedFieldActionPerformed
 
     private void btnFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFieldActionPerformed
         // TODO add your handling code here:
         tableModelField();
+        isSearchDeleted = false;
     }//GEN-LAST:event_btnFieldActionPerformed
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
@@ -855,6 +864,19 @@ public class FieldManagement extends TabbedForm {
         tempPicture = chooser.getSelectedFile();
         System.out.print("Chon file " + tempPicture);
     }//GEN-LAST:event_btnUploadActionPerformed
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+        List<Field> searchField = fieldService.findByNameALike(txtSearch.getText(), isSearchDeleted);
+        models.setRowCount(0);
+        for (Field field : searchField) {
+            if (isSearchDeleted) {
+                models.addRow(addDeletedFieldRow(field));
+            } else {
+                models.addRow(addFieldRow(field));
+            }
+        }
+    }//GEN-LAST:event_txtSearchActionPerformed
 
     private void deleteFile(File folderPath, String fileName) {
         File destinationFile = new File(folderPath, fileName);
