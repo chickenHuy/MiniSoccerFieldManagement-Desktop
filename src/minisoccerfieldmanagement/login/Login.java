@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
@@ -24,8 +25,12 @@ import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.PanelRound;
 import raven.alerts.MessageAlerts;
+import raven.drawer.Drawer;
+import raven.drawer.component.header.SimpleHeader;
+import raven.drawer.component.header.SimpleHeaderData;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
+import raven.swing.AvatarIcon;
 
 public class Login extends JPanel {
 
@@ -95,11 +100,12 @@ public class Login extends JPanel {
                     });
                 } else {
                     UserSession.getInstance().loginUser(user);
+                    setAccountInfo();
                     Main.main.showMainForm();
                     WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                 }
             }
-
+            
 //            User tempUser = new User();
 //            tempUser.setName("Thanh Huy");
 //            tempUser.setGender("Male");
@@ -152,7 +158,25 @@ public class Login extends JPanel {
         panel.add(new JLabel(""), "gapy 8");
         add(panel);
     }
-
+    private void setAccountInfo(){
+        User user = UserSession.getInstance().getUser();
+        String title = user.getName();
+        String desc = user.getPhoneNumber();
+        String path = "/minisoccerfieldmanagement/image/profile.jpg";
+        if (user.getImage() != null)
+        {
+            File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
+            if (file.exists()) {
+                path = "/minisoccerfieldmanagement/image/user/" + user.getImage();
+            } 
+        }
+        SimpleHeaderData newSimpleHeaderData = new SimpleHeaderData()
+                .setIcon(new AvatarIcon(getClass().getResource(path), 60, 60, 999))
+                .setTitle(title)
+                .setDescription(desc);
+        SimpleHeader header=(SimpleHeader)Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
+        header.setSimpleHeaderData(newSimpleHeaderData);
+    }
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton cmdLogin;

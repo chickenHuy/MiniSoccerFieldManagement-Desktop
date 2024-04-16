@@ -17,7 +17,7 @@ public class PanelTabbed extends JPanel {
         setLayout(new MigLayout("filly,insets 3 10 3 10"));
         buttonGroup = new ButtonGroup();
     }
-
+    
     public void addTab(JToggleButton item) {
         buttonGroup.add(item);
         add(item);

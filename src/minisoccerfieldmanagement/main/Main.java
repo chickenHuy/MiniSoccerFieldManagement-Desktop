@@ -38,6 +38,7 @@ public class Main extends javax.swing.JFrame {
         // applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         login();
     }
+    
 
     public void login() {
         if (loginForm == null) {
