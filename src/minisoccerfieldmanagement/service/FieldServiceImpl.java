@@ -69,4 +69,9 @@ public class FieldServiceImpl implements IFieldService{
         return fieldDAO.findParent(id);
     }
     
+    @Override
+    public List<Field> findByNameALike(String str, boolean isFindDeleted) {
+        return fieldDAO.findByNameALike(str, isFindDeleted);
+    }
+    
 }

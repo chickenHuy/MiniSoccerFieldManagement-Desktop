@@ -85,6 +85,7 @@ public class Dashboard extends TabbedForm {
         loadField();
         applyIcon();
         applyTableStyle(tblBooking);
+        loadBooking();
     }
     
     private void applyTableStyle(JTable table) {
@@ -350,6 +351,7 @@ public class Dashboard extends TabbedForm {
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
 
+        dateChooser1.setForeground(new java.awt.Color(51, 51, 51));
         dateChooser1.setDateFormat("dd/MM/yyyy");
         dateChooser1.setTextRefernce(txtDate);
 
@@ -930,6 +932,10 @@ public class Dashboard extends TabbedForm {
                 if (!temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkout")) {
                     findMatch(tblBooking.getSelectedRow());
                 }
+            } else {
+                if (temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkin")) {
+                    findMatch(tblBooking.getSelectedRow());
+                }
             }
         }
     }//GEN-LAST:event_tblBookingMouseClicked
@@ -967,8 +973,12 @@ public class Dashboard extends TabbedForm {
         Timestamp timeEnd = booking.getTimeEnd();
         Field field = fieldService.findById(booking.getFieldId());
         Customer customer = customerService.findById(booking.getCustomerId());
-        String note = booking.getNote();
-        String status = booking.getStatus();
+        String fieldName = "DELETED FIELD";
+        String fieldType = "DELETED FIELD";
+        if (field != null) {
+            fieldName = field.getName();
+            fieldType = field.getType();
+        }
         Match match = matchService.findByBooking(booking.getId());
 
         // Convert Timestamp objects to LocalDateTime
@@ -1003,7 +1013,7 @@ public class Dashboard extends TabbedForm {
             formattedStartTime = "END";
         }
 
-        return new Object[]{formattedStartTime, field.getName(), field.getType(), customer.getName(), formattedTimeDifference, booking.getNote(), matchInfo};
+        return new Object[]{formattedStartTime, fieldName, fieldType, customer.getName(), formattedTimeDifference, booking.getNote(), matchInfo};
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

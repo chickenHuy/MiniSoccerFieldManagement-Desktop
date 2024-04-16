@@ -399,4 +399,41 @@ public class FieldDAOImpl implements IFieldDAO {
         return allLists;
     }
 
+    public List<Field> findByNameALike(String str, boolean isFindDeleted) {
+        List<Field> allLists = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM `field` WHERE `isDeleted` = ? AND `name` LIKE ?;";
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setBoolean(1, isFindDeleted);
+            ps.setString(2, "%" + str + "%");
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Field pl = new Field();
+                pl.setId(rs.getInt("id"));
+                pl.setName(rs.getString("name"));
+                pl.setStatus(rs.getString("status"));
+                pl.setType(rs.getString("type"));
+                pl.setImage(rs.getString("image"));
+                pl.setCombineField1(rs.getInt("combineField1"));
+                pl.setCombineField2(rs.getInt("combineField2"));
+                pl.setCombineField3(rs.getInt("combineField3"));
+                pl.setDeleted(Boolean.FALSE);
+                pl.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    pl.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                allLists.add(pl);
+            }
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return allLists;
+    }
 }
