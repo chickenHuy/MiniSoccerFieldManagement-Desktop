@@ -614,10 +614,11 @@ public class StaffBooking extends TabbedForm {
         Timestamp sqlTimestamp = new Timestamp(utilDate.getTime());
 
         int numberOfCol = fields.size() + 1;
+        int numberOfRow = timeSlots.size();
         // Create data
-        booked = new Booking[timeSlots.size()][numberOfCol];
-        data = new Object[timeSlots.size()][numberOfCol];
-        for (int i = 0; i < timeSlots.size(); i++) {
+        booked = new Booking[numberOfRow][numberOfCol];
+        data = new Object[numberOfRow][numberOfCol];
+        for (int i = 0; i < numberOfRow; i++) {
             data[i][0] = timeSlots.get(i).toString();
             
         }
@@ -625,46 +626,45 @@ public class StaffBooking extends TabbedForm {
         for (Booking booking : listBooking) {
             long minutesDiff = Math.abs(booking.getTimeEnd().getTime() - booking.getTimeStart().getTime()) / (1000 * 60); // Chia cho 1000 để chuyển milliseconds thành giây, và chia cho 60 để chuyển giây thành phút
             long duration = minutesDiff / 30;
+            
             Customer cus = customerService.findById(booking.getCustomerId());
             
             Field fieldTmp = fieldService.findById(booking.getFieldId());
             if (fieldTmp == null) continue;
-            if (fieldTmp != null)
+            
+            List<Field> parentField = new ArrayList<>();
+            if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_5_A_SIZE))
             {
-                List<Field> parentField = new ArrayList<>();
-                if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_5_A_SIZE))
+                parentField = fieldService.findParent(fieldTmp.getId());
+            }
+            else if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
+            {
+
+                List<Integer> listId = new ArrayList<>();
+
+                listId.add(fieldTmp.getCombineField1());
+                listId.add(fieldTmp.getCombineField2());
+                listId.add(fieldTmp.getCombineField3());
+                for (int i = 0; i < 3; i++)
                 {
-                    parentField = fieldService.findParent(fieldTmp.getId());
-                }
-                else if (fieldTmp.getType().equals(StaticStrings.FIELD_STYLE_7_A_SIZE))
-                {
-                    
-                    List<Integer> listId = new ArrayList<>();
-                    
-                    listId.add(fieldTmp.getCombineField1());
-                    listId.add(fieldTmp.getCombineField2());
-                    listId.add(fieldTmp.getCombineField3());
-                    for (int i = 0; i < 3; i++)
+                    Field tmp = fieldService.findById(listId.get(i));
+                    if (tmp != null)
                     {
-                        Field tmp = fieldService.findById(listId.get(i));
-                        if (tmp != null)
-                        {
-                            parentField.add(tmp);
-                        }
-                        
+                        parentField.add(tmp);
                     }
-                    
+
                 }
-                if ( !parentField.isEmpty())
-                {
-                    for (Field fp : parentField) {
-                         for (int i = 0; i < duration; i++)
-                        {   
-                            String dataString = "X";
-                            LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
-                            data[getRow(st) + i][getCol(fp.getId())] = dataString;
-                            booked[getRow(st) + i][getCol(fp.getId())] = null;
-                        }
+
+            }
+            if ( !parentField.isEmpty())
+            {
+                for (Field fp : parentField) {
+                     for (int i = 0; i < duration; i++)
+                    {   
+                        String dataString = "X";
+                        LocalTime st = Utils.convertTimestampToLocalTime(booking.getTimeStart());
+                        data[getRow(st) + i][getCol(fp.getId())] = dataString;
+                        booked[getRow(st) + i][getCol(fp.getId())] = null;
                     }
                 }
             }
@@ -683,6 +683,19 @@ public class StaffBooking extends TabbedForm {
                 booked[getRow(st) + i][getCol(booking.getFieldId())] = booking;
             }
         }
+        for (int i = 1 ; i < numberOfCol; i++)
+        {
+            for (int j = 0; j < numberOfRow; j++)
+            {
+                if (fields.get(i - 1).getStatus().equals(StaticStrings.INACTIVE))
+                {
+                    if (booked[j][i] == null)
+                    {
+                        data[j][i] = "X";
+                    }
+                }
+            }
+        }
 
 
         DefaultTableModel model = new DefaultTableModel(data, columnNames);
@@ -693,7 +706,7 @@ public class StaffBooking extends TabbedForm {
         tblScheduler.setCellSelectionEnabled(true);
         
        
-        for (int index = 1; index <= fields.size(); index ++) {
+        for (int index = 1; index < numberOfCol; index ++) {
             Color color = ColorGenerator.getRandomColor();
             tblScheduler.getColumnModel().getColumn(index).setCellRenderer(new DefaultTableCellRenderer() {
                 
@@ -877,7 +890,7 @@ public class StaffBooking extends TabbedForm {
                             }
                             else
                             {
-                                cbxStatus.setSelectedIndex(1);
+                                cbxStatus.setSelectedIndex(2);
                             }
                         }
          
@@ -1142,6 +1155,7 @@ public class StaffBooking extends TabbedForm {
         return false;
     }
 
+
     private void clear() {
         tfName.setText("");
         tfPrice.setText("");
@@ -1169,10 +1183,12 @@ public class StaffBooking extends TabbedForm {
                 MessageAlerts.getInstance().showMessage("DELETE", "Field booking with id " + id + " will be deleted", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
                     @Override
                     public void action(PopupController pc, int i) {
+                    try {
                         if (i == MessageAlerts.OK_OPTION)
                         {
                             String idnew = id.replace("#", "");
                             int idInt = Integer.parseInt(idnew);
+                            if (isCompleted(idInt)) throw new Exception("The booking has been completed");
                             if ( bookingService.softDelete(idInt))
                             {
                                 listBooking = bookingService.findByDate(Utils.convertUtilDateToSqlDate(dateSelected));
@@ -1189,12 +1205,19 @@ public class StaffBooking extends TabbedForm {
 
                             }
                             else{
-                                try {
-                                    throw new Exception("These was an error during detection");
-                                } catch (Exception ex) {
-                                    Logger.getLogger(StaffBooking.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+                                throw new Exception("These was an error during detection"); 
                             }
+                        }
+                        } catch (Exception ex) {
+                            MessageAlerts.getInstance().showMessage("Delete failed", ex.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                            @Override
+                                            public void action(PopupController pc, int i) {
+                                                if (i == MessageAlerts.CLOSED_OPTION )
+                                                {
+
+                                                }
+                                            }
+                                        });
                         }
                     }
                 });
@@ -1263,6 +1286,12 @@ public class StaffBooking extends TabbedForm {
         jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
                 + "hoverTrackColor:null");
 
+    }
+
+    private boolean isCompleted(int idInt) {
+        Booking booking = bookingService.findById(idInt);
+        if (booking == null) return  false;
+        return  booking.getStatus().equals("completed");
     }
 
 

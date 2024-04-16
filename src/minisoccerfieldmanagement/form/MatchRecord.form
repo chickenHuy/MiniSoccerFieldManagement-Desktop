@@ -662,6 +662,9 @@
                   <Dimension value="[120, 22]"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="tfPenaltyFeeKeyReleased"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

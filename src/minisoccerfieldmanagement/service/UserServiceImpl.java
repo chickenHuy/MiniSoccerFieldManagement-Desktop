@@ -43,4 +43,9 @@ public class UserServiceImpl implements IUserService{
         return userDAO.changePassword(id, oldPass, newPass);
     }
     
+    @Override
+    public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
+        return userDAO.checkPhoneNumberExistExceptCurrent(id, phoneNumber);
+    }
+    
 }

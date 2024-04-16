@@ -355,5 +355,84 @@ public class TransactionDAOImpl implements ITransactionDAO{
         }
         return transactions;
     }
+
+    @Override
+    public List<Transaction> findByFilter(String search, String type, String order, Timestamp date) {
+    List<Transaction> transactions = new ArrayList<>();
+    try {
+        String sql ="SELECT t.*\n" +
+                    "FROM `Transaction` t\n" +
+                    "JOIN `ServiceUsage` su ON t.serviceUsageId = su.id\n" +
+                    "RIGHT JOIN customer ON su.customerId = customer.id\n" +
+                    "JOIN `User` ON t.userId = User.id\n" +
+                    "WHERE (LOWER(`userId`) LIKE LOWER(?) \n" +
+                    "        OR LOWER(`serviceUsageId`) LIKE LOWER(?)\n" +
+                    "        OR LOWER(t.id) LIKE LOWER(?)\n" +
+                    "        OR LOWER(t.type) LIKE LOWER(?)\n" +
+                    "        OR LOWER(customer.name) LIKE LOWER(?)\n" +
+                    "        OR LOWER(customer.phoneNumber) LIKE LOWER(?)\n" +
+                    "        OR LOWER(user.userName) LIKE LOWER(?))\n";
+
+        // Kiểm tra nếu type không được chỉ định, loại bỏ điều kiện về type
+        if (!type.isEmpty()) {
+            sql += " AND t.type = ?";
+        }
+        
+        sql += " AND DATE(t.createdAt) = DATE(?)\n" +
+                " AND t.isDeleted = 0";
+
+        // Thêm điều kiện sắp xếp nếu có
+        if (order.equalsIgnoreCase("ASC")) {
+            sql += " ORDER BY `finalAmount` ASC";
+        } else if (order.equalsIgnoreCase("DESC")) {
+            sql += " ORDER BY `finalAmount` DESC";
+        }
+
+        conn = new DBConnection().getConnection();
+
+        ps = conn.prepareStatement(sql);
+        ps.setString(1, "%" + search + "%");
+        ps.setString(2, "%" + search + "%");
+        ps.setString(3, "%" + search + "%");
+        ps.setString(4, "%" + search + "%");
+        ps.setString(5, "%" + search + "%");
+        ps.setString(6, "%" + search + "%");
+        ps.setString(7, "%" + search + "%");
+
+        // Đặt giá trị cho type nếu được chỉ định
+        if (!type.isEmpty()) {
+            ps.setString(8, type);
+            ps.setTimestamp(9, date);
+        } else {
+            ps.setTimestamp(8, date);
+        }
+
+        rs = ps.executeQuery();
+
+        while(rs.next()) {
+            Transaction transaction = new Transaction();
+            transaction.setId(rs.getInt("id"));
+            transaction.setServiceUsageId(rs.getInt("serviceUsageId"));
+            transaction.setUserID(rs.getInt("userId"));
+            transaction.setType(rs.getString("type"));
+            transaction.setTotalAmount(rs.getBigDecimal("totalAmount"));
+            transaction.setAdditionalFee(rs.getBigDecimal("additionalFee"));
+            transaction.setDiscountAmount(rs.getBigDecimal("discountAmount"));
+            transaction.setFinalAmount(rs.getBigDecimal("finalAmount"));
+            transaction.setCreateAt(rs.getTimestamp("createdAt"));
+            Date updatedAtDate = rs.getDate("updatedAt");
+            if (updatedAtDate != null) {
+                transaction.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
+            }
+            transactions.add(transaction);
+        }
+
+        conn.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return transactions;
+}
+
     
 }

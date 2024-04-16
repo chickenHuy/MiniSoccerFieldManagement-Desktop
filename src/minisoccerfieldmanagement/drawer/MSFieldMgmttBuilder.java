@@ -10,6 +10,7 @@ import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
 import minisoccerfieldmanagement.form.ServiceManagement;
 import minisoccerfieldmanagement.form.StaffBooking;
+import minisoccerfieldmanagement.form.Statistics;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
 import raven.drawer.component.header.SimpleHeaderData;
@@ -60,7 +61,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
             {"Operations", "Account", "Field", "Service"},
             {"Invoice"},
             {"~OTHER~"},
-            {"Statistics", "Field", "Service", "Customer", "Employee", "Revenue"},
+            {"Statistics"},
             {"Setting", "Membership", "Price List"},
             {"My Account"},
             {"Logout"}};
@@ -119,6 +120,10 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         else if (index == 5)
                         {
                             WindowsTabbed.getInstance().addTab("Invoice", new InvoiceManagement());
+                        }
+                        else if (index == 6)
+                        {
+                            WindowsTabbed.getInstance().addTab("Statistics", new Statistics());
                         }
                         System.out.println("Menu selected " + index + " " + subIndex);
                     }

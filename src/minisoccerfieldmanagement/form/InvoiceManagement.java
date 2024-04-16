@@ -9,7 +9,10 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
@@ -20,22 +23,41 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.Booking;
+import minisoccerfieldmanagement.model.Customer;
+import minisoccerfieldmanagement.model.Match;
+import minisoccerfieldmanagement.model.Service;
+import minisoccerfieldmanagement.model.ServiceItems;
+import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
+import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
+import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IServiceItemsService;
 import minisoccerfieldmanagement.service.IServiceService;
 import minisoccerfieldmanagement.service.IServiceUsageService;
 import minisoccerfieldmanagement.service.ITransactionService;
 import minisoccerfieldmanagement.service.IUserService;
+import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.ServiceItemsServiceImpl;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
 import minisoccerfieldmanagement.service.TransactionServiceImpl;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.util.TableGradientCell;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import minisoccerfieldmanagement.util.Utils;
 
 /**
  *
@@ -43,6 +65,7 @@ import minisoccerfieldmanagement.tabbed.TabbedForm;
  */
 public class InvoiceManagement extends TabbedForm {
 
+  
     ITransactionService transactionService;
     ICustomerService customerService;
     IFieldService fieldService;
@@ -50,14 +73,29 @@ public class InvoiceManagement extends TabbedForm {
     IServiceUsageService serviceUsageService;
     IServiceService serviceService;
     IUserService userService;
+    IMatchService matchService;
+    IBookingService bookingService;
     List<Transaction> transactions;
+    String type = "";
+    String order = "";
+    Timestamp date = new Timestamp(System.currentTimeMillis());
+    String search = "";
     private DefaultTableModel invoiceModel;
+    private DefaultTableModel serviceItemModel;
     public InvoiceManagement() {
         initComponents();
         FlatLaf.registerCustomDefaultsSource("tableview");
         applyTableStyle(tblInvoice);
+        applyTableStyleTableItem(tblItem);
         invoiceModel = (DefaultTableModel) tblInvoice.getModel();
+        serviceItemModel = (DefaultTableModel) tblItem.getModel();
         setService();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        
+        ftfCalendar.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
+        ftfCalendar.setEditable(false);
+        loadData();
+        setEvent();
         
     }
 
@@ -75,6 +113,9 @@ public class InvoiceManagement extends TabbedForm {
         crazyPanel2 = new raven.crazypanel.CrazyPanel();
         txtSearch = new javax.swing.JTextField();
         btnPrint = new javax.swing.JButton();
+        ftfCalendar = new javax.swing.JFormattedTextField();
+        cbxDirection = new javax.swing.JComboBox<>();
+        cbxType = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblInvoice = new javax.swing.JTable();
         crazyPanel9 = new raven.crazypanel.CrazyPanel();
@@ -84,15 +125,15 @@ public class InvoiceManagement extends TabbedForm {
         lblCustomer2 = new javax.swing.JLabel();
         crazyPanel10 = new raven.crazypanel.CrazyPanel();
         tfName = new javax.swing.JTextField();
-        tfPhoneNumber = new javax.swing.JTextField();
+        tfCashier = new javax.swing.JTextField();
         lblPhoneNumber = new javax.swing.JLabel();
         lblName = new javax.swing.JLabel();
         lblPhoneNumber1 = new javax.swing.JLabel();
-        tfPhoneNumber1 = new javax.swing.JTextField();
+        tfPhoneNumber = new javax.swing.JTextField();
         lblCustomer1 = new javax.swing.JLabel();
         lblPhoneNumber2 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        taNote = new javax.swing.JTextArea();
 
         lblCustomer.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblCustomer.setText("Customer");
@@ -122,10 +163,43 @@ public class InvoiceManagement extends TabbedForm {
                 "width 200"
             }
         ));
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
         crazyPanel2.add(txtSearch);
 
         btnPrint.setText("Print");
         crazyPanel2.add(btnPrint);
+
+        ftfCalendar.setPreferredSize(new java.awt.Dimension(120, 22));
+        ftfCalendar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ftfCalendarMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                ftfCalendarMouseReleased(evt);
+            }
+        });
+        crazyPanel2.add(ftfCalendar);
+
+        cbxDirection.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Normal", "Increase", "Decrease" }));
+        cbxDirection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxDirectionActionPerformed(evt);
+            }
+        });
+        crazyPanel2.add(cbxDirection);
+
+        cbxType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Booking Service", "Retail" }));
+        cbxType.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxTypeActionPerformed(evt);
+            }
+        });
+        crazyPanel2.add(cbxType);
 
         tblInvoice.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -141,6 +215,11 @@ public class InvoiceManagement extends TabbedForm {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblInvoice.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblInvoiceMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblInvoice);
@@ -182,9 +261,17 @@ public class InvoiceManagement extends TabbedForm {
 
             },
             new String [] {
-                "Id", "Name", "Quantity", "Price"
+                "Name", "Price", "Quantity", "Total"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(tblItem);
 
         lblCustomer2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -212,8 +299,8 @@ public class InvoiceManagement extends TabbedForm {
                 .addGap(12, 12, 12)
                 .addComponent(lblCustomer2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
                 .addComponent(lblId5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -235,9 +322,9 @@ public class InvoiceManagement extends TabbedForm {
 
         lblPhoneNumber2.setText("Note");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane3.setViewportView(jTextArea1);
+        taNote.setColumns(20);
+        taNote.setRows(5);
+        jScrollPane3.setViewportView(taNote);
 
         javax.swing.GroupLayout crazyPanel10Layout = new javax.swing.GroupLayout(crazyPanel10);
         crazyPanel10.setLayout(crazyPanel10Layout);
@@ -258,12 +345,12 @@ public class InvoiceManagement extends TabbedForm {
                                     .addComponent(lblName))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(tfPhoneNumber1, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
+                                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
                                     .addComponent(tfName)))
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel10Layout.createSequentialGroup()
                                 .addComponent(lblPhoneNumber1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
-                                .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(tfCashier, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane3))
                         .addGap(48, 48, 48))
                     .addGroup(crazyPanel10Layout.createSequentialGroup()
@@ -281,11 +368,11 @@ public class InvoiceManagement extends TabbedForm {
                 .addGap(18, 18, 18)
                 .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPhoneNumber)
-                    .addComponent(tfPhoneNumber1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(21, 21, 21)
                 .addGroup(crazyPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblPhoneNumber1)
-                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tfCashier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(lblPhoneNumber2)
                 .addGap(26, 26, 26)
@@ -316,21 +403,64 @@ public class InvoiceManagement extends TabbedForm {
                         .addComponent(crazyPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(crazyPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tblInvoiceMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblInvoiceMouseClicked
+        loadRowSelected();
+    }//GEN-LAST:event_tblInvoiceMouseClicked
+
+    private void ftfCalendarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseClicked
+       com.raven.datechooser.DateChooser dateChooser1;
+       dateChooser1 = new com.raven.datechooser.DateChooser();
+        dateChooser1.setDateFormat("dd/MM/yyyy");
+        dateChooser1.setTextRefernce(ftfCalendar);
+        dateChooser1.setForeground(new Color(0, 0, 0));
+        dateChooser1.showPopup();
+
+    }//GEN-LAST:event_ftfCalendarMouseClicked
+
+    private void cbxDirectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxDirectionActionPerformed
+        order = switch (cbxDirection.getSelectedIndex()) {
+            case 1 -> "ASC";
+            case 2 -> "DESC";
+            default -> "";
+        };
+        loadData();
+    }//GEN-LAST:event_cbxDirectionActionPerformed
+
+    private void cbxTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxTypeActionPerformed
+        type = switch (cbxType.getSelectedIndex()) {
+            case 1 -> "Booking Service";
+            case 2 -> "Retail";
+            default -> "";
+        };
+        loadData();
+    }//GEN-LAST:event_cbxTypeActionPerformed
+
+    private void ftfCalendarMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseReleased
+
+    }//GEN-LAST:event_ftfCalendarMouseReleased
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        search = txtSearch.getText();
+        loadData();
+    }//GEN-LAST:event_txtSearchKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPrint;
+    private javax.swing.JComboBox<String> cbxDirection;
+    private javax.swing.JComboBox<String> cbxType;
     private raven.crazypanel.CrazyPanel crazyPanel10;
     private raven.crazypanel.CrazyPanel crazyPanel2;
     private raven.crazypanel.CrazyPanel crazyPanel8;
     private raven.crazypanel.CrazyPanel crazyPanel9;
+    private javax.swing.JFormattedTextField ftfCalendar;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel lblCustomer;
     private javax.swing.JLabel lblCustomer1;
     private javax.swing.JLabel lblCustomer2;
@@ -339,29 +469,40 @@ public class InvoiceManagement extends TabbedForm {
     private javax.swing.JLabel lblPhoneNumber;
     private javax.swing.JLabel lblPhoneNumber1;
     private javax.swing.JLabel lblPhoneNumber2;
+    private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblInvoice;
     private javax.swing.JTable tblItem;
+    private javax.swing.JTextField tfCashier;
     private javax.swing.JTextField tfName;
     private javax.swing.JTextField tfPhoneNumber;
-    private javax.swing.JTextField tfPhoneNumber1;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
    
     private Object[] getRow(Transaction transaction) {
-        DecimalFormat df = new DecimalFormat("#,##0.##");
-        return new Object[]{transaction.getId(), transaction.getTotalAmount(),df.format(transaction.getAdditionalFee()),  df.format(transaction.getDiscountAmount()), df.format(transaction.getFinalAmount()), transaction.getType(), transaction.getCreateAt()};
+        DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return new Object[]{transaction.getId(), df.format(transaction.getTotalAmount()),df.format(transaction.getAdditionalFee()),  df.format(transaction.getDiscountAmount()), df.format(transaction.getFinalAmount()), transaction.getType(), dateFormat.format(transaction.getCreateAt().getTime())};
     }
     
-    private double getAmount(int from, int to) {
-        Random ran = new Random();
-        return (ran.nextInt(to - from) + from) * ran.nextDouble();
-    }
+     private void applyTableStyleTableItem(JTable tbl) {
+        tbl.setDefaultRenderer(Object.class, new TableGradientCell());
+        tbl.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:1,1,1,1,$TableHeader.bottomSeparatorColor,,10");
+        tbl.getTableHeader().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverBackground:null;"
+                + "pressedBackground:null;"
+                + "separatorColor:$TableHeader.background");
+        jScrollPane1.putClientProperty(FlatClientProperties.STYLE, ""
+                + "border:3,0,3,0,$Table.background,10,10");
+        jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
+                + "hoverTrackColor:null");
 
+    }
     private void applyTableStyle(JTable table) {
 
-      
+        ftfCalendar.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/calendar.svg", 0.35f));
         btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg",0.35f));
-        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
+        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         //  Change scroll style
         JScrollPane scroll = (JScrollPane) table.getParent().getParent();
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -390,9 +531,10 @@ public class InvoiceManagement extends TabbedForm {
                     if (header == false) {
                         if (column == 3) {
                          
-                       
-                            label.setText("-" + value);
-                             com.setForeground(new Color(202, 48, 48));
+                            com.setForeground(new Color(202, 48, 48));
+                            if (!value.equals("0 VNĐ"))
+                                label.setText("-" + value);
+                            
                         }
                         if (column == 4) {
                             
@@ -422,17 +564,122 @@ public class InvoiceManagement extends TabbedForm {
         serviceUsageService = new ServiceUsageServiceImpl();
         serviceService = new ServiceServiceImpl();
         userService = new UserServiceImpl();
+        matchService = new MatchServiceImpl();
+        bookingService = new BookingServiceImpl();
         
     }
     
     private void loadData()
     {
      
-        transactions = transactionService.findAll();
+        invoiceModel.setNumRows(0);
+        transactions = transactionService.findByFilter(search, type, order, date);
         for (Transaction transaction : transactions)
         {
             invoiceModel.addRow(getRow(transaction));
+            
+        }
+        
+    }
+    
+    private void clearText()
+    {
+        tfCashier.setText("");
+        tfName.setText("");
+        tfPhoneNumber.setText("");
+        tfCashier.setEditable(false);
+        tfName.setEditable(false);
+        tfPhoneNumber.setEditable(false);
+        taNote.setText("");
+        taNote.setEditable(false);
+    }
+
+    private void loadRowSelected() {
+        clearText();
+        Transaction transaction = transactions.get(tblInvoice.getSelectedRow());
+        System.out.println(transaction.getId());
+        ServiceUsage serviceUsage = serviceUsageService.findById(transaction.getServiceUsageId());
+        if (serviceUsage != null)
+        {
+            taNote.setText(serviceUsage.getNote());
+            Customer cus = customerService.findById(serviceUsage.getCustomerId());
+            if (cus != null)
+            {
+                tfName.setText(cus.getName());
+                tfPhoneNumber.setText(cus.getPhoneNumber());
+            }
+        }
+        User user = userService.findById(transaction.getUserID());
+        if (user != null)
+        {
+            tfCashier.setText(user.getName());
+        }
+        LoadService(serviceUsage);
+        
+    }
+    private Object[] getRowItem(ServiceItems serviceItems)
+    {   
+        Service service = serviceService.findById(serviceItems.getServiceId());
+        DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
+        if (service == null)
+        {
+            return new Object[]{"Not found", "Not found",serviceItems.getQuantity(),  "Not found"};
+        }
+        return new Object[]{service.getName(), df.format(service.getPrice()),serviceItems.getQuantity(),  df.format(service.getPrice().multiply(new BigDecimal(serviceItems.getQuantity())))};
+    }
+   
+    private void LoadService(ServiceUsage serviceUsage)
+    {
+        int serviceUsageId = serviceUsage.getId();
+        serviceItemModel.setNumRows(0);
+        Match match = matchService.findById(serviceUsage.getMatchId());
+        if (match != null){
+            DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
+            Booking booking  = bookingService.findById(match.getBookingId());
+            if (booking != null)
+            {
+                Object[] fieldItem = new Object[]{"Field Service",df.format(booking.getPrice()), 1, df.format(booking.getPrice())};
+
+                serviceItemModel.addRow(fieldItem);
+            }
+        }
+        List<ServiceItems> serviceItems = serviceItemsService.findByServiceUsage(serviceUsageId);
+        
+        
+        if (!serviceItems.isEmpty())
+        {
+            for (ServiceItems serviceItem : serviceItems) {
+                serviceItemModel.addRow(getRowItem(serviceItem));
+            }
         }
     }
+    private void setEvent()
+    {
+        ftfCalendar.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+            public void removeUpdate(DocumentEvent e) {
+            
+            }
+            public void insertUpdate(DocumentEvent e) {
+                String dateString = ftfCalendar.getText();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date parsedDate;
+                try {
+                    System.out.println(dateString);
+                    parsedDate = dateFormat.parse(dateString);
+                    long timestamp = parsedDate.getTime();
+                    date = new Timestamp(timestamp);
+                    loadData();
+                } catch (ParseException ex) {
+                  
+                }
+            }
+
+        });
+    }
+    
+    
 
 }

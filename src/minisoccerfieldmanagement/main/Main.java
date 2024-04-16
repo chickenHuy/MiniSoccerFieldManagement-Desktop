@@ -52,6 +52,7 @@ public class Main extends javax.swing.JFrame {
 
     public void showMainForm() {
         WindowsTabbed.getInstance().showTabbed(true);
+        WindowsTabbed.getInstance().removeAllTabbed();
         setContentPane(body);
         revalidate();
         repaint();
