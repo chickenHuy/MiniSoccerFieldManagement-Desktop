@@ -886,7 +886,7 @@ public class MatchRecord extends TabbedForm {
             transaction.setAdditionalFee(feesBigDecimal);
             transaction.setCreateAt(new java.sql.Timestamp(System.currentTimeMillis()));
             transaction.setDiscountAmount(discount);
-            transaction.setFinalAmount(total.subtract(feesBigDecimal));
+            transaction.setFinalAmount(total.add(feesBigDecimal));
             transaction.setTotalAmount(firstTotal);
             transaction.setType("Booking Service");
             if (transactionService.add(transaction))
@@ -951,12 +951,12 @@ public class MatchRecord extends TabbedForm {
         try{
             BigDecimal addionalFee = new BigDecimal(tfPenaltyFee.getText());
             if (addionalFee.compareTo(BigDecimal.ZERO) < 0) throw new Exception("Plase add fee >= 0");
-            BigDecimal result = total.subtract(addionalFee);
-            lblTotal.setText(String.valueOf(result));
+            BigDecimal result = total.add(addionalFee);
+            lblTotal.setText(Utils.toVND(result));
         }
         catch(Exception e)
         {
-            tfPenaltyFee.setText("0");
+            tfPenaltyFee.setText("");
             lblTotal.setText(String.valueOf(total));
             MessageAlerts.getInstance().showMessage("Add Fee Failed", e.getMessage(), MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                                                         @Override

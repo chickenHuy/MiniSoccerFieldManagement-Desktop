@@ -6,13 +6,31 @@ package minisoccerfieldmanagement.form;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.mysql.cj.util.Util;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -30,6 +48,9 @@ import minisoccerfieldmanagement.model.ServiceItems;
 import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
 import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.report.model.FieldReportPayment;
+import minisoccerfieldmanagement.report.model.ParameterReportPayment;
+import minisoccerfieldmanagement.report.print.ReportManager;
 import minisoccerfieldmanagement.service.BookingServiceImpl;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.IBookingService;
@@ -44,6 +65,7 @@ import minisoccerfieldmanagement.service.ServiceItemsServiceImpl;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
 import minisoccerfieldmanagement.service.UserServiceImpl;
+import minisoccerfieldmanagement.util.ModelItemSell;
 import minisoccerfieldmanagement.util.Utils;
 
 /**
@@ -170,7 +192,7 @@ public class PanelTransaction extends javax.swing.JPanel {
 
         jLabel1.setText("Date");
 
-        jLabel2.setText("Cashier");
+        jLabel2.setText("Staff");
 
         jLabel3.setText("Type");
 
@@ -182,16 +204,16 @@ public class PanelTransaction extends javax.swing.JPanel {
                 {null, null, null, null}
             },
             new String [] {
-                "Name", "Quantity", "Price", "Total"
+                "Name", "Price", "Total", "Total"
             }
         ));
         jScrollPane1.setViewportView(tblInvoice);
 
-        jLabel4.setText("Total");
+        jLabel4.setText("Subtotal");
 
-        jLabel5.setText("Additional Fees");
+        jLabel5.setText("Other");
 
-        jLabel6.setText("Final Amount");
+        jLabel6.setText("Total");
 
         jLabel7.setText("Discount");
 
@@ -348,9 +370,9 @@ public class PanelTransaction extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(268, 268, 268)
                 .addComponent(crazyPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(80, 80, 80)
+                .addGap(47, 47, 47)
                 .addComponent(btnPrint)
-                .addContainerGap(116, Short.MAX_VALUE))
+                .addContainerGap(149, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -364,7 +386,7 @@ public class PanelTransaction extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        
+        print();
     }//GEN-LAST:event_btnPrintActionPerformed
 
 
@@ -416,8 +438,16 @@ public class PanelTransaction extends javax.swing.JPanel {
         User cashier = UserSession.getInstance().getUser();
         lblCashier.setText(cashier.getName());
         ICustomerService customerService = new CustomerServiceImpl();
-        customer = customerService.findById(transaction.getUserID());
-        lblCustomer.setText(customer.getName());
+        
+        ServiceUsage svServiceUsage = serviceUsageService.findById(transaction.getServiceUsageId());
+        customer = customerService.findById(svServiceUsage.getCustomerId());
+        if (customer == null)
+        {
+            lblCustomer.setText("Guest");
+        }
+        else {
+            lblCustomer.setText(customer.getName());
+        }
         LoadService(transaction.getServiceUsageId());
         } catch (Exception e) {
             e.printStackTrace();
@@ -428,12 +458,11 @@ public class PanelTransaction extends javax.swing.JPanel {
     private Object[] getRowItem(ServiceItems serviceItems)
     {   
         Service service = serviceService.findById(serviceItems.getServiceId());
-        DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
         if (service == null)
         {
             return new Object[]{"Not found", "Not found",serviceItems.getQuantity(),  "Not found"};
         }
-        return new Object[]{service.getName(), df.format(service.getPrice()),serviceItems.getQuantity(),  df.format(service.getPrice().multiply(new BigDecimal(serviceItems.getQuantity())))};
+        return new Object[]{service.getName(), Utils.toVND(service.getPrice()),serviceItems.getQuantity(),  Utils.toVND(service.getPrice().multiply(new BigDecimal(serviceItems.getQuantity())))};
     }
     
     private void LoadService(int serviceUsageId)
@@ -442,11 +471,10 @@ public class PanelTransaction extends javax.swing.JPanel {
         tableModel.setNumRows(0);
         Match match = matchService.findById(serviceUsage.getMatchId());
         if (match != null){
-            DecimalFormat df = new DecimalFormat("#,##0.## VNĐ");
             Booking booking  = bookingService.findById(match.getBookingId());
             if (booking != null)
             {
-                Object[] fieldItem = new Object[]{"Field Service",df.format(booking.getPrice()), 1, df.format(booking.getPrice())};
+                Object[] fieldItem = new Object[]{"Field Service",Utils.toVND(booking.getPrice()), 1, Utils.toVND(booking.getPrice())};
 
                 tableModel.addRow(fieldItem);
             }
@@ -459,6 +487,46 @@ public class PanelTransaction extends javax.swing.JPanel {
             for (ServiceItems serviceItem : serviceItems) {
                 tableModel.addRow(getRowItem(serviceItem));
             }
+        }
+    }
+    
+    private InputStream generateQrcode(BigDecimal total) throws WriterException, IOException {
+
+        String invoice = String.valueOf(total);
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.MARGIN, 0);
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(invoice, BarcodeFormat.QR_CODE, 100, 100, hints);
+        BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", outputStream);
+        return new ByteArrayInputStream(outputStream.toByteArray());
+    }
+
+    private void print() { 
+        try {
+            ReportManager.getInstance().compileReport();
+            List<FieldReportPayment> fields = new ArrayList<>();
+            String name;
+            int qty;
+            String price;
+            String totalPrice;
+            for (int i = 0; i < tblInvoice.getRowCount(); i++) {
+                name = String.valueOf(tblInvoice.getValueAt(i, 0));
+                price = String.valueOf(tblInvoice.getValueAt(i, 1)).replace(" VND", "").replace(",", "");
+                qty = Integer.parseInt(String.valueOf(tblInvoice.getValueAt(i, 2)));
+                totalPrice = String.valueOf(tblInvoice.getValueAt(i, 3)).replace(" VND", "").replace(",", "");
+                fields.add(new FieldReportPayment(name , qty, Double.parseDouble(price), Double.parseDouble(totalPrice)));
+            }
+            String dis = "0 VND";
+            String other = "0 VND";
+            if (transaction.getDiscountAmount() != null && (!transaction.getDiscountAmount().equals(BigDecimal.ZERO)))
+                dis = "-" + Utils.toVND(transaction.getDiscountAmount());
+            if (transaction.getAdditionalFee() != null && (!transaction.getFinalAmount().equals(BigDecimal.ZERO)))
+                other = Utils.toVND(transaction.getAdditionalFee());
+            ParameterReportPayment dataprint = new ParameterReportPayment(lblCashier.getText(), lblCustomer.getText(),  Utils.toVND(transaction.getFinalAmount()), generateQrcode(transaction.getFinalAmount()), lblDate.getText(), "#" + String.valueOf(transaction.getId()), Utils.toVND(transaction.getTotalAmount()), other, dis, fields);
+            ReportManager.getInstance().printReportPayment(dataprint);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
