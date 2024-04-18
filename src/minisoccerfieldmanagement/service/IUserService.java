@@ -1,5 +1,6 @@
 package minisoccerfieldmanagement.service;
 
+import java.util.List;
 import minisoccerfieldmanagement.model.User;
 
 public interface IUserService {
@@ -19,5 +20,13 @@ public interface IUserService {
     Boolean changePassword(int id, String oldPass, String newPass);
     
     Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
+    List<User> findAll();
+    
+    Boolean checkPhoneNumberExist(String phoneNumber);
+    
+    Boolean checkUsernameExist(String username);
+    
+    Boolean checkUsernameExistExceptCurrent(String username, int userId);
     
 }

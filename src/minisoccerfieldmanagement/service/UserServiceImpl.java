@@ -1,5 +1,6 @@
 package minisoccerfieldmanagement.service;
 
+import java.util.List;
 import minisoccerfieldmanagement.dao.IUserDAO;
 import minisoccerfieldmanagement.dao.UserDAOImpl;
 import minisoccerfieldmanagement.model.User;
@@ -46,6 +47,26 @@ public class UserServiceImpl implements IUserService{
     @Override
     public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
         return userDAO.checkPhoneNumberExistExceptCurrent(id, phoneNumber);
+    }
+    
+    @Override
+    public List<User> findAll() {
+        return userDAO.findAll();
+    }
+    
+    @Override
+    public Boolean checkPhoneNumberExist(String phoneNumber) {
+        return userDAO.checkPhoneNumberExist(phoneNumber);
+    }
+    
+    @Override
+    public Boolean checkUsernameExist(String username) {
+        return userDAO.checkUsernameExist(username);
+    }
+    
+    @Override
+    public Boolean checkUsernameExistExceptCurrent(String username, int userId) {
+        return userDAO.checkUsernameExistExceptCurrent(username, userId);
     }
     
 }

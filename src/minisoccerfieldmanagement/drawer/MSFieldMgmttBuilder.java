@@ -1,7 +1,7 @@
 package minisoccerfieldmanagement.drawer;
 
 import java.awt.Component;
-//import minisoccerfieldmanagement.form.AccountInformation;
+import minisoccerfieldmanagement.form.AccountInformation;
 import minisoccerfieldmanagement.form.CustomerManagement;
 import minisoccerfieldmanagement.form.Dashboard;
 import minisoccerfieldmanagement.form.FieldManagement;
@@ -10,6 +10,7 @@ import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
 import minisoccerfieldmanagement.form.ServiceManagement;
 import minisoccerfieldmanagement.form.StaffBooking;
+import minisoccerfieldmanagement.form.StaffManagement;
 import minisoccerfieldmanagement.form.Statistics;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
@@ -47,7 +48,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                 .setTitle("Khang Nè")
                 .setDescription("0397490429");
     }
-
+    
     @Override
     public SimpleMenuOption getSimpleMenuOption() {
         String menus[][] = {
@@ -58,7 +59,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
             {"Service"},
             {"Booking Schedule"},
             {"~MANAGEMENT~"},
-            {"Operations", "Account", "Field", "Service"},
+            {"Operations", "Account", "Field", "Service", "Employee"},
             {"Invoice"},
             {"~OTHER~"},
             {"Statistics"},
@@ -95,7 +96,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                             WindowsTabbed.getInstance().addTab("Customer", new CustomerManagement());
                         }
                         else if (index == 8) {
-//                            WindowsTabbed.getInstance().addTab("AccountInformation", new AccountInformation());
+                            WindowsTabbed.getInstance().addTab("AccountInformation", new AccountInformation());
                         }
                         else if (index == 4 && subIndex == 3 )
                         {
@@ -104,6 +105,10 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         else if (index == 4 && subIndex == 2 )
                         {
                             WindowsTabbed.getInstance().addTab("Field", new FieldManagement());
+                        }
+                        else if (index == 4 && subIndex == 4 )
+                        {
+                            WindowsTabbed.getInstance().addTab("Empolyee", new StaffManagement());
                         }
                         else if (index == 7 && subIndex == 1 )
                         {

@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import minisoccerfieldmanagement.model.User;
 
 public class UserDAOImpl implements IUserDAO {
@@ -20,19 +22,20 @@ public class UserDAOImpl implements IUserDAO {
     @Override
     public Boolean add(User model) {
         try {
-            String sql = "INSERT INTO `user`(`name`, `gender`, `dateOfBirth`, `image`, `phoneNumber`, `userName`, `password`, `role`, `type`, `createdAt`) VALUES (?,?,NOW(),?,?,?,?,?,?,NOW()) ;";
+            String sql = "INSERT INTO `user`(`name`, `gender`, `dateOfBirth`, `image`, `phoneNumber`, `userName`, `password`, `role`, `type`, `createdAt`) VALUES (?,?,?,?,?,?,?,?,?,NOW()) ;";
 
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
 
             ps.setString(1, model.getName());
             ps.setString(2, model.getGender());
-            ps.setString(3, model.getImage());
-            ps.setString(4, model.getPhoneNumber());
-            ps.setString(5, model.getUserName());
-            ps.setString(6, model.getPassword());
-            ps.setString(7, model.getRole());
-            ps.setString(8, model.getType());
+            ps.setTimestamp(3, model.getDateOfBirth());
+            ps.setString(4, model.getImage());
+            ps.setString(5, model.getPhoneNumber());
+            ps.setString(6, model.getUserName());
+            ps.setString(7, model.getPassword());
+            ps.setString(8, model.getRole());
+            ps.setString(9, model.getType());
 
             ps.executeUpdate();
             conn.close();
@@ -221,7 +224,7 @@ public class UserDAOImpl implements IUserDAO {
         }
         return false;
     }
-    
+
     @Override
     public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
         boolean exists = false;
@@ -244,6 +247,102 @@ public class UserDAOImpl implements IUserDAO {
             e.printStackTrace();
         }
         return exists;
+    }
+
+    @Override
+    public List<User> findAll() {
+        List<User> models = new ArrayList<>();
+        try {
+            String sql = "SELECT * FROM `user` WHERE `isDeleted` = 0 && `role` = 'staff'";
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User model = new User();
+                model.setId(rs.getInt("id"));
+                model.setName(rs.getString("name"));
+                model.setGender(rs.getString("gender"));
+                model.setDateOfBirth(new Timestamp(rs.getDate("dateOfBirth").getTime()));
+                model.setImage(rs.getString("image"));
+                model.setPhoneNumber(rs.getString("phoneNumber"));
+                model.setUserName(rs.getString("userName"));
+                model.setPassword(rs.getString("password"));
+                model.setRole(rs.getString("role"));
+                model.setType(rs.getString("type"));
+                model.setDeleted(Boolean.FALSE);
+                model.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    model.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+                models.add(model);
+            }
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return models;
+    }
+
+    @Override
+    public Boolean checkPhoneNumberExist(String phoneNumber) {
+        try {
+            String sql = "SELECT COUNT(*) FROM `user` WHERE `phoneNumber` = ? AND `isDeleted` = 0;";
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+
+            ps.setString(1, phoneNumber);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    @Override
+    public Boolean checkUsernameExist(String username) {
+        try {
+            conn = new DBConnection().getConnection();
+            String sql = "SELECT COUNT(*) FROM `user` WHERE `userName` = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Boolean checkUsernameExistExceptCurrent(String username, int userId) {
+        try {
+            String sql = "SELECT COUNT(*) FROM `user` WHERE `userName` = ? AND `id` != ?";
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ps.setInt(2, userId);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

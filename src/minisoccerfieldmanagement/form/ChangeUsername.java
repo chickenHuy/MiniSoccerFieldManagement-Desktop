@@ -97,6 +97,14 @@ public class ChangeUsername extends javax.swing.JFrame {
             });
             return;
         }
+        if (username.contains(" ")) {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Username cannot contain spaces", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+
+                }
+            });
+            return;
+        }
         user.setId(userId);
         User userNew = userService.findById(userId);
         userNew.setId(userNew.getId());
@@ -109,6 +117,14 @@ public class ChangeUsername extends javax.swing.JFrame {
         userNew.setPassword(userNew.getPassword());
         userNew.setRole(userNew.getRole());
         try {
+            if (userService.checkUsernameExistExceptCurrent(username, userId)) {
+                MessageAlerts.getInstance().showMessage("Add failed", "Username already exists. Please use another username.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                });
+                return;
+            }
             if (userService.update(userNew)) {
                 MessageAlerts.getInstance().showMessage("Edit success", "Username has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                     @Override
