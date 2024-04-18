@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -32,7 +33,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.MemberShip;
+import minisoccerfieldmanagement.service.BookingServiceImpl;
+import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.IMemberShipService;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 
@@ -42,6 +46,7 @@ public class CustomerManagement extends TabbedForm {
     private File tempPicture = null;
     ICustomerService customerService;
     IMemberShipService membershipService;
+    IBookingService bookingService;
     DefaultTableModel customerModels;
 
     public CustomerManagement() {
@@ -49,15 +54,20 @@ public class CustomerManagement extends TabbedForm {
         FlatLaf.registerCustomDefaultsSource("tableview");
         customerService = new CustomerServiceImpl();
         membershipService = new MemberShipServiceImpl();
+        bookingService = new BookingServiceImpl();
         customerModels = (DefaultTableModel) tblCustomer.getModel();
         applyTableStyle(tblCustomer);
         index = -1;
         loadDataCustomerManagement();
-        displayListBookingHistory();
     }
 
-    private void displayListBookingHistory() {
+    private void loadListBookingHistory(int customerId) {
+        List<Booking> bookings = bookingService.findByCustomer(customerId);
+        bookingHistorySection1.addData(bookings);
+    }
 
+    private void clearBookingHistory() {
+        bookingHistorySection1.clearData();
     }
 
     private void applyTableStyle(JTable table) {
@@ -162,15 +172,11 @@ public class CustomerManagement extends TabbedForm {
         btnAddNew = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
-        lblBookingHistory = new javax.swing.JLabel();
         lblId = new javax.swing.JLabel();
-        panelListBookingHistory = new raven.crazypanel.CrazyPanel();
-        panelOneBookingHistory = new raven.crazypanel.CrazyPanel();
-        lblCustomerName = new com.formdev.flatlaf.extras.components.FlatLabel();
-        lblSan = new com.formdev.flatlaf.extras.components.FlatLabel();
-        lblTotalSpendBookingHistory = new com.formdev.flatlaf.extras.components.FlatLabel();
-        ptbBookingHistoryImage = new minisoccerfieldmanagement.util.PictureBox();
         ptbCustomerImage = new minisoccerfieldmanagement.util.PictureBox();
+        crazyPanel4 = new raven.crazypanel.CrazyPanel();
+        lblBookingHistory = new javax.swing.JLabel();
+        bookingHistorySection1 = new minisoccerfieldmanagement.util.BookingHistorySection();
 
         setMaximumSize(new java.awt.Dimension(1188, 696));
         setPreferredSize(new java.awt.Dimension(1188, 696));
@@ -290,68 +296,9 @@ public class CustomerManagement extends TabbedForm {
             }
         });
 
-        lblBookingHistory.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        lblBookingHistory.setText("Booking History");
-
         lblId.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblId.setForeground(new java.awt.Color(195, 204, 90));
         lblId.setText("#Id");
-
-        lblCustomerName.setText("Nguyễn Minh Khánh");
-
-        lblSan.setText("Sân A - 2h30:4h30");
-
-        lblTotalSpendBookingHistory.setText("100000VND");
-
-        ptbBookingHistoryImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
-        ptbBookingHistoryImage.setMinimumSize(new java.awt.Dimension(70, 70));
-
-        javax.swing.GroupLayout panelOneBookingHistoryLayout = new javax.swing.GroupLayout(panelOneBookingHistory);
-        panelOneBookingHistory.setLayout(panelOneBookingHistoryLayout);
-        panelOneBookingHistoryLayout.setHorizontalGroup(
-            panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelOneBookingHistoryLayout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTotalSpendBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        panelOneBookingHistoryLayout.setVerticalGroup(
-            panelOneBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelOneBookingHistoryLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblSan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblTotalSpendBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOneBookingHistoryLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(ptbBookingHistoryImage, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout panelListBookingHistoryLayout = new javax.swing.GroupLayout(panelListBookingHistory);
-        panelListBookingHistory.setLayout(panelListBookingHistoryLayout);
-        panelListBookingHistoryLayout.setHorizontalGroup(
-            panelListBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelListBookingHistoryLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelOneBookingHistory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        panelListBookingHistoryLayout.setVerticalGroup(
-            panelListBookingHistoryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelListBookingHistoryLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelOneBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(227, Short.MAX_VALUE))
-        );
 
         ptbCustomerImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
 
@@ -361,48 +308,42 @@ public class CustomerManagement extends TabbedForm {
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addContainerGap(19, Short.MAX_VALUE)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(btnAddNew)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnSave)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnDelete))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(lblTotalSpend)
+                                .addGap(38, 38, 38)
+                                .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblPhoneNumber)
+                                    .addComponent(lblName))
+                                .addGap(18, 18, 18)
+                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel3Layout.createSequentialGroup()
                         .addGap(15, 15, 15)
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
                                 .addGap(31, 31, 31)
-                                .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(lblBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
-                        .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(crazyPanel3Layout.createSequentialGroup()
-                        .addContainerGap(31, Short.MAX_VALUE)
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                    .addComponent(lblName)
-                                    .addGap(64, 64, 64)
-                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                    .addComponent(lblPhoneNumber)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                    .addComponent(lblTotalSpend)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addComponent(btnAddNew)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnSave)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnDelete)))))
-                .addGap(27, 27, 27))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelListBookingHistory, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnUpload)
-                .addGap(84, 84, 84))
+                                .addGap(6, 6, 6)
+                                .addComponent(btnUpload))
+                            .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(26, 26, 26))
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -412,32 +353,62 @@ public class CustomerManagement extends TabbedForm {
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(46, 46, 46))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                        .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addComponent(btnUpload)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblName))
                 .addGap(18, 18, 18)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblPhoneNumber))
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblPhoneNumber)
+                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblTotalSpend))
-                .addGap(18, 18, 18)
+                    .addComponent(lblTotalSpend)
+                    .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddNew)
                     .addComponent(btnSave)
                     .addComponent(btnDelete))
-                .addGap(18, 18, 18)
-                .addComponent(lblBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelListBookingHistory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(7, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
+        );
+
+        crazyPanel4.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        lblBookingHistory.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblBookingHistory.setText("Booking History");
+
+        javax.swing.GroupLayout crazyPanel4Layout = new javax.swing.GroupLayout(crazyPanel4);
+        crazyPanel4.setLayout(crazyPanel4Layout);
+        crazyPanel4Layout.setHorizontalGroup(
+            crazyPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel4Layout.createSequentialGroup()
+                .addGroup(crazyPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel4Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(bookingHistorySection1, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(crazyPanel4Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lblBookingHistory)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        crazyPanel4Layout.setVerticalGroup(
+            crazyPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel4Layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(lblBookingHistory)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(bookingHistorySection1, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -446,18 +417,23 @@ public class CustomerManagement extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 806, Short.MAX_VALUE)
+                .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 818, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crazyPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(8, 8, 8))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 660, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(crazyPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -465,11 +441,15 @@ public class CustomerManagement extends TabbedForm {
     private void tblCustomerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCustomerMouseClicked
         index = tblCustomer.getSelectedRow();
         if (index != -1) {
+            tempPicture = null;
+            clearBookingHistory();
             lblId.setText("#" + customerModels.getValueAt(index, 0).toString());
             tfName.setText(customerModels.getValueAt(index, 1).toString());
             tfPhoneNumber.setText(customerModels.getValueAt(index, 3).toString());
             tfTotalSpend.setText(customerModels.getValueAt(index, 4).toString().replace(" VND", "").replace(",", ""));
             Customer customer = customerService.findById(Integer.parseInt(customerModels.getValueAt(index, 0).toString()));
+            int customerId = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
+            loadListBookingHistory(customerId);
             if (customer.getImage() == null) {
                 ptbCustomerImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/empty_service.png"));
                 ptbCustomerImage.repaint();
@@ -483,6 +463,9 @@ public class CustomerManagement extends TabbedForm {
                     ptbCustomerImage.repaint();
                 }
             }
+            System.out.println("pictureBox " + ptbCustomerImage.getImage().toString());
+            File file = new File(ptbCustomerImage.getImage().toString());
+            System.out.println("pictureBox " + file.getName());
         }
         tfTotalSpend.setEnabled(false);
     }//GEN-LAST:event_tblCustomerMouseClicked
@@ -492,9 +475,11 @@ public class CustomerManagement extends TabbedForm {
         index = -1;
         tfTotalSpend.setText("0");
         tfTotalSpend.setEnabled(false);
+        clearBookingHistory();
     }//GEN-LAST:event_btnAddNewActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        clearBookingHistory();
         Customer customer = new Customer();
         String name = tfName.getText().trim();
         String phoneNumber = tfPhoneNumber.getText().trim();
@@ -528,7 +513,8 @@ public class CustomerManagement extends TabbedForm {
             customer.setTotalSpend(totalSpend);
             if (tempPicture != null) {
                 String picturePath = tempPicture.getAbsolutePath();
-                String newName = customer.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
+                String uuid = UUID.randomUUID().toString();
+                String newName = uuid + picturePath.substring(picturePath.lastIndexOf('.'));
                 customer.setImage(newName);
                 if (!saveFile(tempPicture, newName)) {
                     return;
@@ -627,10 +613,17 @@ public class CustomerManagement extends TabbedForm {
                         clearText();
                         tfTotalSpend.setText("0");
                         tfTotalSpend.setEnabled(false);
+                        clearBookingHistory();
                     } else {
                         MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc1, int i1) -> {
                         });
                     }
+                }
+            });
+        } else {
+            MessageAlerts.getInstance().showMessage("Delete failed", "Please select a customer to delete", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+
                 }
             });
         }
@@ -687,6 +680,7 @@ public class CustomerManagement extends TabbedForm {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private minisoccerfieldmanagement.util.BookingHistorySection bookingHistorySection1;
     private javax.swing.JButton btnAddNew;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnPrint;
@@ -695,19 +689,14 @@ public class CustomerManagement extends TabbedForm {
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanel2;
     private raven.crazypanel.CrazyPanel crazyPanel3;
+    private raven.crazypanel.CrazyPanel crazyPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBookingHistory;
     private javax.swing.JLabel lblCustomer;
-    private com.formdev.flatlaf.extras.components.FlatLabel lblCustomerName;
     private javax.swing.JLabel lblId;
     private javax.swing.JLabel lblName;
     private javax.swing.JLabel lblPhoneNumber;
-    private com.formdev.flatlaf.extras.components.FlatLabel lblSan;
     private javax.swing.JLabel lblTotalSpend;
-    private com.formdev.flatlaf.extras.components.FlatLabel lblTotalSpendBookingHistory;
-    private raven.crazypanel.CrazyPanel panelListBookingHistory;
-    private raven.crazypanel.CrazyPanel panelOneBookingHistory;
-    private minisoccerfieldmanagement.util.PictureBox ptbBookingHistoryImage;
     private minisoccerfieldmanagement.util.PictureBox ptbCustomerImage;
     private javax.swing.JTable tblCustomer;
     private javax.swing.JTextField tfName;

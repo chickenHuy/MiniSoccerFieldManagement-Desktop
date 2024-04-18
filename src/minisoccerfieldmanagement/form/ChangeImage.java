@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -53,6 +54,9 @@ public class ChangeImage extends javax.swing.JFrame {
                 ptbAccountImage.repaint();
             }
         }
+        System.out.println("pictureBox " + ptbAccountImage.getImage().toString());
+        File file = new File(ptbAccountImage.getImage().toString());
+        System.out.println("pictureBox " + file.getName());
         btnUpload.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/upload.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/tick.svg", 0.35f));
     }
@@ -131,16 +135,8 @@ public class ChangeImage extends javax.swing.JFrame {
         userNew.setDateOfBirth(userNew.getDateOfBirth());
         if (tempPicture != null) {
             String picturePath = tempPicture.getAbsolutePath();
-            String newName = userNew.getName().replaceAll(" ", "") + picturePath.substring(picturePath.lastIndexOf('.'));
-            if (userNew.getImage() != null && userNew.getImage().equals(newName)) {
-                int counter = 1;
-                File file = new File("src/minisoccerfieldmanagement/image/user/" + newName);
-                while (file.exists()) {
-                    newName = userNew.getName().replaceAll(" ", "") + counter + picturePath.substring(picturePath.lastIndexOf('.'));
-                    file = new File("src/minisoccerfieldmanagement/image/user/" + newName);
-                    counter++;
-                }
-            }
+            String uuid = UUID.randomUUID().toString();
+            String newName = uuid + picturePath.substring(picturePath.lastIndexOf('.'));
             userNew.setImage(newName);
             if (!saveFile(tempPicture, newName)) {
                 return;

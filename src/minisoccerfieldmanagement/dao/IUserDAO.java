@@ -1,5 +1,6 @@
 package minisoccerfieldmanagement.dao;
 
+import java.util.List;
 import minisoccerfieldmanagement.model.User;
 
 public interface IUserDAO {
@@ -19,5 +20,13 @@ public interface IUserDAO {
     Boolean changePassword(int id, String oldPass, String newPass);
     
     Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
+    List<User> findAll();
+    
+    Boolean checkPhoneNumberExist(String phoneNumber);
+    
+    Boolean checkUsernameExist(String username);
+    
+    Boolean checkUsernameExistExceptCurrent(String username, int userId);
 
 }
