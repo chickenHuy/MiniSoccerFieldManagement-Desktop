@@ -151,14 +151,14 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{qty}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0.## VND">
+			<textField pattern="#,##0.## ₫">
 				<reportElement x="102" y="0" width="51" height="15" uuid="079ee08a-c555-4fd6-87af-db3d053de8b5"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{price}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0.## VND">
+			<textField pattern="#,##0.## ₫">
 				<reportElement x="153" y="0" width="51" height="15" uuid="ec4e798c-539f-4eee-89b1-002044ffe3e6"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Arial" size="9"/>

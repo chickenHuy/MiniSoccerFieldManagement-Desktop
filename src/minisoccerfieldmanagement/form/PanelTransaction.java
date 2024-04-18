@@ -517,13 +517,13 @@ public class PanelTransaction extends javax.swing.JPanel {
                 totalPrice = String.valueOf(tblInvoice.getValueAt(i, 3)).replace(" VND", "").replace(",", "");
                 fields.add(new FieldReportPayment(name , qty, Double.parseDouble(price), Double.parseDouble(totalPrice)));
             }
-            String dis = "0 VND";
-            String other = "0 VND";
+            String dis = Utils.formatVND(BigDecimal.ZERO);
+            String other = Utils.formatVND(BigDecimal.ZERO);
             if (transaction.getDiscountAmount() != null && (!transaction.getDiscountAmount().equals(BigDecimal.ZERO)))
-                dis = "-" + Utils.toVND(transaction.getDiscountAmount());
+                dis = "-" + Utils.formatVND(transaction.getDiscountAmount());
             if (transaction.getAdditionalFee() != null && (!transaction.getFinalAmount().equals(BigDecimal.ZERO)))
-                other = Utils.toVND(transaction.getAdditionalFee());
-            ParameterReportPayment dataprint = new ParameterReportPayment(lblCashier.getText(), lblCustomer.getText(),  Utils.toVND(transaction.getFinalAmount()), generateQrcode(transaction.getFinalAmount()), lblDate.getText(), "#" + String.valueOf(transaction.getId()), Utils.toVND(transaction.getTotalAmount()), other, dis, fields);
+                other = Utils.formatVND(transaction.getAdditionalFee());
+            ParameterReportPayment dataprint = new ParameterReportPayment(lblCashier.getText(), lblCustomer.getText(),  Utils.formatVND(transaction.getFinalAmount()), generateQrcode(transaction.getFinalAmount()), lblDate.getText(), "#" + String.valueOf(transaction.getId()), Utils.formatVND(transaction.getTotalAmount()), other, dis, fields);
             ReportManager.getInstance().printReportPayment(dataprint);
         } catch (Exception e) {
             e.printStackTrace();

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
@@ -71,5 +73,11 @@ public class Utils {
                 result.add(f3); 
         }
         return result;
+    }
+    
+    public static String formatVND(BigDecimal price) {
+        Locale localeVN = new Locale("vi", "VN");
+        NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
+        return currencyVN.format(price);
     }
 }
