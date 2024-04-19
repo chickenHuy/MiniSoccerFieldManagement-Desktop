@@ -8,6 +8,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.util.EventItem;
 import minisoccerfieldmanagement.util.ScrollBar;
 
@@ -74,6 +75,11 @@ public class FieldSection extends javax.swing.JPanel {
             public void fieldClick(Component com, Field item) {
                 setSelectedFieldId(item.getId());
                 setSelected(com);
+            }
+
+            @Override
+            public void serviceItemClick(Component com, Service service) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
             }
         });
         for(Field i : data) {
