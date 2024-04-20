@@ -1,118 +1,123 @@
 package minisoccerfieldmanagement.util;
 
-import minisoccerfieldmanagement.util.FieldItem;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.Service;
-import minisoccerfieldmanagement.util.EventItem;
-import minisoccerfieldmanagement.util.ScrollBar;
 
-public class FieldSection extends javax.swing.JPanel {
+public class ServiceSection extends javax.swing.JPanel {
 
-    private int selectedFieldId = -1;
+    private int selectedServiceId = -1;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
-    public void setSelectedFieldId(int selectedFieldId) {
-        int oldSelectedFieldId = this.selectedFieldId;
-        this.selectedFieldId = selectedFieldId;  
-        propertyChangeSupport.firePropertyChange("selectedFieldId", oldSelectedFieldId, selectedFieldId);
+    public void setSelectedServiceId(int selectedServiceId) {
+        int oldSelectedServiceId = this.selectedServiceId;
+        this.selectedServiceId = selectedServiceId;
+        propertyChangeSupport.firePropertyChange("selectedServiceId", oldSelectedServiceId, selectedServiceId);
     }
+
     private EventItem event;
 
-    public int getSelectedFieldId() {
-        return selectedFieldId;
+    public int getSelectedServiceId() {
+        return selectedServiceId;
     }
 
-    
     public void setEvent(EventItem event) {
         this.event = event;
     }
-    
-    public FieldSection() {
+
+    public ServiceSection() {
         initComponents();
-        scrollPane.setHorizontalScrollBar(new ScrollBar());
+        panelService.setLayout(new GridLayout(0, 2, 10, 10));
+        panelService.setBorder(new EmptyBorder(10, 10, 10, 10));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(17);
     }
 
-    public void addItem(Field data) {
-        FieldItem item = new FieldItem();
+    public void addItem(Service data) {
+        ServiceItem item = new ServiceItem();
         item.setData(data);
         item.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
                 if (SwingUtilities.isLeftMouseButton(me)) {
-                    setSelectedFieldId(data.getId());
+                    setSelectedServiceId(data.getId());
                     setSelected(item);
-                    if (event != null)
-                        event.fieldClick(item, data);
+                    if (event != null) {
+                        event.serviceItemClick(item, data);
+                    }
                 }
             }
         });
-        
-        panelField.add(item);
-        panelField.revalidate();
-        panelField.repaint();
+
+        panelService.add(item);
+        panelService.revalidate();
+        panelService.repaint();
     }
-    
+
     public void setSelected(Component item) {
-        for (Component com:panelField.getComponents()) {
-            FieldItem i = (FieldItem)com;
+        for (Component com : panelService.getComponents()) {
+            FieldItem i = (FieldItem) com;
             if (i.isSelected()) {
                 i.setSelected(false);
             }
         }
-        if (item != null)
-            ((FieldItem)item).setSelected(true);
+        if (item != null) {
+            ((FieldItem) item).setSelected(true);
+        }
     }
-    
-    public void addData(List<Field> data) {
+
+    public void addData(List<Service> data) {
         this.setEvent(new EventItem() {
             @Override
             public void fieldClick(Component com, Field item) {
-                setSelectedFieldId(item.getId());
+                setSelectedServiceId(item.getId());
                 setSelected(com);
             }
 
             @Override
             public void serviceItemClick(Component com, Service service) {
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from
+                // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
             }
         });
-        for(Field i : data) {
+        for (Service i : data) {
             this.addItem(i);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         scrollPane = new javax.swing.JScrollPane();
-        panelField = new minisoccerfieldmanagement.util.PanelField();
+        panelService = new minisoccerfieldmanagement.util.PanelField();
 
         scrollPane.setBackground(new java.awt.Color(242, 242, 242));
         scrollPane.setInheritsPopupMenu(true);
-        scrollPane.setViewportView(panelField);
+        scrollPane.setViewportView(panelService);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+            .addComponent(scrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 654, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private minisoccerfieldmanagement.util.PanelField panelField;
+    private minisoccerfieldmanagement.util.PanelField panelService;
     private javax.swing.JScrollPane scrollPane;
     // End of variables declaration//GEN-END:variables
 }

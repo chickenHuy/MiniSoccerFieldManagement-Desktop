@@ -42,6 +42,7 @@ import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.Match;
+import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.service.BookingServiceImpl;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
 import minisoccerfieldmanagement.service.FieldServiceImpl;
@@ -50,9 +51,11 @@ import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IFieldService;
 import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.MatchServiceImpl;
+import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.EventItem;
+import minisoccerfieldmanagement.util.ServiceItem;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
@@ -86,8 +89,9 @@ public class Dashboard extends TabbedForm {
         applyIcon();
         applyTableStyle(tblBooking);
         loadBooking();
+        loadService();
     }
-    
+
     private void applyTableStyle(JTable table) {
         //  Change scroll style
         JScrollPane scroll = (JScrollPane) table.getParent().getParent();
@@ -131,7 +135,6 @@ public class Dashboard extends TabbedForm {
         };
     }
 
-    
     private void applyIcon() {
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         btnOpenCalendar.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/calendar.svg", 0.35f));
@@ -174,7 +177,7 @@ public class Dashboard extends TabbedForm {
                 models.addRow(getRow(book));
                 listBookingId.add(book.getId());
             }
-            lblLive.setText("Live ("+liveBooking+")");
+            lblLive.setText("Live (" + liveBooking + ")");
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -189,12 +192,17 @@ public class Dashboard extends TabbedForm {
             public void fieldClick(Component com, Field item) {
                 loadBooking();
             }
+
+            @Override
+            public void serviceItemClick(Component com, Service service) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
         });
     }
 
     private void changeDayLabel(int index, LocalDate date, LocalDate mainDay) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Border selectedBorder = new LineBorder(new Color(0,160,30), 1);
+        Border selectedBorder = new LineBorder(new Color(0, 160, 30), 1);
 
         switch (index) {
             case 0:
@@ -308,6 +316,23 @@ public class Dashboard extends TabbedForm {
         }
     }
 
+    private void loadService() {
+        List<Service> listService = new ServiceServiceImpl().findAll();
+        serviceSection.addData(listService);
+        
+        fieldSection1.setEvent(new EventItem() {
+            @Override
+            public void fieldClick(Component com, Field item) {
+                System.out.println("Clickkkkkk");
+            }
+
+            @Override
+            public void serviceItemClick(Component com, Service service) {
+                throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+            }
+        });
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -350,6 +375,8 @@ public class Dashboard extends TabbedForm {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
+        crazyPanelService = new raven.crazypanel.CrazyPanel();
+        serviceSection = new minisoccerfieldmanagement.util.ServiceSection();
 
         dateChooser1.setForeground(new java.awt.Color(51, 51, 51));
         dateChooser1.setDateFormat("dd/MM/yyyy");
@@ -763,6 +790,28 @@ public class Dashboard extends TabbedForm {
                 .addContainerGap())
         );
 
+        crazyPanelService.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+
+        javax.swing.GroupLayout crazyPanelServiceLayout = new javax.swing.GroupLayout(crazyPanelService);
+        crazyPanelService.setLayout(crazyPanelServiceLayout);
+        crazyPanelServiceLayout.setHorizontalGroup(
+            crazyPanelServiceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanelServiceLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(serviceSection, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        crazyPanelServiceLayout.setVerticalGroup(
+            crazyPanelServiceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanelServiceLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(serviceSection, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -772,15 +821,20 @@ public class Dashboard extends TabbedForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(crazyPanelField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(420, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(crazyPanelService, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanelService, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -927,7 +981,7 @@ public class Dashboard extends TabbedForm {
         // TODO add your handling code here:
         if (evt.getClickCount() == 2 && !evt.isConsumed()) {
             evt.consume();
-            DefaultTableModel temp = (DefaultTableModel)tblBooking.getModel();
+            DefaultTableModel temp = (DefaultTableModel) tblBooking.getModel();
             if (temp.getValueAt(tblBooking.getSelectedRow(), 0).toString().equals("LIVE")) {
                 if (!temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkout")) {
                     findMatch(tblBooking.getSelectedRow());
@@ -942,32 +996,28 @@ public class Dashboard extends TabbedForm {
 
     private void findMatch(int index) {
         String idString = listBookingId.get(index).toString();
-        if (!idString.isEmpty())
-        {
+        if (!idString.isEmpty()) {
             IMatchService matchService = new MatchServiceImpl();
             Match match = matchService.findByBooking(Integer.parseInt(idString));
-            if (match == null)
-            {
-                MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard",MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.OK_OPTION )
-                                    {
-                                        matchService.checkIn(Integer.parseInt(idString));
-                                        loadBooking();
-                                    }
-                                }
-                            });
-            }
-            else {
+            if (match == null) {
+                MessageAlerts.getInstance().showMessage("Check-in", "Make sure the customer has arrived to pick up the yard", MessageAlerts.MessageType.WARNING, MessageAlerts.OK_CANCEL_OPTION, new PopupCallbackAction() {
+                    @Override
+                    public void action(PopupController pc, int i) {
+                        if (i == MessageAlerts.OK_OPTION) {
+                            matchService.checkIn(Integer.parseInt(idString));
+                            loadBooking();
+                        }
+                    }
+                });
+            } else {
                 Booking selectedBooking = bookingService.findById(Integer.parseInt(idString));
                 Customer thisCustomer = customerService.findById(selectedBooking.getCustomerId());
                 Field thisField = fieldService.findById(selectedBooking.getFieldId());
-                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() +")", new MatchRecord(match, thisCustomer, selectedBooking, thisField));
+                WindowsTabbed.getInstance().addTab("Match(" + txtSearch.getText() + ")", new MatchRecord(match, thisCustomer, selectedBooking, thisField));
             }
         }
     }
-    
+
     private Object[] getRow(Booking booking) {
         Timestamp timeStart = booking.getTimeStart();
         Timestamp timeEnd = booking.getTimeEnd();
@@ -1021,6 +1071,7 @@ public class Dashboard extends TabbedForm {
     private javax.swing.JButton btnOpenCalendar;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanelField;
+    private raven.crazypanel.CrazyPanel crazyPanelService;
     private com.raven.datechooser.DateChooser dateChooser1;
     private minisoccerfieldmanagement.util.FieldSection fieldSection1;
     private javax.swing.JLabel jLabel11;
@@ -1047,6 +1098,7 @@ public class Dashboard extends TabbedForm {
     private minisoccerfieldmanagement.util.PanelRound pnlThursday;
     private minisoccerfieldmanagement.util.PanelRound pnlTuesday;
     private minisoccerfieldmanagement.util.PanelRound pnlWednesday;
+    private minisoccerfieldmanagement.util.ServiceSection serviceSection;
     private javax.swing.JTable tblBooking;
     private javax.swing.JTextField txtDate;
     private javax.swing.JTextField txtSearch;
