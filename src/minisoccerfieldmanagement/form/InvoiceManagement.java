@@ -57,6 +57,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import minisoccerfieldmanagement.datetime.component.date.DatePicker;
 import minisoccerfieldmanagement.util.Utils;
 
 /**
@@ -65,7 +66,7 @@ import minisoccerfieldmanagement.util.Utils;
  */
 public class InvoiceManagement extends TabbedForm {
 
-  
+    DatePicker dateChooser;
     ITransactionService transactionService;
     ICustomerService customerService;
     IFieldService fieldService;
@@ -90,10 +91,7 @@ public class InvoiceManagement extends TabbedForm {
         invoiceModel = (DefaultTableModel) tblInvoice.getModel();
         serviceItemModel = (DefaultTableModel) tblItem.getModel();
         setService();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        
-        ftfCalendar.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
-        ftfCalendar.setEditable(false);
+        setDateChooser();
         loadData();
         setEvent();
         
@@ -412,12 +410,8 @@ public class InvoiceManagement extends TabbedForm {
     }//GEN-LAST:event_tblInvoiceMouseClicked
 
     private void ftfCalendarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseClicked
-       com.raven.datechooser.DateChooser dateChooser1;
-       dateChooser1 = new com.raven.datechooser.DateChooser();
-        dateChooser1.setDateFormat("dd/MM/yyyy");
-        dateChooser1.setTextRefernce(ftfCalendar);
-        dateChooser1.setForeground(new Color(0, 0, 0));
-        dateChooser1.showPopup();
+
+        dateChooser.showPopup();
 
     }//GEN-LAST:event_ftfCalendarMouseClicked
 
@@ -500,7 +494,6 @@ public class InvoiceManagement extends TabbedForm {
     }
     private void applyTableStyle(JTable table) {
 
-        ftfCalendar.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/calendar.svg", 0.35f));
         btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg",0.35f));
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         //  Change scroll style
@@ -678,6 +671,15 @@ public class InvoiceManagement extends TabbedForm {
             }
 
         });
+    }
+
+    private void setDateChooser() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateChooser = new DatePicker();
+        dateChooser.now();
+        dateChooser.setEditor(ftfCalendar);
+        ftfCalendar.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
+        ftfCalendar.setEditable(false);
     }
     
     

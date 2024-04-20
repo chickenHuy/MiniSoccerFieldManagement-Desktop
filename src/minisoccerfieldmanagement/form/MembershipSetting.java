@@ -57,7 +57,7 @@ public class MembershipSetting extends TabbedForm {
     }
     
 
-    private void applyTableStyle(JTable table) {
+    private void applyTableStyle(JTable tblService) {
 
         btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
@@ -76,8 +76,22 @@ public class MembershipSetting extends TabbedForm {
                 + "border:3,0,3,0,$Table.background,10,10");
         jScrollPane1.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
                 + "hoverTrackColor:null");
+        
+        CenteredTableCellRenderer centerRenderer = new CenteredTableCellRenderer();
+        for (int i = 0; i < tblService.getColumnCount(); i++) {
+            tblService.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
     }
+    public class CenteredTableCellRenderer extends DefaultTableCellRenderer {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        if (c instanceof JLabel) {
+            ((JLabel) c).setHorizontalAlignment(SwingConstants.CENTER);
+        }
+        return c;
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -325,15 +339,14 @@ public class MembershipSetting extends TabbedForm {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 329, Short.MAX_VALUE))
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE))
-                .addGap(14, 14, 14))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(340, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

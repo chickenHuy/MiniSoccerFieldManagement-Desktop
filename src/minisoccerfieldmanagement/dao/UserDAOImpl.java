@@ -344,5 +344,50 @@ public class UserDAOImpl implements IUserDAO {
         }
         return false;
     }
+    
+    @Override
+    public List<User> getTopKpi(int top) {
+        List<User> models = new ArrayList<>();
+        try {
+            String sql = "SELECT `User`.*\n" +
+                            "FROM `Transaction` \n" +
+                            "JOIN `User` ON `Transaction`.userId = `User`.id \n" +
+                            "WHERE `User`.isDeleted = 0 AND `Transaction`.isDeleted = 0 \n" +
+                            "GROUP BY `User`.name, `User`.id \n" +
+                            "ORDER BY SUM(finalAmount) DESC \n" +
+                            "LIMIT ?;";
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, top);
+
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User model = new User();
+                model.setId(rs.getInt("id"));
+                model.setName(rs.getString("name"));
+                model.setGender(rs.getString("gender"));
+                model.setDateOfBirth(new Timestamp(rs.getDate("dateOfBirth").getTime()));
+                model.setImage(rs.getString("image"));
+                model.setPhoneNumber(rs.getString("phoneNumber"));
+                model.setUserName(rs.getString("userName"));
+                model.setPassword(rs.getString("password"));
+                model.setRole(rs.getString("role"));
+                model.setType(rs.getString("type"));
+                model.setDeleted(Boolean.FALSE);
+                model.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    model.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+                models.add(model);
+            }
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return models;
+    }
 
 }

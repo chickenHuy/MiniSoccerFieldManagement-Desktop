@@ -5,7 +5,16 @@
 package minisoccerfieldmanagement.panel.statistics;
 
 import java.awt.Color;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import minisoccerfieldmanagement.custom.chart.ModelChart;
+import minisoccerfieldmanagement.dao.ChartDAOImpl;
+import minisoccerfieldmanagement.dao.IChartDAO;
+import minisoccerfieldmanagement.model.User;
+import minisoccerfieldmanagement.model.UserChart;
+import minisoccerfieldmanagement.service.IUserService;
+import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.crazypanel.CrazyPanel;
 
 /**
@@ -13,24 +22,26 @@ import raven.crazypanel.CrazyPanel;
  * @author trank
  */
 public class EmployeeStatistics extends CrazyPanel {
-
-    private void test() {
+    
+    private List<User> listUser;
+    private IUserService userService;
+    private IChartDAO chartDAO;
+    private void generateData(List<java.sql.Date> date , double[][] finalAmount, int size) {
         chart.clear();
-        chart.addData(new ModelChart("January", new double[]{500, 50, 100}));
-        chart.addData(new ModelChart("February", new double[]{600, 300, 150}));
-        chart.addData(new ModelChart("March", new double[]{200, 50, 900}));
-        chart.addData(new ModelChart("April", new double[]{480, 700, 100}));
-        chart.addData(new ModelChart("May", new double[]{350, 540, 500}));
-        chart.addData(new ModelChart("June", new double[]{450, 800, 100}));
+        for (int i = 0; i < date.size(); i++){
+            double[] doubleList = new double[size];
+            for (int j = 0; j < size; j++)
+            {
+                doubleList[j] = finalAmount[j][i];
+            }
+            chart.addData(new ModelChart(String.valueOf(date.get(i)), doubleList));
+        }
         chart.start();
     }   
     public EmployeeStatistics() {
         initComponents();
-        chart.setTitle("Chart Data");
-        chart.addLegend("Amount", Color.decode("#7b4397"), Color.decode("#dc2430"));
-        chart.addLegend("Cost", Color.decode("#e65c00"), Color.decode("#F9D423"));
-        chart.addLegend("Profit", Color.decode("#0099F7"), Color.decode("#F11712"));
-        test();
+        setChart();
+       
     }
 
     /**
@@ -42,7 +53,6 @@ public class EmployeeStatistics extends CrazyPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panelGradient1 = new minisoccerfieldmanagement.custom.chart.PanelGradient();
         chart = new minisoccerfieldmanagement.custom.chart.CurveLineChart();
 
         setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -51,31 +61,62 @@ public class EmployeeStatistics extends CrazyPanel {
         ));
         setPreferredSize(new java.awt.Dimension(699, 218));
 
-        panelGradient1.setForeground(new java.awt.Color(0, 51, 102));
-        panelGradient1.add(chart);
-        chart.setBounds(70, 0, 540, 200);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelGradient1, javax.swing.GroupLayout.DEFAULT_SIZE, 687, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGap(0, 699, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(chart, javax.swing.GroupLayout.DEFAULT_SIZE, 687, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelGradient1, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGap(0, 218, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(chart, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+                    .addContainerGap()))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private minisoccerfieldmanagement.custom.chart.CurveLineChart chart;
-    private minisoccerfieldmanagement.custom.chart.PanelGradient panelGradient1;
     // End of variables declaration//GEN-END:variables
+
+    private void setChart() {
+        userService = new UserServiceImpl();
+        listUser = userService.getTopKpi(3);
+        chartDAO = new ChartDAOImpl();
+        chart.setTitle("KPI data");
+        String[] color1 = new String[]{"#7b4397", "#e65c00", "#0099F7"};
+        String[] color2 = new String[]{"#dc2430","#F9D423", "#F11712"};
+        int vt  = 0;
+        List<java.sql.Date> date = new ArrayList<java.sql.Date>();
+        double[][] finalAmount = new double[3][100];
+        for (User user : listUser) {
+            chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt%3]),  Color.decode(color2[vt%3]));
+           
+            List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+            for (UserChart uc: userCharts)
+            {
+                if (date.isEmpty() || (!date.contains(uc.getDate())))
+                {
+                    date.add(uc.getDate());
+                    
+                }
+                finalAmount[vt][date.size()-1] = uc.getSumTotal().doubleValue();
+            }
+            vt++;
+        }
+        
+        generateData(date, finalAmount, listUser.size());
+        
+        
+       
+    }
 }

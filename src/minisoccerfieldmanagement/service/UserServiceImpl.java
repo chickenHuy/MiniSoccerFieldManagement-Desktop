@@ -68,5 +68,10 @@ public class UserServiceImpl implements IUserService{
     public Boolean checkUsernameExistExceptCurrent(String username, int userId) {
         return userDAO.checkUsernameExistExceptCurrent(username, userId);
     }
+
+    @Override
+    public List<User> getTopKpi(int top) {
+        return  userDAO.getTopKpi(top);
+    }
     
 }
