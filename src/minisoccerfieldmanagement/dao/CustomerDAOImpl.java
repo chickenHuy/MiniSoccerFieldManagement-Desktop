@@ -265,4 +265,72 @@ public class CustomerDAOImpl implements ICustomerDAO {
         return exists;
     }
 
+    @Override                             //content là nội dung cần tìm -- membership nếu ko lọc thì truyền -1 -- display -1 giảm, 0 bth, 1 tăng
+    public List<Customer> findAllAndFilter(String content, int membershipId, int displayType) {
+        List<Customer> models = new ArrayList<>();
+        try {
+            String display = " ORDER BY Customer.totalSpend ";
+            if (displayType == -1 ) // Giảm dần
+                display += "DESC";
+            if (displayType == 1) // Tăng dần
+                display += "ASC";
+            String membershipString = "";
+            if (membershipId != -1) // nếu bth thì truyền -1 vào memmebrshipId
+                membershipString = " AND membership.id = ? ";
+            String sql = "Select customer.* from customer join membership on membership.id = customer.membershipId\n" +
+                            "where customer.isDeleted = 0 and membership.isDeleted = 0\n" +
+                            "and \n" +
+                            "	(lower(customer.name) like lower(?) or\n" +
+                            "    lower(customer.id) like lower(?) or\n" +
+                            "    lower(customer.phoneNumber) like lower(?) or\n" +
+                            "    lower(customer.totalSpend) like lower(?) or\n" +
+                            "    lower(membership.name) like lower(?)) ";
+            
+            if (!membershipString.isEmpty())
+            {
+                sql += membershipString;
+            }
+            if (displayType != 0)
+            {
+                sql += display;
+                        
+            }
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + content + "%" );
+            ps.setString(2, "%" + content + "%" );
+            ps.setString(3, "%" + content + "%" );
+            ps.setString(4, "%" + content + "%" );
+            ps.setString(5, "%" + content + "%" );
+            if (!membershipString.isEmpty())
+            {
+                ps.setInt(6, membershipId);
+            }
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Customer model = new Customer();
+                model.setId(rs.getInt("id"));
+                model.setMemberShipId(rs.getInt("memberShipId"));
+                model.setName(rs.getString("name"));
+                model.setPhoneNumber(rs.getString("phoneNumber"));
+                model.setTotalSpend(rs.getBigDecimal("totalSpend"));
+                model.setImage(rs.getString("image"));
+                model.setIsDeleted(rs.getBoolean("isDeleted"));
+                model.setCreateAt(rs.getTimestamp("createdAt"));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    model.setUpdateAt(new Timestamp(updatedAtDate.getTime()));
+                }
+                models.add(model);
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return models;
+    }
+
 }

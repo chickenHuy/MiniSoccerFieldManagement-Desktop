@@ -69,4 +69,9 @@ public class CustomerServiceImpl implements ICustomerService {
         return customerDAO.checkPhoneNumberExistExceptCurrent(id, phoneNumber);
     }
 
+    @Override
+    public List<Customer> findAllAndFilter(String content, int membershipId, int displayType) {
+        return customerDAO.findAllAndFilter(content, membershipId, displayType);
+    }
+
 }
