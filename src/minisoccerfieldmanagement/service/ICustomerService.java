@@ -25,6 +25,7 @@ public interface ICustomerService {
     Boolean checkPhoneNumberExist(String phoneNumber);
     
     Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber);
+    
     List<Customer> findAllAndFilter(String content, int membershipId, int displayType);
     
 }

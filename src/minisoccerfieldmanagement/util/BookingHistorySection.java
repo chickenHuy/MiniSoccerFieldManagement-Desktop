@@ -1,24 +1,30 @@
 package minisoccerfieldmanagement.util;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import minisoccerfieldmanagement.model.Booking;
 
 public class BookingHistorySection extends javax.swing.JPanel {
 
-    private int selectedFieldId = -1;
+    private int selectedBookingId = -1;
 
-    public void setSelectedBookingId(int selectedFieldId) {
-        int oldSelectedFieldId = this.selectedFieldId;
-        this.selectedFieldId = selectedFieldId;
+    public void setSelectedBookingId(int selectedBookingId) {
+        int oldSelectedBookingId = this.selectedBookingId;
+        this.selectedBookingId = selectedBookingId;
         PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-        propertyChangeSupport.firePropertyChange("selectedFieldId", oldSelectedFieldId, selectedFieldId);
+        propertyChangeSupport.firePropertyChange("selectedFieldId", oldSelectedBookingId, selectedBookingId);
     }
 
     private BookingItem event;
@@ -28,17 +34,19 @@ public class BookingHistorySection extends javax.swing.JPanel {
     }
 
     public int getSelectedBookingId() {
-        return selectedFieldId;
+        return selectedBookingId;
     }
 
     public BookingHistorySection() {
         initComponents();
         panelBookingHistory.setLayout(new GridBagLayout());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
     }
 
     public void addItem(Booking data) {
         BookingHistoryItem item = new BookingHistoryItem();
         item.setData(data);
+        item.setMaximumSize(new Dimension(230, Integer.MAX_VALUE));
         item.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent me) {
@@ -57,6 +65,7 @@ public class BookingHistorySection extends javax.swing.JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.insets = new Insets(5, 10, 5, 10);
         panelBookingHistory.add(item, gbc);
         panelBookingHistory.revalidate();
         panelBookingHistory.repaint();
@@ -78,6 +87,20 @@ public class BookingHistorySection extends javax.swing.JPanel {
         panelBookingHistory.removeAll();
         panelBookingHistory.revalidate();
         panelBookingHistory.repaint();
+    }
+
+    public void showNoBookingMessage() {
+        JLabel noBookingLabel = new JLabel("No booking history", SwingConstants.CENTER);
+        noBookingLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        noBookingLabel.setForeground(new Color(0, 0, 255));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        panelBookingHistory.add(noBookingLabel, gbc);
     }
 
     public void addData(List<Booking> data) {

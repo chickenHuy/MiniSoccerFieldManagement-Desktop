@@ -76,7 +76,7 @@
     <Container class="minisoccerfieldmanagement.util.PictureBox" name="ptbAccountImage">
       <Properties>
         <Property name="image" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/minisoccerfieldmanagement/image/empty_service.png"/>
+          <Image iconType="3" name="/minisoccerfieldmanagement/image/profile.jpg"/>
         </Property>
       </Properties>
 

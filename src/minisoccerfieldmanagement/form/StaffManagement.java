@@ -4,7 +4,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Component;
-import java.util.ArrayList;
+import java.awt.Desktop;
 import java.util.List;
 import javax.swing.table.DefaultTableCellRenderer;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
@@ -13,7 +13,6 @@ import raven.popup.component.PopupController;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -29,9 +28,23 @@ import minisoccerfieldmanagement.service.UserServiceImpl;
 import java.sql.Timestamp;
 import java.util.Random;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import minisoccerfieldmanagement.datetime.component.date.DatePicker;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class StaffManagement extends TabbedForm {
 
@@ -39,6 +52,9 @@ public class StaffManagement extends TabbedForm {
     IUserService userService;
     DefaultTableModel userModels;
     private ButtonGroup genderButtonGroup;
+    DatePicker dateChooser;
+    List<User> users;
+    private String search = "";
 
     public StaffManagement() {
         initComponents();
@@ -49,6 +65,7 @@ public class StaffManagement extends TabbedForm {
         applyTableStyle(tblStaff);
         index = -1;
         btnSave.setEnabled(false);
+        setDateChooser();
         loadDataStaffManagement();
     }
 
@@ -58,11 +75,22 @@ public class StaffManagement extends TabbedForm {
         genderButtonGroup.add(rbtnFemale);
         genderButtonGroup.add(rbtnOther);
     }
+    
+    private void setDateChooser() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateChooser = new DatePicker();
+        dateChooser.now();
+        dateChooser.setEditor(tfDateOfBirth);
+        tfDateOfBirth.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
+        tfDateOfBirth.setEditable(false);
+    }
 
     private void applyTableStyle(JTable table) {
         btnAddNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
+        btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg", 0.35f));
+        txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         JScrollPane scroll = (JScrollPane) table.getParent().getParent();
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getVerticalScrollBar().putClientProperty(FlatClientProperties.STYLE, ""
@@ -77,8 +105,7 @@ public class StaffManagement extends TabbedForm {
 
     private void loadDataStaffManagement() {
         userModels.setRowCount(0);
-        List<User> users = new ArrayList<>();
-        users = userService.findAll();
+        users = userService.findAllAndFilter(search);
         for (User user : users) {
             userModels.addRow(getRow(user));
         }
@@ -111,7 +138,7 @@ public class StaffManagement extends TabbedForm {
     }
 
     private Object[] getRow(User user) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String formattedDateOfBirth = dateFormat.format(user.getDateOfBirth());
         String passwordHidden = "*".repeat(user.getPassword().length());
         return new Object[]{user.getId(), user.getName(), user.getGender(), formattedDateOfBirth, user.getPhoneNumber(), user.getUserName(), passwordHidden, user.getRole()};
@@ -133,6 +160,9 @@ public class StaffManagement extends TabbedForm {
         crazyPanel1 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblStaff = new javax.swing.JTable();
+        crazyPanel2 = new raven.crazypanel.CrazyPanel();
+        txtSearch = new javax.swing.JTextField();
+        btnPrint = new javax.swing.JButton();
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
         lblName = new javax.swing.JLabel();
         tfName = new javax.swing.JTextField();
@@ -140,7 +170,6 @@ public class StaffManagement extends TabbedForm {
         btnDelete = new javax.swing.JButton();
         lblName1 = new javax.swing.JLabel();
         lblName2 = new javax.swing.JLabel();
-        tfDateOfBirth = new javax.swing.JTextField();
         lblName3 = new javax.swing.JLabel();
         tfPhoneNumber = new javax.swing.JTextField();
         tfUsername = new javax.swing.JTextField();
@@ -150,6 +179,7 @@ public class StaffManagement extends TabbedForm {
         rbtnOther = new com.formdev.flatlaf.extras.components.FlatRadioButton();
         btnSave = new javax.swing.JButton();
         lblEmployeeDetails = new javax.swing.JLabel();
+        tfDateOfBirth = new javax.swing.JFormattedTextField();
 
         setMaximumSize(new java.awt.Dimension(1188, 696));
         setPreferredSize(new java.awt.Dimension(1188, 696));
@@ -188,20 +218,78 @@ public class StaffManagement extends TabbedForm {
         });
         jScrollPane1.setViewportView(tblStaff);
 
+        crazyPanel2.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background",
+            new String[]{
+                "JTextField.placeholderText=Search;background:@background",
+                "background:lighten(@background,8%);borderWidth:1",
+                "background:lighten(@background,8%);borderWidth:1",
+                "background:lighten(@background,8%);borderWidth:1"
+            }
+        ));
+        crazyPanel2.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "",
+            "[]push[][]",
+            "",
+            new String[]{
+                "width 200"
+            }
+        ));
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
+            }
+        });
+
+        btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout crazyPanel2Layout = new javax.swing.GroupLayout(crazyPanel2);
+        crazyPanel2.setLayout(crazyPanel2Layout);
+        crazyPanel2Layout.setHorizontalGroup(
+            crazyPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 453, Short.MAX_VALUE)
+                .addComponent(btnPrint)
+                .addContainerGap())
+        );
+        crazyPanel2Layout.setVerticalGroup(
+            crazyPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(crazyPanel2Layout.createSequentialGroup()
+                .addGap(7, 7, 7)
+                .addGroup(crazyPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPrint))
+                .addContainerGap(11, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout crazyPanel1Layout = new javax.swing.GroupLayout(crazyPanel1);
         crazyPanel1.setLayout(crazyPanel1Layout);
         crazyPanel1Layout.setHorizontalGroup(
             crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 788, Short.MAX_VALUE)
+                .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(crazyPanel1Layout.createSequentialGroup()
+                        .addComponent(crazyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         crazyPanel1Layout.setVerticalGroup(
             crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 646, Short.MAX_VALUE)
+                .addComponent(crazyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
 
@@ -255,75 +343,76 @@ public class StaffManagement extends TabbedForm {
         });
 
         lblEmployeeDetails.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        lblEmployeeDetails.setForeground(new java.awt.Color(196, 204, 90));
         lblEmployeeDetails.setText("Employee Details");
 
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(crazyPanel3Layout.createSequentialGroup()
-                            .addComponent(lblName3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
-                            .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(crazyPanel3Layout.createSequentialGroup()
-                            .addComponent(lblName4)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(tfUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(crazyPanel3Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblName1)
+                            .addComponent(lblName)
                             .addComponent(lblName2)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblName4)
+                            .addComponent(lblName3))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(lblEmployeeDetails)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(tfDateOfBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(tfUsername)
+                                .addComponent(tfName, javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addGroup(crazyPanel3Layout.createSequentialGroup()
                                     .addComponent(rbtnMale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGap(18, 18, 18)
                                     .addComponent(rbtnFemale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGap(18, 18, 18)
                                     .addComponent(rbtnOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(tfDateOfBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(1, 1, 1)))
-                    .addGroup(crazyPanel3Layout.createSequentialGroup()
-                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAddNew)
-                            .addComponent(lblName1)
-                            .addComponent(lblName))
-                        .addGap(18, 18, 18)
-                        .addComponent(btnSave)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnDelete)))
-                .addContainerGap(29, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblEmployeeDetails)
-                .addGap(86, 86, 86))
+                                .addComponent(tfPhoneNumber, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                                .addComponent(btnAddNew)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnSave)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnDelete)))))
+                .addGap(38, 38, 38))
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addGap(59, 59, 59)
+                .addGap(50, 50, 50)
                 .addComponent(lblEmployeeDetails)
-                .addGap(56, 56, 56)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblName)
-                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(59, 59, 59)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblName1)
-                    .addComponent(rbtnMale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rbtnFemale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rbtnOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(57, 57, 57)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblName2)
-                    .addComponent(tfDateOfBirth, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(49, 49, 49)
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblName3)
-                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(65, 65, 65)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblName)
+                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(59, 59, 59)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblName1)
+                            .addComponent(rbtnMale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rbtnFemale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rbtnOther, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(57, 57, 57)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblName2)
+                            .addComponent(tfDateOfBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(49, 49, 49)
+                        .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblName3))
                 .addGap(49, 49, 49)
                 .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblName4)
@@ -333,7 +422,7 @@ public class StaffManagement extends TabbedForm {
                     .addComponent(btnAddNew)
                     .addComponent(btnSave)
                     .addComponent(btnDelete))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -341,9 +430,9 @@ public class StaffManagement extends TabbedForm {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(16, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
+                .addGap(18, 18, 18)
                 .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(17, 17, 17))
         );
@@ -352,9 +441,9 @@ public class StaffManagement extends TabbedForm {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(20, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18))
+                    .addComponent(crazyPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(36, 36, 36))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -460,14 +549,6 @@ public class StaffManagement extends TabbedForm {
             });
             return;
         }
-        if (!isValidDate(strDateOfBirth)) {
-            MessageAlerts.getInstance().showMessage("Wrong Date", "Invalid date of birth. Enter the correct format dd-MM-yyyy", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
-                if (i == MessageAlerts.CLOSED_OPTION) {
-
-                }
-            });
-            return;
-        }
         if (!phoneNumber.matches("\\d{10}")) {
             MessageAlerts.getInstance().showMessage("Wrong format", "PhoneNumber must contain exactly 10 digits, cannot contain special characters", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 if (i == MessageAlerts.CLOSED_OPTION) {
@@ -487,7 +568,7 @@ public class StaffManagement extends TabbedForm {
         user.setName(name);
         user.setGender(gender);
         try {
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date parsedDate = dateFormat.parse(strDateOfBirth);
             Timestamp timestamp = new Timestamp(parsedDate.getTime());
             user.setDateOfBirth(timestamp);
@@ -550,6 +631,78 @@ public class StaffManagement extends TabbedForm {
         btnSave.setEnabled(false);
     }//GEN-LAST:event_btnSaveActionPerformed
 
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        search = txtSearch.getText().trim();
+        loadDataStaffManagement();
+    }//GEN-LAST:event_txtSearchKeyReleased
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(filter);
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+            exportToExcel(tblStaff, filePath);
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
+    private void exportToExcel(JTable table, String filePath) {
+        try {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Data");
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            int rowCount = model.getRowCount();
+            int columnCount = model.getColumnCount();
+            Row headerRow = sheet.createRow(0);
+            Cell headerCell = headerRow.createCell(0);
+            headerCell.setCellValue("Employee list");
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, columnCount - 1));
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setFontHeightInPoints((short) 14);
+            headerFont.setBold(true);
+            headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerCell.setCellStyle(headerCellStyle);
+            Row columnHeadersRow = sheet.createRow(1);
+            for (int col = 0; col < columnCount; col++) {
+                Cell cell = columnHeadersRow.createCell(col);
+                cell.setCellValue(model.getColumnName(col));
+            }
+            for (int row = 0; row < rowCount; row++) {
+                Row excelRow = sheet.createRow(row + 2);
+                for (int col = 0; col < columnCount; col++) {
+                    Cell cell = excelRow.createCell(col);
+                    cell.setCellValue(model.getValueAt(row, col).toString());
+                    sheet.autoSizeColumn(col);
+                    int columnWidth = sheet.getColumnWidth(col);
+                    sheet.setColumnWidth(col, columnWidth + 100);
+                }
+            }
+            try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
+                workbook.write(outputStream);
+                MessageAlerts.getInstance().showMessage("Save successful", "Data exported to Excel", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                });
+                Desktop.getDesktop().open(new File(filePath));
+            }
+            workbook.close();
+        } catch (IOException ex) {
+            MessageAlerts.getInstance().showMessage("Save failed", "Error exporting data to Excel", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+
+                }
+            });
+        }
+    }
+    
     private String generateRandomPassword() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
         int length = 10;
@@ -561,34 +714,13 @@ public class StaffManagement extends TabbedForm {
         return password.toString();
     }
 
-    private boolean isValidDate(String dateString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setLenient(false);
-        try {
-            Date date = dateFormat.parse(dateString);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            int month = calendar.get(Calendar.MONTH) + 1;
-            int year = calendar.get(Calendar.YEAR);
-            if (day <= 0 || month <= 0 || year <= 0) {
-                return false;
-            }
-            int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-            if (day > maxDayOfMonth) {
-                return false;
-            }
-            return true;
-        } catch (ParseException ex) {
-            return false;
-        }
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNew;
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
     private raven.crazypanel.CrazyPanel crazyPanel1;
+    private raven.crazypanel.CrazyPanel crazyPanel2;
     private raven.crazypanel.CrazyPanel crazyPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblEmployeeDetails;
@@ -601,9 +733,10 @@ public class StaffManagement extends TabbedForm {
     private com.formdev.flatlaf.extras.components.FlatRadioButton rbtnMale;
     private com.formdev.flatlaf.extras.components.FlatRadioButton rbtnOther;
     private javax.swing.JTable tblStaff;
-    private javax.swing.JTextField tfDateOfBirth;
+    private javax.swing.JFormattedTextField tfDateOfBirth;
     private javax.swing.JTextField tfName;
     private javax.swing.JTextField tfPhoneNumber;
     private javax.swing.JTextField tfUsername;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

@@ -389,5 +389,57 @@ public class UserDAOImpl implements IUserDAO {
         }
         return models;
     }
+    
+    @Override                             
+    public List<User> findAllAndFilter(String search) {
+        List<User> models = new ArrayList<>();
+        try {
+            String sql = "Select user.* from user " +
+                            "where user.isDeleted = 0 and user.role = 'staff'\n" +
+                            "and \n" +
+                            "	(lower(user.name) like lower(?) or\n" +
+                            "    lower(user.id) like lower(?) or\n" +
+                            "    lower(user.gender) like lower(?) or\n" +
+                            "    lower(user.dateOfBirth) like lower(?) or\n" +
+                            "    lower(user.phoneNumber) like lower(?) or\n" +
+                            "    lower(user.username) like lower(?))" ;
+            
+            conn = new DBConnection().getConnection();
+
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + search + "%" );
+            ps.setString(2, "%" + search + "%" );
+            ps.setString(3, "%" + search + "%" );
+            ps.setString(4, "%" + search + "%" );
+            ps.setString(5, "%" + search + "%" );
+            ps.setString(6, "%" + search + "%" );
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User model = new User();
+                model.setId(rs.getInt("id"));
+                model.setName(rs.getString("name"));
+                model.setGender(rs.getString("gender"));
+                model.setDateOfBirth(new Timestamp(rs.getDate("dateOfBirth").getTime()));
+                model.setImage(rs.getString("image"));
+                model.setPhoneNumber(rs.getString("phoneNumber"));
+                model.setUserName(rs.getString("userName"));
+                model.setPassword(rs.getString("password"));
+                model.setRole(rs.getString("role"));
+                model.setType(rs.getString("type"));
+                model.setDeleted(Boolean.FALSE);
+                model.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    model.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+                models.add(model);
+            }
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return models;
+    }
 
 }

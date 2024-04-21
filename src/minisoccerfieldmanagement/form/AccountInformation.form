@@ -44,22 +44,21 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
               <Component id="lblAccountInformation" min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                       <Component id="panelPersonalInformation" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="96" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="59" max="-2" attributes="0"/>
                       <Component id="panelLoginInformation" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="70" max="-2" attributes="0"/>
                       <Component id="panelAccountImage" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace pref="57" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -75,74 +74,99 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+              <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="lblGender" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblName" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblDateOfBirth" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblPhoneNumber" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblRole" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="lblGender" min="-2" max="-2" attributes="0"/>
+                                      <Component id="lblName" min="-2" max="-2" attributes="0"/>
+                                      <Component id="lblDateOfBirth" min="-2" max="-2" attributes="0"/>
+                                      <Component id="lblRole" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="lblPhoneNumber" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="tfPhoneNumber" alignment="0" pref="350" max="32767" attributes="0"/>
+                              <Component id="tfRole" alignment="0" max="32767" attributes="0"/>
+                              <Component id="tfGender" alignment="0" max="32767" attributes="0"/>
+                              <Component id="tfName" alignment="0" max="32767" attributes="0"/>
+                              <Component id="tfDateOfBirth" max="32767" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="btnEditPhoneNumber" min="-2" pref="40" max="-2" attributes="0"/>
+                              <Component id="btnEditGender" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
+                              <Component id="btnEditName" min="-2" pref="40" max="-2" attributes="0"/>
+                              <Component id="btnEditDateOfBirth" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="217" max="-2" attributes="0"/>
+                          <Component id="lblPersonalInformation" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="tfDateOfBirth" alignment="0" pref="350" max="32767" attributes="0"/>
-                      <Component id="tfPhoneNumber" alignment="0" max="32767" attributes="0"/>
-                      <Component id="tfRole" alignment="0" max="32767" attributes="0"/>
-                      <Component id="tfGender" alignment="0" max="32767" attributes="0"/>
-                      <Component id="tfName" alignment="0" max="32767" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="btnEditPhoneNumber" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="btnEditGender" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="btnEditName" min="-2" pref="40" max="-2" attributes="0"/>
-                      <Component id="btnEditDateOfBirth" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="58" max="32767" attributes="0"/>
-              </Group>
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace min="-2" pref="236" max="-2" attributes="0"/>
-                  <Component id="lblPersonalInformation" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="185" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
                   <Component id="lblPersonalInformation" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="tfName" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblName" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnEditName" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <Group type="103" groupAlignment="1" attributes="0">
+                                              <Group type="103" groupAlignment="3" attributes="0">
+                                                  <Component id="tfName" alignment="3" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="lblName" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              </Group>
+                                              <Component id="btnEditName" min="-2" pref="27" max="-2" attributes="0"/>
+                                          </Group>
+                                          <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+                                          <Group type="103" groupAlignment="3" attributes="0">
+                                              <Component id="tfGender" alignment="3" min="-2" max="-2" attributes="0"/>
+                                              <Component id="lblGender" alignment="3" min="-2" max="-2" attributes="0"/>
+                                          </Group>
+                                      </Group>
+                                      <Component id="btnEditGender" min="-2" pref="27" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="3" attributes="0">
+                                      <Component id="tfDateOfBirth" alignment="3" min="-2" max="-2" attributes="0"/>
+                                      <Component id="lblDateOfBirth" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <Component id="btnEditDateOfBirth" min="-2" pref="27" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="tfPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <Component id="btnEditPhoneNumber" min="-2" pref="27" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lblGender" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnEditGender" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
-                      <Component id="tfGender" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="tfDateOfBirth" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblDateOfBirth" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnEditDateOfBirth" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="tfPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblPhoneNumber" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btnEditPhoneNumber" alignment="3" min="-2" pref="22" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="tfRole" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="lblRole" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                  <EmptySpace pref="45" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -150,6 +174,9 @@
       <SubComponents>
         <Component class="com.formdev.flatlaf.extras.components.FlatLabel" name="lblPersonalInformation">
           <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="5a" green="cc" red="c4" type="rgb"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Personal Information"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="18" style="1"/>
@@ -167,8 +194,6 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Gender"/>
           </Properties>
-        </Component>
-        <Component class="com.formdev.flatlaf.extras.components.FlatTextField" name="tfDateOfBirth">
         </Component>
         <Component class="com.formdev.flatlaf.extras.components.FlatLabel" name="lblDateOfBirth">
           <Properties>
@@ -211,6 +236,8 @@
         </Component>
         <Component class="com.formdev.flatlaf.extras.components.FlatTextField" name="tfGender">
         </Component>
+        <Component class="com.formdev.flatlaf.extras.components.FlatTextField" name="tfDateOfBirth">
+        </Component>
       </SubComponents>
     </Container>
     <Container class="raven.crazypanel.CrazyPanel" name="panelLoginInformation">
@@ -251,7 +278,7 @@
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="63" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -260,28 +287,28 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="lblEye" min="-2" pref="30" max="-2" attributes="0"/>
+                      <Component id="btnEditPassword" min="-2" pref="27" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="lblLoginInformation" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="btnEditUsername" alignment="0" min="-2" pref="22" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="tfUsername" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblUsername" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
+                              <Component id="btnEditUsername" min="-2" pref="27" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="lblEye" min="-2" pref="30" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="tfPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="lblPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="btnEditPassword" min="-2" pref="22" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace pref="37" max="32767" attributes="0"/>
+                  <EmptySpace pref="38" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -289,6 +316,9 @@
       <SubComponents>
         <Component class="com.formdev.flatlaf.extras.components.FlatLabel" name="lblLoginInformation">
           <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="5a" green="cc" red="c4" type="rgb"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Login Information"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="18" style="1"/>
@@ -344,7 +374,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="btnEditImage" min="-2" pref="40" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="146" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="144" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -354,7 +384,7 @@
                   <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                   <Component id="ptbAccountImage" min="-2" pref="400" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="btnEditImage" pref="22" max="32767" attributes="0"/>
+                  <Component id="btnEditImage" pref="27" max="32767" attributes="0"/>
                   <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -364,7 +394,7 @@
         <Container class="minisoccerfieldmanagement.util.PictureBox" name="ptbAccountImage">
           <Properties>
             <Property name="image" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/minisoccerfieldmanagement/image/empty_service.png"/>
+              <Image iconType="3" name="/minisoccerfieldmanagement/image/profile.jpg"/>
             </Property>
           </Properties>
 
@@ -381,6 +411,9 @@
     </Container>
     <Component class="com.formdev.flatlaf.extras.components.FlatLabel" name="lblAccountInformation">
       <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="5a" green="cc" red="c4" type="rgb"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="Account Information"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Segoe UI" size="24" style="1"/>

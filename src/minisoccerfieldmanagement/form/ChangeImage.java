@@ -15,8 +15,12 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.alerts.MessageAlerts;
+import raven.drawer.Drawer;
+import raven.drawer.component.header.SimpleHeader;
+import raven.drawer.component.header.SimpleHeaderData;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
+import raven.swing.AvatarIcon;
 
 public class ChangeImage extends javax.swing.JFrame {
 
@@ -42,12 +46,12 @@ public class ChangeImage extends javax.swing.JFrame {
         User user = UserSession.getInstance().getUser();
         userId = user.getId();
         if (user.getImage() == null) {
-            ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/empty_service.png"));
+            ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
             ptbAccountImage.repaint();
         } else {
             File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
             if (!file.exists()) {
-                ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/empty_service.png"));
+                ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
                 ptbAccountImage.repaint();
             } else {
                 ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/user/" + user.getImage()));
@@ -81,7 +85,7 @@ public class ChangeImage extends javax.swing.JFrame {
             }
         });
 
-        ptbAccountImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/empty_service.png"))); // NOI18N
+        ptbAccountImage.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/profile.jpg"))); // NOI18N
 
         btnUpload.setText("Upload");
         btnUpload.addActionListener(new java.awt.event.ActionListener() {
@@ -203,19 +207,11 @@ public class ChangeImage extends javax.swing.JFrame {
                     tempPicture = fileChooser.getSelectedFile();
                     System.out.print(tempPicture);
                 } else {
-                    MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                        @Override
-                        public void action(PopupController pc, int i) {
-
-                        }
+                    MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                     });
                 }
             } else {
-                MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-
-                    }
+                MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 });
             }
         }
@@ -233,12 +229,9 @@ public class ChangeImage extends javax.swing.JFrame {
             Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
-            MessageAlerts.getInstance().showMessage("Upload image failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
+            MessageAlerts.getInstance().showMessage("Upload image failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
 
-                    }
                 }
             });
             return false;

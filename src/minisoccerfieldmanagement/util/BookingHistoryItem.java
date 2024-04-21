@@ -53,7 +53,7 @@ public class BookingHistoryItem extends javax.swing.JPanel {
                 pic.repaint();
             }
         }
-        SimpleDateFormat dateFormatted = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormatted = new SimpleDateFormat("dd/MM/yyyy");
         String date = dateFormatted.format(new Date(data.getTimeStart().getTime()));
         lblDate.setText(date);
         String name = field.getName();
@@ -70,6 +70,8 @@ public class BookingHistoryItem extends javax.swing.JPanel {
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(new Color(200, 200, 200));
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
         if (selected) {
             g2.setColor(new Color(0, 160, 30));
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
@@ -91,6 +93,7 @@ public class BookingHistoryItem extends javax.swing.JPanel {
         setMinimumSize(new java.awt.Dimension(140, 101));
 
         lblDate.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblDate.setForeground(new java.awt.Color(51, 51, 51));
         lblDate.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblDate.setText("Date");
         lblDate.setToolTipText("");
@@ -98,11 +101,13 @@ public class BookingHistoryItem extends javax.swing.JPanel {
         pic.setImage(new javax.swing.ImageIcon(getClass().getResource("/minisoccerfieldmanagement/image/pitch.png"))); // NOI18N
 
         lblNameTime.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblNameTime.setForeground(new java.awt.Color(51, 51, 51));
         lblNameTime.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblNameTime.setText("Name + Time");
         lblNameTime.setToolTipText("");
 
         lblPrice.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblPrice.setForeground(new java.awt.Color(51, 51, 51));
         lblPrice.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblPrice.setText("Price");
         lblPrice.setToolTipText("");
@@ -112,29 +117,28 @@ public class BookingHistoryItem extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(pic, javax.swing.GroupLayout.DEFAULT_SIZE, 123, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
+                .addComponent(pic, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblNameTime)
-                    .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24))
+                    .addComponent(lblPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 11, Short.MAX_VALUE)
-                .addComponent(lblDate)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblNameTime)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblPrice)
-                .addGap(18, 18, 18))
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(pic, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pic, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lblDate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblNameTime)
+                        .addGap(15, 15, 15)
+                        .addComponent(lblPrice)))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

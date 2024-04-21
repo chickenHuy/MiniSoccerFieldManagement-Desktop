@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.User;
@@ -14,16 +13,19 @@ import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
+import minisoccerfieldmanagement.datetime.component.date.DatePicker;
 
 public class ChangeDateOfBirth extends javax.swing.JFrame {
 
     IUserService userService;
     private int userId;
     private AccountInformation accountInformationForm;
+    DatePicker dateChooser;
 
     public ChangeDateOfBirth() {
         initComponents();
         loadData();
+        
     }
 
     public ChangeDateOfBirth(AccountInformation accountInformationForm) {
@@ -31,16 +33,26 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
         this.accountInformationForm = accountInformationForm;
         userService = new UserServiceImpl();
         loadData();
+        setDateChooser();
         setLocationRelativeTo(null);
     }
 
     private void loadData() {
         User user = UserSession.getInstance().getUser();
         userId = user.getId();
-        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String strDateOfBirth = dateFormat.format(user.getDateOfBirth());
         tfDateOfBirth.setText(strDateOfBirth);
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/tick.svg", 0.35f));
+    }
+    
+    private void setDateChooser() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateChooser = new DatePicker();
+        dateChooser.now();
+        dateChooser.setEditor(tfDateOfBirth);
+        tfDateOfBirth.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
+        tfDateOfBirth.setEditable(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -48,8 +60,8 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
     private void initComponents() {
 
         flatLabel1 = new com.formdev.flatlaf.extras.components.FlatLabel();
-        tfDateOfBirth = new com.formdev.flatlaf.extras.components.FlatTextField();
         btnSave = new com.formdev.flatlaf.extras.components.FlatButton();
+        tfDateOfBirth = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,12 +80,12 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(54, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(tfDateOfBirth)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(flatLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(tfDateOfBirth, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(109, 109, 109)
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(46, 46, 46))
         );
         layout.setVerticalGroup(
@@ -94,35 +106,13 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         User user = new User();
         String strDateOfBirth = tfDateOfBirth.getText().trim();
-        if (strDateOfBirth.isBlank()) {
-            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave date of birth blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                    }
-                }
-            });
-            return;
-        }
-        if (!isValidDate(strDateOfBirth)) {
-            MessageAlerts.getInstance().showMessage("Wrong date", "Invalid date of birth. Enter the correct format dd-MM-yyy!", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                    }
-                }
-            });
-            return;
-        }
         user.setId(userId);
         User userNew = userService.findById(userId);
         userNew.setId(userNew.getId());
         userNew.setName(userNew.getName());
         userNew.setGender(userNew.getGender());
         try {
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date parsedDate = dateFormat.parse(strDateOfBirth);
             Timestamp timestamp = new Timestamp(parsedDate.getTime());
             userNew.setDateOfBirth(timestamp);
@@ -169,29 +159,6 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
-    private boolean isValidDate(String dateString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        dateFormat.setLenient(false);
-        try {
-            Date date = dateFormat.parse(dateString);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            int month = calendar.get(Calendar.MONTH) + 1;
-            int year = calendar.get(Calendar.YEAR);
-            if (day <= 0 || month <= 0 || year <= 0) {
-                return false;
-            }
-            int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-            if (day > maxDayOfMonth) {
-                return false;
-            }
-            return true;
-        } catch (ParseException ex) {
-            return false;
-        }
-    }
-
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -204,6 +171,6 @@ public class ChangeDateOfBirth extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.formdev.flatlaf.extras.components.FlatButton btnSave;
     private com.formdev.flatlaf.extras.components.FlatLabel flatLabel1;
-    private com.formdev.flatlaf.extras.components.FlatTextField tfDateOfBirth;
+    private javax.swing.JFormattedTextField tfDateOfBirth;
     // End of variables declaration//GEN-END:variables
 }

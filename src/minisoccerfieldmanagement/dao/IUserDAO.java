@@ -28,6 +28,9 @@ public interface IUserDAO {
     Boolean checkUsernameExist(String username);
     
     Boolean checkUsernameExistExceptCurrent(String username, int userId);
+    
     List<User> getTopKpi(int top);
 
+    List<User> findAllAndFilter(String search);
+    
 }

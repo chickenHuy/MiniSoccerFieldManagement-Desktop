@@ -74,4 +74,9 @@ public class UserServiceImpl implements IUserService{
         return  userDAO.getTopKpi(top);
     }
     
+    @Override
+    public List<User> findAllAndFilter(String search) {
+        return  userDAO.findAllAndFilter(search);
+    }
+    
 }
