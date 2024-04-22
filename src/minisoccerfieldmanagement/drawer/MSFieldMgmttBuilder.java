@@ -4,13 +4,13 @@ import java.awt.Component;
 import minisoccerfieldmanagement.form.AccountInformation;
 import minisoccerfieldmanagement.form.CustomerManagement;
 import minisoccerfieldmanagement.form.Dashboard;
+import minisoccerfieldmanagement.form.EmployeeManagement;
 import minisoccerfieldmanagement.form.FieldManagement;
 import minisoccerfieldmanagement.form.InvoiceManagement;
 import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
 import minisoccerfieldmanagement.form.ServiceManagement;
 import minisoccerfieldmanagement.form.StaffBooking;
-import minisoccerfieldmanagement.form.StaffManagement;
 import minisoccerfieldmanagement.form.Statistics;
 import raven.drawer.component.SimpleDrawerBuilder;
 import raven.drawer.component.footer.SimpleFooterData;
@@ -108,7 +108,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         }
                         else if (index == 4 && subIndex == 4 )
                         {
-                            WindowsTabbed.getInstance().addTab("Empolyee", new StaffManagement());
+                            WindowsTabbed.getInstance().addTab("Empolyee", new EmployeeManagement());
                         }
                         else if (index == 7 && subIndex == 1 )
                         {

@@ -734,7 +734,6 @@ public class CustomerManagement extends TabbedForm {
             type = membershipService.findIdByName(membershipNameCbx);
         } else {
             type = -1;
-            System.err.println("type: " + type);
         }
         loadDataCustomerManagement();
     }//GEN-LAST:event_cbxMembershipActionPerformed
