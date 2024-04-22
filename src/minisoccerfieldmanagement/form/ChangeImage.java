@@ -15,12 +15,8 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.alerts.MessageAlerts;
-import raven.drawer.Drawer;
-import raven.drawer.component.header.SimpleHeader;
-import raven.drawer.component.header.SimpleHeaderData;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
-import raven.swing.AvatarIcon;
 
 public class ChangeImage extends javax.swing.JFrame {
 
@@ -45,7 +41,7 @@ public class ChangeImage extends javax.swing.JFrame {
     private void loadData() {
         User user = UserSession.getInstance().getUser();
         userId = user.getId();
-        if (user.getImage() == null) {
+        if (user.getImage() == null || user.getImage().isEmpty()) {
             ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
             ptbAccountImage.repaint();
         } else {
@@ -63,6 +59,7 @@ public class ChangeImage extends javax.swing.JFrame {
         System.out.println("pictureBox " + file.getName());
         btnUpload.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/upload.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/tick.svg", 0.35f));
+        btnDeleteImage.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
     }
 
     @SuppressWarnings("unchecked")
@@ -73,6 +70,7 @@ public class ChangeImage extends javax.swing.JFrame {
         btnSave = new com.formdev.flatlaf.extras.components.FlatButton();
         ptbAccountImage = new minisoccerfieldmanagement.util.PictureBox();
         btnUpload = new com.formdev.flatlaf.extras.components.FlatButton();
+        btnDeleteImage = new com.formdev.flatlaf.extras.components.FlatButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -94,6 +92,13 @@ public class ChangeImage extends javax.swing.JFrame {
             }
         });
 
+        btnDeleteImage.setText("Delete");
+        btnDeleteImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteImageActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -110,7 +115,9 @@ public class ChangeImage extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnUpload, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(163, 163, 163))
+                .addGap(32, 32, 32)
+                .addComponent(btnDeleteImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(112, 112, 112))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -122,7 +129,9 @@ public class ChangeImage extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(ptbAccountImage, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(btnUpload, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnUpload, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDeleteImage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
 
@@ -217,6 +226,69 @@ public class ChangeImage extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnUploadActionPerformed
 
+    private void btnDeleteImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteImageActionPerformed
+        User user = UserSession.getInstance().getUser();
+        if (user.getImage() == null || user.getImage().isEmpty() || user.getImage().equals("profile.jpg")) {
+            MessageAlerts.getInstance().showMessage("Delete failed", "No image to delete", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+
+                }
+            });
+        } else {
+            File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
+            if (file.exists()) {
+                if (file.delete()) {
+                    user.setId(userId);
+                    User userNew = userService.findById(userId);
+                    userNew.setId(userNew.getId());
+                    userNew.setName(userNew.getName());
+                    userNew.setGender(userNew.getGender());
+                    userNew.setDateOfBirth(userNew.getDateOfBirth());
+                    userNew.setPhoneNumber(userNew.getPhoneNumber());
+                    userNew.setImage(null);
+                    userNew.setUserName(userNew.getUserName());
+                    userNew.setPassword(userNew.getPassword());
+                    userNew.setRole(userNew.getRole());
+                    ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
+                    ptbAccountImage.repaint();
+                    try {
+                        if (userService.update(userNew)) {
+                            MessageAlerts.getInstance().showMessage("Delete success", "Image has been deleted", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                                    }
+                                }
+                            });
+                            UserSession.getInstance().loginUser(userNew);
+                            accountInformationForm.loadDataAccountInformation();
+                            this.dispose();
+                        } else {
+                            MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                                    }
+                                }
+                            });
+                        }
+                    } catch (Exception e) {
+                        MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                            @Override
+                            public void action(PopupController pc, int i) {
+                                if (i == MessageAlerts.CLOSED_OPTION) {
+
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }//GEN-LAST:event_btnDeleteImageActionPerformed
+
     private boolean saveFile(File file, String fileName) {
         File destinationFolder = new File("src/minisoccerfieldmanagement/image/user");
         System.out.println(destinationFolder.getAbsolutePath());
@@ -248,6 +320,7 @@ public class ChangeImage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.formdev.flatlaf.extras.components.FlatButton btnDeleteImage;
     private com.formdev.flatlaf.extras.components.FlatButton btnSave;
     private com.formdev.flatlaf.extras.components.FlatButton btnUpload;
     private com.formdev.flatlaf.extras.components.FlatLabel flatLabel1;

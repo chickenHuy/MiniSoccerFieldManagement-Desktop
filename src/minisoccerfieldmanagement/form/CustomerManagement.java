@@ -100,6 +100,7 @@ public class CustomerManagement extends TabbedForm {
         table.setDefaultRenderer(Object.class, getAlignmentCellRender(table.getDefaultRenderer(Object.class), false));
         tfTotalSpend.setText("0");
         tfTotalSpend.setEnabled(false);
+        tfTotalSpend.setDisabledTextColor(new java.awt.Color(196, 204, 90));
     }
 
     private void loadDataCustomerManagement() {
@@ -380,41 +381,37 @@ public class CustomerManagement extends TabbedForm {
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addContainerGap(19, Short.MAX_VALUE)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(crazyPanel3Layout.createSequentialGroup()
-                        .addContainerGap(19, Short.MAX_VALUE)
-                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addComponent(btnAddNew)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnSave)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnDelete))
-                            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addComponent(lblTotalSpend)
-                                .addGap(38, 38, 38)
-                                .addComponent(tfTotalSpend, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(lblPhoneNumber)
-                                    .addComponent(lblName))
-                                .addGap(18, 18, 18)
-                                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(tfPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel3Layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(crazyPanel3Layout.createSequentialGroup()
-                                .addGap(31, 31, 31)
-                                .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnAddNew)
                         .addGap(18, 18, 18)
+                        .addComponent(btnSave)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnDelete))
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
                         .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnUpload)
-                            .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(26, 26, 26))
+                            .addComponent(lblPhoneNumber)
+                            .addComponent(lblName)
+                            .addComponent(lblTotalSpend))
+                        .addGap(18, 18, 18)
+                        .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(tfName, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                            .addComponent(tfPhoneNumber, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                            .addComponent(tfTotalSpend))))
+                .addGap(27, 27, 27))
+            .addGroup(crazyPanel3Layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCustomer, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(lblId, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnUpload)
+                    .addComponent(ptbCustomerImage, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 62, Short.MAX_VALUE))
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -519,7 +516,7 @@ public class CustomerManagement extends TabbedForm {
             Customer customer = customerService.findById(Integer.parseInt(customerModels.getValueAt(index, 0).toString()));
             int customerId = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
             loadListBookingHistory(customerId);
-            if (customer.getImage() == null) {
+            if (customer.getImage() == null || customer.getImage().isEmpty()) {
                 ptbCustomerImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
                 ptbCustomerImage.repaint();
             } else {
@@ -537,6 +534,7 @@ public class CustomerManagement extends TabbedForm {
             System.out.println("pictureBox " + file.getName());
         }
         tfTotalSpend.setEnabled(false);
+        tfTotalSpend.setDisabledTextColor(new java.awt.Color(196, 204, 90));
     }//GEN-LAST:event_tblCustomerMouseClicked
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
@@ -544,6 +542,7 @@ public class CustomerManagement extends TabbedForm {
         index = -1;
         tfTotalSpend.setText("0");
         tfTotalSpend.setEnabled(false);
+        tfTotalSpend.setDisabledTextColor(new java.awt.Color(196, 204, 90));
         clearBookingHistory();
     }//GEN-LAST:event_btnAddNewActionPerformed
 
@@ -682,6 +681,7 @@ public class CustomerManagement extends TabbedForm {
                         clearText();
                         tfTotalSpend.setText("0");
                         tfTotalSpend.setEnabled(false);
+                        tfTotalSpend.setDisabledTextColor(new java.awt.Color(196, 204, 90));
                         clearBookingHistory();
                         type = -1;
                     } else {
