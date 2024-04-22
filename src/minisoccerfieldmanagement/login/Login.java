@@ -1,6 +1,7 @@
 package minisoccerfieldmanagement.login;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -15,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import minisoccerfieldmanagement.form.Dashboard;
@@ -28,6 +30,9 @@ import raven.alerts.MessageAlerts;
 import raven.drawer.Drawer;
 import raven.drawer.component.header.SimpleHeader;
 import raven.drawer.component.header.SimpleHeaderData;
+import raven.drawer.component.menu.MenuValidation;
+import raven.drawer.component.menu.SimpleMenu;
+import raven.drawer.component.menu.SimpleMenuOption;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
 import raven.swing.AvatarIcon;
@@ -101,6 +106,7 @@ public class Login extends JPanel {
                 } else {
                     UserSession.getInstance().loginUser(user);
                     setAccountInfo();
+                    setMenuOption();
                     Main.main.showMainForm();
                     WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                 }
@@ -158,7 +164,7 @@ public class Login extends JPanel {
         panel.add(new JLabel(""), "gapy 8");
         add(panel);
     }
-    private void setAccountInfo(){
+    public void setAccountInfo(){
         User user = UserSession.getInstance().getUser();
         String title = user.getName();
         String desc = user.getPhoneNumber();
@@ -176,6 +182,48 @@ public class Login extends JPanel {
                 .setDescription(desc);
         SimpleHeader header=(SimpleHeader)Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
         header.setSimpleHeaderData(newSimpleHeaderData);
+    }
+    
+    public void setMenuOption()
+    {
+        User user = UserSession.getInstance().getUser();
+        String role = user.getRole();
+        JScrollPane scroll=(JScrollPane)Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getMenu();
+        SimpleMenu menu=(SimpleMenu)scroll.getViewport().getView();
+        if (!role.equals("admin")){
+            menu.getSimpleMenuOption().setMenuValidation(new MenuValidation() {
+                        @Override
+                        public boolean menuValidation(int index, int subIndex) {
+                            if(index==4){
+                                return false;
+                            }
+                            else if(index==5){
+                                return false;
+                            }else if(index==6){
+                                return false;
+                            }
+                            else if(index==7){
+                                return false;
+                            }
+                            return true;
+                        }
+
+                    });
+        }
+        else
+        {
+            menu.getSimpleMenuOption().setMenuValidation(new MenuValidation() {
+                    @Override
+                    public boolean menuValidation(int index, int subIndex) {
+     
+                        return true;
+                    }
+
+                });
+                }
+        menu.rebuildMenu();
+        
+        
     }
     private JTextField txtUsername;
     private JPasswordField txtPassword;
