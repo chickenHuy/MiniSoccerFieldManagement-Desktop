@@ -4,9 +4,11 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
-import javax.swing.JScrollPane;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import minisoccerfieldmanagement.model.Field;
@@ -36,7 +38,7 @@ public class ServiceSection extends javax.swing.JPanel {
     public ServiceSection() {
         initComponents();
         panelService.setLayout(new GridLayout(0, 2, 10, 10));
-        panelService.setBorder(new EmptyBorder(10, 10, 10, 10));
+        panelService.setBorder(new EmptyBorder(10, 15, 10, 15));
         scrollPane.getVerticalScrollBar().setUnitIncrement(17);
     }
 
@@ -48,7 +50,6 @@ public class ServiceSection extends javax.swing.JPanel {
             public void mousePressed(MouseEvent me) {
                 if (SwingUtilities.isLeftMouseButton(me)) {
                     setSelectedServiceId(data.getId());
-                    setSelected(item);
                     if (event != null) {
                         event.serviceItemClick(item, data);
                     }
@@ -61,30 +62,26 @@ public class ServiceSection extends javax.swing.JPanel {
         panelService.repaint();
     }
 
-    public void setSelected(Component item) {
-        for (Component com : panelService.getComponents()) {
-            FieldItem i = (FieldItem) com;
-            if (i.isSelected()) {
-                i.setSelected(false);
-            }
-        }
-        if (item != null) {
-            ((FieldItem) item).setSelected(true);
-        }
-    }
-
     public void addData(List<Service> data) {
         this.setEvent(new EventItem() {
             @Override
             public void fieldClick(Component com, Field item) {
                 setSelectedServiceId(item.getId());
-                setSelected(com);
             }
 
             @Override
             public void serviceItemClick(Component com, Service service) {
-                throw new UnsupportedOperationException("Not supported yet."); // Generated from
-                // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                setSelectedServiceId(service.getId());
+                GetQuantityOfService getQuantityOfService = new GetQuantityOfService(service);
+                getQuantityOfService.setLocationRelativeTo(null);
+                getQuantityOfService.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+                getQuantityOfService.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        getQuantityOfService.dispose(); 
+                    }
+                });
+                getQuantityOfService.setVisible(true);
             }
         });
         for (Service i : data) {

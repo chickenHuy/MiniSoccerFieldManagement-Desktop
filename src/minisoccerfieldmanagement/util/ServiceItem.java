@@ -38,7 +38,7 @@ public class ServiceItem extends javax.swing.JPanel {
     public void paint(Graphics grphcs) {
         Graphics2D g2 = (Graphics2D) grphcs.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(new Color(242, 242, 242));
+        g2.setColor(new Color(236, 236, 236));
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
         if (selected) {
             g2.setColor(new Color(94, 156, 255));
@@ -59,8 +59,7 @@ public class ServiceItem extends javax.swing.JPanel {
 
         lbItemName.setText(service.getName());
         lbBrand.setText(service.getUnit());
-        DecimalFormat df = new DecimalFormat("#,##0 VNĐ");
-        lbPrice.setText(df.format(service.getPrice()));
+        lbPrice.setText(Utils.formatVND(service.getPrice()));
     }
 
     @SuppressWarnings("unchecked")
@@ -71,52 +70,63 @@ public class ServiceItem extends javax.swing.JPanel {
         lbPrice = new javax.swing.JLabel();
         lbBrand = new javax.swing.JLabel();
         pictureBox1 = new minisoccerfieldmanagement.util.PictureBox();
+        lbBrand1 = new javax.swing.JLabel();
 
-        lbItemName.setFont(new java.awt.Font("sansserif", 1, 14)); // NOI18N
+        lbItemName.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
         lbItemName.setForeground(new java.awt.Color(51, 51, 51));
         lbItemName.setText("Item Name");
 
-        lbPrice.setFont(new java.awt.Font("sansserif", 1, 13)); // NOI18N
+        lbPrice.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
         lbPrice.setForeground(new java.awt.Color(51, 51, 51));
         lbPrice.setText("$0.00");
 
-        lbBrand.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
+        lbBrand.setFont(new java.awt.Font("sansserif", 1, 11)); // NOI18N
         lbBrand.setForeground(new java.awt.Color(76, 76, 76));
         lbBrand.setText("Brand");
+
+        lbBrand1.setFont(new java.awt.Font("sansserif", 1, 11)); // NOI18N
+        lbBrand1.setForeground(new java.awt.Color(76, 76, 76));
+        lbBrand1.setText("Unit:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(pictureBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(pictureBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(lbBrand)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbPrice)))
-                    .addComponent(lbItemName, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lbBrand1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lbBrand)
+                        .addGap(0, 58, Short.MAX_VALUE))
+                    .addComponent(lbItemName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lbPrice)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(pictureBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbItemName)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pictureBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbPrice)
-                    .addComponent(lbBrand, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lbBrand, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbBrand1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lbPrice)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lbBrand;
+    private javax.swing.JLabel lbBrand1;
     private javax.swing.JLabel lbItemName;
     private javax.swing.JLabel lbPrice;
     private minisoccerfieldmanagement.util.PictureBox pictureBox1;
