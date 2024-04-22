@@ -92,7 +92,7 @@ public class BookingHistorySection extends javax.swing.JPanel {
     public void showNoBookingMessage() {
         JLabel noBookingLabel = new JLabel("No booking history", SwingConstants.CENTER);
         noBookingLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        noBookingLabel.setForeground(new Color(0, 0, 255));
+        noBookingLabel.setForeground(new Color(255, 0, 0));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;

@@ -1,6 +1,7 @@
 package minisoccerfieldmanagement.form;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import java.awt.Color;
 import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
@@ -38,6 +39,7 @@ public class ChangePassword extends javax.swing.JFrame {
         tfNewPass.setEchoChar('*');
         tfConfirmPass.setEchoChar('*');
         tfOldPass.setEnabled(false);
+        tfOldPass.setDisabledTextColor(new Color(196, 204, 90));
         lblEyeOld.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/eyeoff.svg", 0.35f));
         lblEyeNew.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/eyeoff.svg", 0.35f));
         lblEyeConfirm.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/eyeoff.svg", 0.35f));

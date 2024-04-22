@@ -70,10 +70,10 @@ public class BookingHistoryItem extends javax.swing.JPanel {
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(new Color(200, 200, 200));
+        g2.setColor(new Color(236, 236, 236));
         g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
         if (selected) {
-            g2.setColor(new Color(0, 160, 30));
+            g2.setColor(new Color(0, 0, 255));
             g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
         }
         g2.dispose();

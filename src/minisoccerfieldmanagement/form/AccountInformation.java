@@ -1,6 +1,7 @@
 package minisoccerfieldmanagement.form;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import java.awt.Color;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,9 +12,12 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import raven.alerts.MessageAlerts;
 import raven.drawer.Drawer;
 import raven.drawer.component.header.SimpleHeader;
 import raven.drawer.component.header.SimpleHeaderData;
+import raven.popup.component.PopupCallbackAction;
+import raven.popup.component.PopupController;
 import raven.swing.AvatarIcon;
 
 public final class AccountInformation extends TabbedForm {
@@ -64,7 +68,7 @@ public final class AccountInformation extends TabbedForm {
         String password = userNew.getPassword();
         tfPassword.setText("*".repeat(password.length()));
         tfPassword.setEchoChar('*');
-        if (userNew.getImage() == null) {
+        if (userNew.getImage() == null || userNew.getImage().isEmpty()) {
             ptbAccountImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/profile.jpg"));
             ptbAccountImage.repaint();
         } else {
@@ -78,12 +82,19 @@ public final class AccountInformation extends TabbedForm {
             }
         }
         tfRole.setEnabled(false);
+        tfRole.setDisabledTextColor(new Color(196, 204, 90));
         tfName.setEnabled(false);
+        tfName.setDisabledTextColor(new Color(196, 204, 90));
         tfGender.setEnabled(false);
+        tfGender.setDisabledTextColor(new Color(196, 204, 90));
         tfDateOfBirth.setEnabled(false);
+        tfDateOfBirth.setDisabledTextColor(new Color(196, 204, 90));
         tfPhoneNumber.setEnabled(false);
+        tfPhoneNumber.setDisabledTextColor(new Color(196, 204, 90));
         tfUsername.setEnabled(false);
+        tfUsername.setDisabledTextColor(new Color(196, 204, 90));
         tfPassword.setEnabled(false);
+        tfPassword.setDisabledTextColor(new Color(196, 204, 90));
         lblEye.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/eyeoff.svg", 0.35f));
     }
 
@@ -139,7 +150,6 @@ public final class AccountInformation extends TabbedForm {
             null
         ));
 
-        lblPersonalInformation.setForeground(new java.awt.Color(196, 204, 90));
         lblPersonalInformation.setText("Personal Information");
         lblPersonalInformation.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
@@ -258,7 +268,6 @@ public final class AccountInformation extends TabbedForm {
             null
         ));
 
-        lblLoginInformation.setForeground(new java.awt.Color(196, 204, 90));
         lblLoginInformation.setText("Login Information");
         lblLoginInformation.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
 
@@ -358,7 +367,7 @@ public final class AccountInformation extends TabbedForm {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelAccountImageLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnEditImage, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(144, 144, 144))
+                .addGap(145, 145, 145))
         );
         panelAccountImageLayout.setVerticalGroup(
             panelAccountImageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
