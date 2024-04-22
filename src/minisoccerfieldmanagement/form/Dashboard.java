@@ -319,11 +319,11 @@ public class Dashboard extends TabbedForm {
     private void loadService() {
         List<Service> listService = new ServiceServiceImpl().findAll();
         serviceSection.addData(listService);
-        
+
         fieldSection1.setEvent(new EventItem() {
             @Override
             public void fieldClick(Component com, Field item) {
-                System.out.println("Clickkkkkk");
+                loadBooking();
             }
 
             @Override
