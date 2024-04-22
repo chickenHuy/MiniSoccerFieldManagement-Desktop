@@ -43,6 +43,8 @@ public class FieldManagement extends TabbedForm {
     private int index;
     private File tempPicture = null;
     private boolean isSearchDeleted = false;
+    private boolean havePicture = false;
+    private boolean wantToChangePicture = false;
     IFieldService fieldService;
     DefaultTableModel models;
     
@@ -117,6 +119,7 @@ public class FieldManagement extends TabbedForm {
         btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg", 0.35f));
         btnUpload.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/upload.svg", 0.35f));
         btnDeleteIcon.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
+        buttonClean.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/clean.svg", 0.35f));
 
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
         //  Change scroll style
@@ -184,6 +187,7 @@ public class FieldManagement extends TabbedForm {
         crazyPanel3 = new raven.crazypanel.CrazyPanel();
         btnUpload = new javax.swing.JButton();
         ptbFieldImage = new minisoccerfieldmanagement.util.PictureBox();
+        buttonClean = new javax.swing.JButton();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         cboFieldType = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
@@ -321,18 +325,25 @@ public class FieldManagement extends TabbedForm {
 
         ptbFieldImage.setBackground(new java.awt.Color(153, 153, 255));
 
+        buttonClean.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonCleanActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout crazyPanel3Layout = new javax.swing.GroupLayout(crazyPanel3);
         crazyPanel3.setLayout(crazyPanel3Layout);
         crazyPanel3Layout.setHorizontalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ptbFieldImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(crazyPanel3Layout.createSequentialGroup()
+                        .addContainerGap(108, Short.MAX_VALUE)
+                        .addComponent(btnUpload, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(95, 95, 95)
+                        .addComponent(buttonClean, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ptbFieldImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel3Layout.createSequentialGroup()
-                .addContainerGap(108, Short.MAX_VALUE)
-                .addComponent(btnUpload, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(93, 93, 93))
         );
         crazyPanel3Layout.setVerticalGroup(
             crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -340,7 +351,9 @@ public class FieldManagement extends TabbedForm {
                 .addContainerGap()
                 .addComponent(ptbFieldImage, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnUpload)
+                .addGroup(crazyPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(buttonClean, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnUpload, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -427,9 +440,9 @@ public class FieldManagement extends TabbedForm {
                             .addComponent(jLabel2)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tfName, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cboStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(tfName, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                            .addComponent(cboStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(crazyPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblCombineField1, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -492,7 +505,7 @@ public class FieldManagement extends TabbedForm {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(862, Short.MAX_VALUE)
+                .addContainerGap(826, Short.MAX_VALUE)
                 .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -544,6 +557,7 @@ public class FieldManagement extends TabbedForm {
     }//GEN-LAST:event_btnAddNewActionPerformed
 
     private void clearText() {
+        havePicture = false;
         tfName.setText("");
         tfName.requestFocus();
         tempPicture = null;
@@ -583,9 +597,11 @@ public class FieldManagement extends TabbedForm {
             cboFieldType.setSelectedItem(type);
             Field field = fieldService.findById(Integer.parseInt(models.getValueAt(index, 0).toString()));
             if (field.getImage() == null) {
+                havePicture = false;
                 ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/pitch.png"));
                 ptbFieldImage.repaint();
             } else {
+                havePicture = true;
                 File file = new File("src/minisoccerfieldmanagement/image/field/" + field.getImage());
                 if (!file.exists()) {
                     ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/pitch.png"));
@@ -743,7 +759,13 @@ public class FieldManagement extends TabbedForm {
                 field.setId(Integer.parseInt(models.getValueAt(index, 0).toString()));
                 Field oldField = fieldService.findById(field.getId());
                 if (tempPicture == null) {
-                    field.setImage(oldField.getImage());
+                    if (havePicture && wantToChangePicture) {
+                        field.setImage(null);
+                        wantToChangePicture = false;
+                        havePicture = false;
+                    }
+                    else
+                        field.setImage(oldField.getImage());
                 } else {
                     File destinationFolder = new File("src/minisoccerfieldmanagement/image/field");
                     if (oldField.getImage() != null)
@@ -878,6 +900,17 @@ public class FieldManagement extends TabbedForm {
         }
     }//GEN-LAST:event_txtSearchActionPerformed
 
+    private void buttonCleanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCleanActionPerformed
+        cleanPicture();
+    }//GEN-LAST:event_buttonCleanActionPerformed
+
+    private void cleanPicture() {
+        wantToChangePicture = true;
+        tempPicture = null;
+        ptbFieldImage.setImage(null);
+        ptbFieldImage.repaint();
+    }
+    
     private void deleteFile(File folderPath, String fileName) {
         File destinationFile = new File(folderPath, fileName);
         if (destinationFile.exists()) {
@@ -926,6 +959,7 @@ public class FieldManagement extends TabbedForm {
     private javax.swing.JButton btnPrint;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnUpload;
+    private javax.swing.JButton buttonClean;
     private javax.swing.JComboBox<String> cboFieldType;
     private javax.swing.JComboBox<String> cboStatus;
     private javax.swing.JComboBox<String> cboSubField1;
