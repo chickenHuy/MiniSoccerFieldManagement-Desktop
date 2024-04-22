@@ -36,6 +36,7 @@ import javax.swing.table.TableCellRenderer;
 import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.util.Utils;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
@@ -303,11 +304,10 @@ public class ServiceManagement extends TabbedForm {
     }
     
     private Object[] getRowData(Service service) {
-        DecimalFormat df = new DecimalFormat("#,##0 VNĐ");
         return new Object[]{
             getServiceImage(service.getImage()),
             service.getName(),
-            df.format(service.getPrice()),
+            Utils.formatVND(service.getPrice()),
             service.getDescription(),
             service.getUnit(),
             service.getQuantity(),
@@ -836,6 +836,7 @@ public class ServiceManagement extends TabbedForm {
         newService.setPrice(new BigDecimal(price));
         newService.setUnit(unit);
         newService.setStatus(status);
+        newService.setQuantity(Integer.parseInt(quantity));
         
         if (tempPicture != null) {
             String picturePath = tempPicture.getAbsolutePath();
