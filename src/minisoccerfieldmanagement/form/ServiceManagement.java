@@ -989,7 +989,6 @@ public class ServiceManagement extends TabbedForm {
             model.setRowCount(0);
             loadDataIntoJTable("", status, limit, limit * page, direction, orderBy);
         }
-        System.out.println(page);
     }//GEN-LAST:event_buttonNextActionPerformed
 
     private void buttonPrevousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrevousActionPerformed
@@ -1001,7 +1000,6 @@ public class ServiceManagement extends TabbedForm {
             model.setRowCount(0);
             loadDataIntoJTable("", status, limit, limit * page - limit, direction, orderBy);
         }
-        System.out.println(page);
     }//GEN-LAST:event_buttonPrevousActionPerformed
     
     private void cleanField() {
