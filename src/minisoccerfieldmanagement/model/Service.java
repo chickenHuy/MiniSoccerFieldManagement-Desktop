@@ -12,6 +12,7 @@ public class Service {
     private String description;
     private String unit;
     private int quantity;
+    private int quantityOrder;
     private int sold;
     private String status;
     private Boolean isDeleted;
@@ -65,6 +66,10 @@ public class Service {
         return quantity;
     }
 
+    public int getQuantityOrder() {
+        return quantityOrder;
+    }
+
     public int getSold() {
         return sold;
     }
@@ -111,6 +116,10 @@ public class Service {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public void setQuantityOrder(int quantityOrder) {
+        this.quantityOrder = quantityOrder;
     }
 
     public void setSold(int sold) {
