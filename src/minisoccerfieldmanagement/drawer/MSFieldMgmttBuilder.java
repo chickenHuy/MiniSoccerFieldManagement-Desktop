@@ -9,6 +9,7 @@ import minisoccerfieldmanagement.form.FieldManagement;
 import minisoccerfieldmanagement.form.InvoiceManagement;
 import minisoccerfieldmanagement.form.MembershipSetting;
 import minisoccerfieldmanagement.form.PriceListSetting;
+import minisoccerfieldmanagement.form.ServiceForm;
 import minisoccerfieldmanagement.form.ServiceManagement;
 import minisoccerfieldmanagement.form.StaffBooking;
 import minisoccerfieldmanagement.form.Statistics;
@@ -117,6 +118,10 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                         else if (index == 7 && subIndex == 2 )
                         {
                             WindowsTabbed.getInstance().addTab("Price List", new PriceListSetting());
+                        }
+                        else if (index == 2)
+                        {
+                            WindowsTabbed.getInstance().addTab("Service", new ServiceForm());
                         }
                         else if (index == 3)
                         {
