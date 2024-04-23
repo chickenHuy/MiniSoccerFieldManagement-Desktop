@@ -15,7 +15,6 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.alerts.MessageAlerts;
-import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
 
 public class ChangeImage extends javax.swing.JFrame {
@@ -54,9 +53,6 @@ public class ChangeImage extends javax.swing.JFrame {
                 ptbAccountImage.repaint();
             }
         }
-        System.out.println("pictureBox " + ptbAccountImage.getImage().toString());
-        File file = new File(ptbAccountImage.getImage().toString());
-        System.out.println("pictureBox " + file.getName());
         btnUpload.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/upload.svg", 0.35f));
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/tick.svg", 0.35f));
         btnDeleteImage.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/clean.svg", 0.35f));
@@ -164,34 +160,25 @@ public class ChangeImage extends javax.swing.JFrame {
         userNew.setRole(userNew.getRole());
         try {
             if (userService.update(userNew)) {
-                MessageAlerts.getInstance().showMessage("Edit success", "Image has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-                        if (i == MessageAlerts.CLOSED_OPTION) {
-
-                        }
+                MessageAlerts.getInstance().showMessage("Edit success", "Image has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+                        
                     }
                 });
                 UserSession.getInstance().loginUser(userNew);
                 accountInformationForm.loadDataAccountInformation();
                 this.dispose();
             } else {
-                MessageAlerts.getInstance().showMessage("Edit failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                    @Override
-                    public void action(PopupController pc, int i) {
-                        if (i == MessageAlerts.CLOSED_OPTION) {
-
-                        }
+                MessageAlerts.getInstance().showMessage("Edit failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+                        
                     }
                 });
             }
         } catch (Exception e) {
-            MessageAlerts.getInstance().showMessage("Edit failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                @Override
-                public void action(PopupController pc, int i) {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                    }
+            MessageAlerts.getInstance().showMessage("Edit failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+                    
                 }
             });
         }
@@ -214,13 +201,13 @@ public class ChangeImage extends javax.swing.JFrame {
                     ptbAccountImage.setImage(new ImageIcon(image));
                     ptbAccountImage.repaint();
                     tempPicture = fileChooser.getSelectedFile();
-                    System.out.print(tempPicture);
+                    btnDeleteImage.setEnabled(false);
                 } else {
-                    MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    MessageAlerts.getInstance().showMessage("Select failed", "Select image file is not suitable, please select .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                     });
                 }
             } else {
-                MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                MessageAlerts.getInstance().showMessage("Select failed", "Select image file is not suitable, please select .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 });
             }
         }
@@ -253,34 +240,25 @@ public class ChangeImage extends javax.swing.JFrame {
                     ptbAccountImage.repaint();
                     try {
                         if (userService.update(userNew)) {
-                            MessageAlerts.getInstance().showMessage("Delete success", "Image has been deleted", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                                    }
+                            MessageAlerts.getInstance().showMessage("Delete success", "Image has been deleted", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                                if (i == MessageAlerts.CLOSED_OPTION) {
+                                    
                                 }
                             });
                             UserSession.getInstance().loginUser(userNew);
                             accountInformationForm.loadDataAccountInformation();
                             this.dispose();
                         } else {
-                            MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                                @Override
-                                public void action(PopupController pc, int i) {
-                                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                                    }
+                            MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                                if (i == MessageAlerts.CLOSED_OPTION) {
+                                    
                                 }
                             });
                         }
                     } catch (Exception e) {
-                        MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
-                            @Override
-                            public void action(PopupController pc, int i) {
-                                if (i == MessageAlerts.CLOSED_OPTION) {
-
-                                }
+                        MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting image", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                            if (i == MessageAlerts.CLOSED_OPTION) {
+                                
                             }
                         });
                     }
@@ -291,13 +269,11 @@ public class ChangeImage extends javax.swing.JFrame {
 
     private boolean saveFile(File file, String fileName) {
         File destinationFolder = new File("src/minisoccerfieldmanagement/image/user");
-        System.out.println(destinationFolder.getAbsolutePath());
         try {
             if (!destinationFolder.exists()) {
                 destinationFolder.mkdirs();
             }
             File destinationFile = new File(destinationFolder, fileName);
-            System.out.println(destinationFile.getAbsolutePath());
             Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
