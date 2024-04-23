@@ -376,7 +376,7 @@ public class Dashboard extends TabbedForm {
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
         crazyPanelService = new raven.crazypanel.CrazyPanel();
-        serviceSection = new minisoccerfieldmanagement.util.ServiceSection();
+        serviceSection = new minisoccerfieldmanagement.util.ServiceSectionInDashboard();
 
         dateChooser1.setForeground(new java.awt.Color(51, 51, 51));
         dateChooser1.setDateFormat("dd/MM/yyyy");
@@ -1098,7 +1098,7 @@ public class Dashboard extends TabbedForm {
     private minisoccerfieldmanagement.util.PanelRound pnlThursday;
     private minisoccerfieldmanagement.util.PanelRound pnlTuesday;
     private minisoccerfieldmanagement.util.PanelRound pnlWednesday;
-    private minisoccerfieldmanagement.util.ServiceSection serviceSection;
+    private minisoccerfieldmanagement.util.ServiceSectionInDashboard serviceSection;
     private javax.swing.JTable tblBooking;
     private javax.swing.JTextField txtDate;
     private javax.swing.JTextField txtSearch;

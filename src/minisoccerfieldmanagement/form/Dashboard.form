@@ -699,7 +699,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="minisoccerfieldmanagement.util.ServiceSection" name="serviceSection">
+        <Component class="minisoccerfieldmanagement.util.ServiceSectionInDashboard" name="serviceSection">
         </Component>
       </SubComponents>
     </Container>
