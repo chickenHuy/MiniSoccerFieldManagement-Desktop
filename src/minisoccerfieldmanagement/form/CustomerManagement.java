@@ -558,9 +558,6 @@ public class CustomerManagement extends TabbedForm {
                     ptbCustomerImage.repaint();
                 }
             }
-            System.out.println("pictureBox " + ptbCustomerImage.getImage().toString());
-            File file = new File(ptbCustomerImage.getImage().toString());
-            System.out.println("pictureBox " + file.getName());
         }
         tfTotalSpend.setEnabled(false);
         tfTotalSpend.setDisabledTextColor(new java.awt.Color(196, 204, 90));
@@ -741,7 +738,7 @@ public class CustomerManagement extends TabbedForm {
                         btnDeleteImage.setEnabled(false);
                         type = -1;
                     } else {
-                        MessageAlerts.getInstance().showMessage("Delete failed", "There was an erro during deletion, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc1, int i1) -> {
+                        MessageAlerts.getInstance().showMessage("Delete failed", "An error occurred while deleting, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc1, int i1) -> {
                         });
                     }
                 }
@@ -756,7 +753,6 @@ public class CustomerManagement extends TabbedForm {
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadActionPerformed
-        btnDeleteImage.setEnabled(false);
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
         FileNameExtensionFilter filter = new FileNameExtensionFilter("* .Image", "jpg", "png");
@@ -773,13 +769,13 @@ public class CustomerManagement extends TabbedForm {
                     ptbCustomerImage.setImage(new ImageIcon(image));
                     ptbCustomerImage.repaint();
                     tempPicture = fileChooser.getSelectedFile();
-                    System.out.print(tempPicture);
+                    btnDeleteImage.setEnabled(false);
                 } else {
-                    MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    MessageAlerts.getInstance().showMessage("Select failed", "Select image file is not suitable, please select .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                     });
                 }
             } else {
-                MessageAlerts.getInstance().showMessage("Select failed", "Select the image file is not suitable, please select the .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                MessageAlerts.getInstance().showMessage("Select failed", "Select image file is not suitable, please select .jpg or .png file", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 });
             }
         }
@@ -807,7 +803,6 @@ public class CustomerManagement extends TabbedForm {
             DefaultTableModel model = (DefaultTableModel) table.getModel();
             int rowCount = model.getRowCount();
             int columnCount = model.getColumnCount();
-            int totalCustomers = rowCount;
             Row headerRow = sheet.createRow(0);
             Cell headerCell = headerRow.createCell(0);
             String membershipName = cbxMembership.getSelectedItem().toString();
@@ -860,13 +855,11 @@ public class CustomerManagement extends TabbedForm {
 
     private boolean saveFile(File file, String fileName) {
         File destinationFolder = new File("src/minisoccerfieldmanagement/image/customer");
-        System.out.println(destinationFolder.getAbsolutePath());
         try {
             if (!destinationFolder.exists()) {
                 destinationFolder.mkdirs();
             }
             File destinationFile = new File(destinationFolder, fileName);
-            System.out.println(destinationFile.getAbsolutePath());
             Files.copy(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {

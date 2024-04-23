@@ -229,7 +229,7 @@ public class UserDAOImpl implements IUserDAO {
     public Boolean checkPhoneNumberExistExceptCurrent(int id, String phoneNumber) {
         boolean exists = false;
         try {
-            String sql = "SELECT COUNT(*) AS count FROM user WHERE phoneNumber = ? AND id != ? AND `isDeleted` = 0;";
+            String sql = "SELECT COUNT(*) AS count FROM user WHERE phoneNumber = ? AND id != ?";
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
 
@@ -290,7 +290,7 @@ public class UserDAOImpl implements IUserDAO {
     @Override
     public Boolean checkPhoneNumberExist(String phoneNumber) {
         try {
-            String sql = "SELECT COUNT(*) FROM `user` WHERE `phoneNumber` = ? AND `isDeleted` = 0;";
+            String sql = "SELECT COUNT(*) FROM `user` WHERE `phoneNumber` = ?";
             conn = new DBConnection().getConnection();
             ps = conn.prepareStatement(sql);
 

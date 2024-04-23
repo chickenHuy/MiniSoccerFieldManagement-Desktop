@@ -428,6 +428,7 @@ public class EmployeeManagement extends TabbedForm {
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
         clearText();
+        setDateChooser();
         index = -1;
         btnSave.setEnabled(true);
     }//GEN-LAST:event_btnAddNewActionPerformed
