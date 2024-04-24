@@ -12,26 +12,27 @@ import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
 
 public final class GetQuantityOfService extends javax.swing.JFrame {
-
+    
     private Service service = null;
-    private int quantity = 0;
+    private int quantity = 1;
     private boolean isAdjustWithButton = false;
-
+    private ISendQuantityOrder listener;
+    
     public GetQuantityOfService(Service service) {
         initComponents();
-
+        
         this.service = service;
         setWidgit();
     }
-
+    
     private void setWidgit() {
         buttonIncrease.setSize(30, 22);
         buttonDecrease.setSize(30, 22);
         buttonIncrease.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/increase.svg", 0.35f));
         buttonDecrease.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/decrease.svg", 0.35f));
-
+        
         editTextServiceQuantity.setHorizontalAlignment(JTextField.CENTER);
-
+        
         if (service != null) {
             if (service.getImage() != null) {
                 pictureBoxServiceImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/service/" + service.getImage()));
@@ -39,13 +40,13 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                 pictureBoxServiceImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/service/service_image_default.png"));
             }
             pictureBoxServiceImage.repaint();
-
+            
             labelServiceName.setText(service.getName());
             labelServiceInStock.setText(String.valueOf(service.getQuantity()));
             labelServiceUnit.setText(service.getUnit());
             labelServicePrice.setText(Utils.formatVND(service.getPrice()));
         }
-
+        
         editTextServiceQuantity.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -53,14 +54,14 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                     checkInput(editTextServiceQuantity);
                 }
             }
-
+            
             @Override
             public void removeUpdate(DocumentEvent e) {
                 if (!isAdjustWithButton) {
                     checkInput(editTextServiceQuantity);
                 }
             }
-
+            
             @Override
             public void changedUpdate(DocumentEvent e) {
                 if (!isAdjustWithButton) {
@@ -69,7 +70,17 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
             }
         });
     }
-
+    
+    public void setQuantityListener(ISendQuantityOrder listener) {
+        this.listener = listener;
+    }
+    
+    private void sendDataBack(Service service, int quantityOrder) {
+        if (listener != null) {
+            listener.sendQuantityOrder(service, quantityOrder);
+        }
+    }
+    
     private void checkInput(JTextField textField) {
         if (textField != null && !textField.getText().trim().equals("")) {
             if (!isNumber(textField.getText())) {
@@ -82,7 +93,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                             @Override
                             public void action(PopupController pc, int i) {
                                 if (i == MessageAlerts.CLOSED_OPTION) {
-
+                                    
                                 }
                             }
                         });
@@ -95,7 +106,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                         @Override
                         public void action(PopupController pc, int i) {
                             if (i == MessageAlerts.CLOSED_OPTION) {
-
+                                
                             }
                         }
                     });
@@ -103,14 +114,14 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
             }
         }
     }
-
+    
     private boolean isNumber(String text) {
         if (text.matches(".*[^0-9].*")) {
             MessageAlerts.getInstance().showMessage("Not number", "Quantity contain only numeric characters, cannot contain another characters", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
                     if (i == MessageAlerts.CLOSED_OPTION) {
-
+                        
                     }
                 }
             });
@@ -121,7 +132,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                 @Override
                 public void action(PopupController pc, int i) {
                     if (i == MessageAlerts.CLOSED_OPTION) {
-
+                        
                     }
                 }
             });
@@ -129,7 +140,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
         }
         return true;
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -282,7 +293,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                             @Override
                             public void action(PopupController pc, int i) {
                                 if (i == MessageAlerts.CLOSED_OPTION) {
-
+                                    
                                 }
                             }
                         });
@@ -296,7 +307,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                         @Override
                         public void action(PopupController pc, int i) {
                             if (i == MessageAlerts.CLOSED_OPTION) {
-
+                                
                             }
                         }
                     });
@@ -325,7 +336,7 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                         @Override
                         public void action(PopupController pc, int i) {
                             if (i == MessageAlerts.CLOSED_OPTION) {
-
+                                
                             }
                         }
                     });
@@ -336,7 +347,8 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonDecreaseActionPerformed
 
     private void buttonAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddActionPerformed
-        System.out.println(this.quantity);
+        sendDataBack(service, quantity);
+        this.dispose();
     }//GEN-LAST:event_buttonAddActionPerformed
 
     /**
@@ -353,21 +365,21 @@ public final class GetQuantityOfService extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
-
+                    
                 }
             }
         } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(GetQuantityOfService.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         } catch (InstantiationException ex) {
             java.util.logging.Logger.getLogger(GetQuantityOfService.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         } catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(GetQuantityOfService.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
-
+            
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(GetQuantityOfService.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
