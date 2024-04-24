@@ -1,16 +1,12 @@
 package minisoccerfieldmanagement.login;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Timestamp;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,7 +28,6 @@ import raven.drawer.component.header.SimpleHeader;
 import raven.drawer.component.header.SimpleHeaderData;
 import raven.drawer.component.menu.MenuValidation;
 import raven.drawer.component.menu.SimpleMenu;
-import raven.drawer.component.menu.SimpleMenuOption;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
 import raven.swing.AvatarIcon;
@@ -43,9 +38,8 @@ public class Login extends JPanel {
 
     public Login() {
         try {
-            URL url = new URL("https://th.bing.com/th/id/R.d179d1f5e4942bb7f17db25767d398e4?rik=7g0Ug7EG4LNmWw&riu=http%3a%2f%2fwallpapercave.com%2fwp%2fwc1740690.jpg&ehk=nkwj9urnJlcs3p2W%2fxhFtHLVcDSl5vgVsNePPe54aPE%3d&risl=&pid=ImgRaw&r=0");
-            backgroundImage = ImageIO.read(url);
-        } catch (IOException e) {
+            backgroundImage = ImageIO.read(new File("src/minisoccerfieldmanagement/image/background_login.jpg"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
         init();
@@ -111,7 +105,7 @@ public class Login extends JPanel {
                     WindowsTabbed.getInstance().addTab("Dashboard", new Dashboard());
                 }
             }
-            
+
 //            User tempUser = new User();
 //            tempUser.setName("Thanh Huy");
 //            tempUser.setGender("Male");
@@ -123,7 +117,6 @@ public class Login extends JPanel {
 //            tempUser.setCreatedAt(Timestamp.valueOf("2024-04-06 17:00:00"));
 //            UserSession.getInstance().loginUser(tempUser);
 //            Main.main.showMainForm();
-            
         });
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Username");
         txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
@@ -164,66 +157,60 @@ public class Login extends JPanel {
         panel.add(new JLabel(""), "gapy 8");
         add(panel);
     }
-    public void setAccountInfo(){
+
+    public void setAccountInfo() {
         User user = UserSession.getInstance().getUser();
         String title = user.getName();
         String desc = user.getPhoneNumber();
         String path = "/minisoccerfieldmanagement/image/profile.jpg";
-        if (user.getImage() != null)
-        {
+        if (user.getImage() != null) {
             File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
             if (file.exists()) {
                 path = "/minisoccerfieldmanagement/image/user/" + user.getImage();
-            } 
+            }
         }
         SimpleHeaderData newSimpleHeaderData = new SimpleHeaderData()
                 .setIcon(new AvatarIcon(getClass().getResource(path), 60, 60, 999))
                 .setTitle(title)
                 .setDescription(desc);
-        SimpleHeader header=(SimpleHeader)Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
+        SimpleHeader header = (SimpleHeader) Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
         header.setSimpleHeaderData(newSimpleHeaderData);
     }
-    
-    public void setMenuOption()
-    {
+
+    public void setMenuOption() {
         User user = UserSession.getInstance().getUser();
         String role = user.getRole();
-        JScrollPane scroll=(JScrollPane)Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getMenu();
-        SimpleMenu menu=(SimpleMenu)scroll.getViewport().getView();
-        if (!role.equals("admin")){
+        JScrollPane scroll = (JScrollPane) Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getMenu();
+        SimpleMenu menu = (SimpleMenu) scroll.getViewport().getView();
+        if (!role.equals("admin")) {
             menu.getSimpleMenuOption().setMenuValidation(new MenuValidation() {
-                        @Override
-                        public boolean menuValidation(int index, int subIndex) {
-                            if(index==4){
-                                return false;
-                            }
-                            else if(index==5){
-                                return false;
-                            }else if(index==6){
-                                return false;
-                            }
-                            else if(index==7){
-                                return false;
-                            }
-                            return true;
-                        }
-
-                    });
-        }
-        else
-        {
-            menu.getSimpleMenuOption().setMenuValidation(new MenuValidation() {
-                    @Override
-                    public boolean menuValidation(int index, int subIndex) {
-     
-                        return true;
+                @Override
+                public boolean menuValidation(int index, int subIndex) {
+                    if (index == 4) {
+                        return false;
+                    } else if (index == 5) {
+                        return false;
+                    } else if (index == 6) {
+                        return false;
+                    } else if (index == 7) {
+                        return false;
                     }
-
-                });
+                    return true;
                 }
+
+            });
+        } else {
+            menu.getSimpleMenuOption().setMenuValidation(new MenuValidation() {
+                @Override
+                public boolean menuValidation(int index, int subIndex) {
+
+                    return true;
+                }
+
+            });
+        }
         menu.rebuildMenu();
-        
-        
+
     }
     private JTextField txtUsername;
     private JPasswordField txtPassword;
