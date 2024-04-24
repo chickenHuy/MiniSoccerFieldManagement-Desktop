@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.text.DecimalFormat;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -299,8 +298,7 @@ public class ServiceManagement extends TabbedForm {
         table.getColumnModel().getColumn(2).setPreferredWidth(130);
         table.getColumnModel().getColumn(4).setPreferredWidth(80);
         table.getColumnModel().getColumn(5).setPreferredWidth(60);
-        table.getColumnModel().getColumn(6).setPreferredWidth(60);
-        
+        table.getColumnModel().getColumn(6).setPreferredWidth(60);   
     }
     
     private Object[] getRowData(Service service) {
