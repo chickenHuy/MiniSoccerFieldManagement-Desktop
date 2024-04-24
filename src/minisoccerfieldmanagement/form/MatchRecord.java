@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import javax.swing.JFrame;
@@ -33,6 +34,7 @@ import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.Match;
 import minisoccerfieldmanagement.model.MemberShip;
+import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
 import minisoccerfieldmanagement.model.User;
@@ -42,10 +44,12 @@ import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IMemberShipService;
+import minisoccerfieldmanagement.service.IServiceService;
 import minisoccerfieldmanagement.service.IServiceUsageService;
 import minisoccerfieldmanagement.service.ITransactionService;
 import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
+import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
 import minisoccerfieldmanagement.service.TransactionServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
@@ -79,6 +83,8 @@ public class MatchRecord extends TabbedForm {
     BigDecimal rateBig;
     private ServiceUsage serviceUsage;
     ICustomerService customerService;
+    IServiceService serviceService;
+    List<Service> service;
     private void setTimePicker() {
        timePicker1 = new  TimePicker();
        timePicker1.set24HourView(true);
@@ -112,6 +118,7 @@ public class MatchRecord extends TabbedForm {
         setData();
         completedBooking();
         createServiceUsage();
+        getService();
     }
 
     /**
@@ -133,7 +140,7 @@ public class MatchRecord extends TabbedForm {
         tfStartTime = new javax.swing.JFormattedTextField();
         jLabel2 = new javax.swing.JLabel();
         tfEndTime = new javax.swing.JFormattedTextField();
-        lblDuration = new javax.swing.JLabel();
+        duration = new javax.swing.JLabel();
         crazyPanel9 = new raven.crazypanel.CrazyPanel();
         jLabel6 = new javax.swing.JLabel();
         lblCustomer = new javax.swing.JLabel();
@@ -147,11 +154,13 @@ public class MatchRecord extends TabbedForm {
         lblField = new javax.swing.JLabel();
         crazyPanel6 = new raven.crazypanel.CrazyPanel();
         lblId2 = new javax.swing.JLabel();
+        serviceSectionInMatch1 = new minisoccerfieldmanagement.util.ServiceSectionInMatch();
         crazyPanel7 = new raven.crazypanel.CrazyPanel();
         lblId3 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblService = new javax.swing.JTable();
+        btnDelete = new javax.swing.JButton();
         crazyPanel8 = new raven.crazypanel.CrazyPanel();
         crazyPanel13 = new raven.crazypanel.CrazyPanel();
         jLabel13 = new javax.swing.JLabel();
@@ -165,17 +174,16 @@ public class MatchRecord extends TabbedForm {
         crazyPanel16 = new raven.crazypanel.CrazyPanel();
         jLabel16 = new javax.swing.JLabel();
         tfPenaltyFee = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        btnSaveNote = new javax.swing.JButton();
+        lblTotal = new javax.swing.JLabel();
+        lblDuration6 = new javax.swing.JLabel();
+        crazyPanel12 = new raven.crazypanel.CrazyPanel();
+        btnSave = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         taNote = new javax.swing.JTextArea();
-        crazyPanel12 = new raven.crazypanel.CrazyPanel();
-        btnDelete = new javax.swing.JButton();
-        btnCheckin = new javax.swing.JButton();
-        btnSave = new javax.swing.JButton();
-        lblDuration6 = new javax.swing.JLabel();
-        lblTotal = new javax.swing.JLabel();
+        btnSaveNote = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
@@ -215,11 +223,7 @@ public class MatchRecord extends TabbedForm {
         tfEndTime.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT))));
         tfEndTime.setEnabled(false);
         crazyPanel4.add(tfEndTime);
-
-        lblDuration.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration.setText("Duration:");
-        crazyPanel4.add(lblDuration);
+        crazyPanel4.add(duration);
 
         crazyPanel9.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -352,26 +356,12 @@ public class MatchRecord extends TabbedForm {
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
             null
         ));
+        crazyPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblId2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         lblId2.setForeground(new java.awt.Color(195, 204, 90));
-
-        javax.swing.GroupLayout crazyPanel6Layout = new javax.swing.GroupLayout(crazyPanel6);
-        crazyPanel6.setLayout(crazyPanel6Layout);
-        crazyPanel6Layout.setHorizontalGroup(
-            crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addGap(0, 298, Short.MAX_VALUE)
-                .addComponent(lblId2, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(39, 39, 39))
-        );
-        crazyPanel6Layout.setVerticalGroup(
-            crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(lblId2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(333, Short.MAX_VALUE))
-        );
+        crazyPanel6.add(lblId2, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 20, 98, 30));
+        crazyPanel6.add(serviceSectionInMatch1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 400, -1));
 
         crazyPanel7.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -386,12 +376,7 @@ public class MatchRecord extends TabbedForm {
 
         tblService.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "Service", "Price / Product", "Quantity", "Total"
@@ -399,15 +384,27 @@ public class MatchRecord extends TabbedForm {
         ));
         jScrollPane1.setViewportView(tblService);
 
+        btnDelete.setText("Delete Service");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout crazyPanel7Layout = new javax.swing.GroupLayout(crazyPanel7);
         crazyPanel7.setLayout(crazyPanel7Layout);
         crazyPanel7Layout.setHorizontalGroup(
             crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel7Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel11)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 661, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(crazyPanel7Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel7Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addGroup(crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel11)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 661, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblId3, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(39, 39, 39))
@@ -424,7 +421,9 @@ public class MatchRecord extends TabbedForm {
                     .addGroup(crazyPanel7Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(lblId3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnDelete)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         crazyPanel8.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
@@ -487,50 +486,45 @@ public class MatchRecord extends TabbedForm {
         });
         crazyPanel16.add(tfPenaltyFee);
 
+        jLabel18.setText("VND");
+        crazyPanel16.add(jLabel18);
+
         jLabel17.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel17.setText("Payment Details");
 
-        jLabel7.setText("Note");
+        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblTotal.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lblTotal.setText("2,000,000 VNĐ");
 
-        btnSaveNote.setText("Save Note");
-        btnSaveNote.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSaveNoteActionPerformed(evt);
-            }
-        });
-
-        taNote.setColumns(20);
-        taNote.setRows(5);
-        jScrollPane2.setViewportView(taNote);
+        lblDuration6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblDuration6.setForeground(new java.awt.Color(195, 204, 90));
+        lblDuration6.setText("Total");
 
         javax.swing.GroupLayout crazyPanel8Layout = new javax.swing.GroupLayout(crazyPanel8);
         crazyPanel8.setLayout(crazyPanel8Layout);
         crazyPanel8Layout.setHorizontalGroup(
             crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel8Layout.createSequentialGroup()
-                .addGap(0, 31, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(crazyPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(crazyPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(crazyPanel16, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(crazyPanel15, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE))
-                    .addComponent(jLabel17))
-                .addGap(18, 18, 18)
-                .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSaveNote, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addGap(15, 15, 15))
+                    .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(crazyPanel8Layout.createSequentialGroup()
+                            .addComponent(crazyPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(lblDuration6))
+                        .addComponent(jLabel17)
+                        .addComponent(crazyPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(crazyPanel14, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                        .addComponent(crazyPanel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25))
         );
         crazyPanel8Layout.setVerticalGroup(
             crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel8Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
                 .addGroup(crazyPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(crazyPanel8Layout.createSequentialGroup()
                         .addComponent(crazyPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -540,31 +534,16 @@ public class MatchRecord extends TabbedForm {
                         .addComponent(crazyPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(12, 12, 12)
                         .addComponent(crazyPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(crazyPanel8Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSaveNote)))
-                .addContainerGap(41, Short.MAX_VALUE))
+                    .addComponent(lblDuration6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         crazyPanel12.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
             null
         ));
-
-        btnDelete.setText("Delete Service");
-        btnDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteActionPerformed(evt);
-            }
-        });
-
-        btnCheckin.setText("Add Service");
-        btnCheckin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCheckinActionPerformed(evt);
-            }
-        });
 
         btnSave.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnSave.setForeground(new java.awt.Color(196, 204, 90));
@@ -575,49 +554,48 @@ public class MatchRecord extends TabbedForm {
             }
         });
 
-        lblDuration6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblDuration6.setForeground(new java.awt.Color(195, 204, 90));
-        lblDuration6.setText("Total");
+        taNote.setColumns(20);
+        taNote.setRows(5);
+        jScrollPane2.setViewportView(taNote);
 
-        lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        lblTotal.setText("2,000,000 VNĐ");
+        btnSaveNote.setText("Save Note");
+        btnSaveNote.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveNoteActionPerformed(evt);
+            }
+        });
+
+        jLabel7.setText("Note");
 
         javax.swing.GroupLayout crazyPanel12Layout = new javax.swing.GroupLayout(crazyPanel12);
         crazyPanel12.setLayout(crazyPanel12Layout);
         crazyPanel12Layout.setHorizontalGroup(
             crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel12Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblDuration6)
-                .addGap(18, 18, 18)
-                .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16))
             .addGroup(crazyPanel12Layout.createSequentialGroup()
                 .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(crazyPanel12Layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnCheckin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)))
-                    .addGroup(crazyPanel12Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addComponent(btnSave, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(crazyPanel12Layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(btnSaveNote, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         crazyPanel12Layout.setVerticalGroup(
             crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel12Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(14, 14, 14)
                 .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
-                .addGroup(crazyPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblDuration6)
-                    .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                .addComponent(btnCheckin)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel7)
+                .addGap(9, 9, 9)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnDelete)
-                .addGap(18, 18, 18))
+                .addComponent(btnSaveNote)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -630,13 +608,13 @@ public class MatchRecord extends TabbedForm {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(crazyPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(crazyPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(crazyPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(crazyPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(crazyPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, 435, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -645,15 +623,15 @@ public class MatchRecord extends TabbedForm {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(crazyPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(crazyPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(crazyPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(crazyPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addComponent(crazyPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(crazyPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(crazyPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addComponent(crazyPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -665,10 +643,6 @@ public class MatchRecord extends TabbedForm {
  
     }//GEN-LAST:event_btnDeleteActionPerformed
 
-    private void btnCheckinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckinActionPerformed
-    
-    }//GEN-LAST:event_btnCheckinActionPerformed
-
     private void btnSaveNoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveNoteActionPerformed
         setSaveNote();
     }//GEN-LAST:event_btnSaveNoteActionPerformed
@@ -679,7 +653,6 @@ public class MatchRecord extends TabbedForm {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCheckin;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnSaveNote;
@@ -696,6 +669,7 @@ public class MatchRecord extends TabbedForm {
     private raven.crazypanel.CrazyPanel crazyPanel7;
     private raven.crazypanel.CrazyPanel crazyPanel8;
     private raven.crazypanel.CrazyPanel crazyPanel9;
+    private javax.swing.JLabel duration;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -704,6 +678,7 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -716,7 +691,6 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel lblCheckin;
     private javax.swing.JLabel lblCustomer;
     private javax.swing.JLabel lblDiscount;
-    private javax.swing.JLabel lblDuration;
     private javax.swing.JLabel lblDuration6;
     private javax.swing.JLabel lblField;
     private javax.swing.JLabel lblFieldPrice;
@@ -726,6 +700,7 @@ public class MatchRecord extends TabbedForm {
     private javax.swing.JLabel lblRemaining;
     private javax.swing.JLabel lblServiceFees;
     private javax.swing.JLabel lblTotal;
+    private minisoccerfieldmanagement.util.ServiceSectionInMatch serviceSectionInMatch1;
     private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblService;
     private javax.swing.JFormattedTextField tfDate;
@@ -735,6 +710,8 @@ public class MatchRecord extends TabbedForm {
     // End of variables declaration//GEN-END:variables
 
     private void setData() {
+        serviceService = new ServiceServiceImpl();
+        service = serviceService.findAll();
         btnSaveNote.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         lblCustomer.setText(customer.getName() + " - " + customer.getPhoneNumber());
         lblCheckin.setText(match.getCheckIn().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm")));
@@ -748,7 +725,6 @@ public class MatchRecord extends TabbedForm {
         IMemberShipService memberShipService = new MemberShipServiceImpl();
         int rate = memberShipService.findDiscountByCustomer(customer.getId());
         rateBig = (new BigDecimal(rate).divide(new BigDecimal(100)));
-       
         updateFee(booking.getPrice());
         
         lblTotal.setText(Utils.toVND(total));
@@ -783,12 +759,21 @@ public class MatchRecord extends TabbedForm {
         return new Object[]{membership.getId(), membership.getName(),df.format(membership.getMinimumSpendAmount())+ " VND", String.valueOf(membership.getDiscountRate())};
     }
     
-
+    private Object[] getRowService(Service s, int qty)
+    {
+        Object[] obj ;
+        try {  
+            obj = new Object[]{s.getName(), Utils.formatVND(s.getPrice()), qty, Utils.formatVND(s.getPrice().multiply(new BigDecimal(qty)))};
+         
+        } catch (Exception e) {
+            return  null;
+        }
+        return obj;
+    }
     private void applyTableStyle(JTable table) {
 
         btnSave.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         btnDelete.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/delete.svg", 0.35f));
-        btnCheckin.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/add.svg", 0.35f));  
        
         
         table.setDefaultRenderer(Object.class, new TableGradientCell());
@@ -968,6 +953,11 @@ public class MatchRecord extends TabbedForm {
                                                         }
                                                     });
         }
+    }
+
+    private void getService() {
+        
+        serviceSectionInMatch1.addData(service);
     }
     
 }
