@@ -38,6 +38,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import minisoccerfieldmanagement.datetime.component.date.DatePicker;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
@@ -69,6 +70,7 @@ public class Dashboard extends TabbedForm {
     /**
      * Creates new form Dashboard
      */
+    DatePicker dateChooser;
     IFieldService fieldService;
     IBookingService bookingService;
     ICustomerService customerService;
@@ -85,6 +87,7 @@ public class Dashboard extends TabbedForm {
         matchService = new MatchServiceImpl();
         models = (DefaultTableModel) tblBooking.getModel();
 
+        setDateChooser();
         loadField();
         applyIcon();
         applyTableStyle(tblBooking);
@@ -137,8 +140,7 @@ public class Dashboard extends TabbedForm {
 
     private void applyIcon() {
         txtSearch.putClientProperty(FlatClientProperties.TEXT_FIELD_TRAILING_ICON, new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/search.svg", 0.35f));
-        btnOpenCalendar.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/calendar.svg", 0.35f));
-        txtDate.getDocument().addDocumentListener(new DocumentListener() {
+        ftfCalendar.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 // Called when text is inserted into the document
@@ -156,13 +158,13 @@ public class Dashboard extends TabbedForm {
                 // This is less common in JTextField
             }
         });
-        txtDate.setText(txtDate.getText());
+        ftfCalendar.setText(ftfCalendar.getText());
     }
 
     private void loadBooking() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            Date chooseDate = dateFormat.parse(txtDate.getText());
+            Date chooseDate = dateFormat.parse(ftfCalendar.getText());
             java.sql.Date sqlDate = new java.sql.Date(chooseDate.getTime());
             List<Booking> bookings;
             if (fieldSection1.getSelectedFieldId() == -1) {
@@ -297,7 +299,7 @@ public class Dashboard extends TabbedForm {
     private void changeDay() {
         try {
             List<String> week = new ArrayList<>(Arrays.asList("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"));
-            String chooseDate = txtDate.getText();
+            String chooseDate = ftfCalendar.getText();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             LocalDate date = dateFormat.parse(chooseDate).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             DayOfWeek chooseDay = date.getDayOfWeek();
@@ -310,7 +312,7 @@ public class Dashboard extends TabbedForm {
                 LocalDate nextDate = date.plusDays(i - dayIndex);
                 changeDayLabel(i, nextDate, date);
             }
-
+            loadBooking();
         } catch (ParseException ex) {
             Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -348,9 +350,6 @@ public class Dashboard extends TabbedForm {
         crazyPanel1 = new raven.crazypanel.CrazyPanel();
         txtSearch = new javax.swing.JTextField();
         lblLive = new javax.swing.JLabel();
-        jPanel8 = new javax.swing.JPanel();
-        txtDate = new javax.swing.JTextField();
-        btnOpenCalendar = new javax.swing.JButton();
         pnlMonday = new minisoccerfieldmanagement.util.PanelRound();
         lblMonday = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -375,12 +374,12 @@ public class Dashboard extends TabbedForm {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
+        ftfCalendar = new javax.swing.JFormattedTextField();
         crazyPanelService = new raven.crazypanel.CrazyPanel();
         serviceSection = new minisoccerfieldmanagement.util.ServiceSectionInDashboard();
 
         dateChooser1.setForeground(new java.awt.Color(51, 51, 51));
         dateChooser1.setDateFormat("dd/MM/yyyy");
-        dateChooser1.setTextRefernce(txtDate);
 
         setPreferredSize(new java.awt.Dimension(1188, 696));
 
@@ -414,28 +413,6 @@ public class Dashboard extends TabbedForm {
         txtSearch.setText("Search");
 
         lblLive.setText("Live (1)");
-
-        btnOpenCalendar.setText("View Calendar");
-        btnOpenCalendar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnOpenCalendarActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(txtDate)
-            .addComponent(btnOpenCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnOpenCalendar))
-        );
 
         pnlMonday.setRoundBottomLeft(20);
         pnlMonday.setRoundBottomRight(20);
@@ -729,6 +706,16 @@ public class Dashboard extends TabbedForm {
             }
         });
 
+        ftfCalendar.setPreferredSize(new java.awt.Dimension(120, 22));
+        ftfCalendar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ftfCalendarMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                ftfCalendarMouseReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout crazyPanel1Layout = new javax.swing.GroupLayout(crazyPanel1);
         crazyPanel1.setLayout(crazyPanel1Layout);
         crazyPanel1Layout.setHorizontalGroup(
@@ -737,6 +724,13 @@ public class Dashboard extends TabbedForm {
                 .addGap(17, 17, 17)
                 .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
+                        .addComponent(lblLive)
+                        .addGap(35, 35, 35)
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAllField)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
                         .addComponent(pnlMonday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -751,16 +745,9 @@ public class Dashboard extends TabbedForm {
                         .addComponent(pnlSaturday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
-                        .addComponent(lblLive)
-                        .addGap(35, 35, 35)
-                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAllField)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(25, 25, 25))
+                        .addComponent(ftfCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         crazyPanel1Layout.setVerticalGroup(
             crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -776,17 +763,20 @@ public class Dashboard extends TabbedForm {
                         .addComponent(btnAllField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(pnlThursday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                        .addComponent(pnlWednesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                        .addComponent(pnlTuesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                        .addComponent(pnlMonday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(pnlFriday, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
-                        .addComponent(pnlSaturday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE)
+                    .addGroup(crazyPanel1Layout.createSequentialGroup()
+                        .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(pnlThursday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                            .addComponent(pnlWednesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                            .addComponent(pnlTuesday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                            .addComponent(pnlMonday, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pnlFriday, javax.swing.GroupLayout.DEFAULT_SIZE, 54, Short.MAX_VALUE)
+                            .addComponent(pnlSaturday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE))
+                    .addGroup(crazyPanel1Layout.createSequentialGroup()
+                        .addComponent(ftfCalendar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -801,7 +791,7 @@ public class Dashboard extends TabbedForm {
             crazyPanelServiceLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanelServiceLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(serviceSection, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addComponent(serviceSection, javax.swing.GroupLayout.DEFAULT_SIZE, 384, Short.MAX_VALUE)
                 .addContainerGap())
         );
         crazyPanelServiceLayout.setVerticalGroup(
@@ -818,11 +808,11 @@ public class Dashboard extends TabbedForm {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(crazyPanelField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(crazyPanelService, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(crazyPanelService, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -835,14 +825,9 @@ public class Dashboard extends TabbedForm {
                         .addComponent(crazyPanelField, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(crazyPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btnOpenCalendarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenCalendarActionPerformed
-        // TODO add your handling code here:
-        dateChooser1.showPopup();
-    }//GEN-LAST:event_btnOpenCalendarActionPerformed
 
     private void pnlMondayMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pnlMondayMouseClicked
         try {
@@ -855,6 +840,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -873,6 +859,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -891,6 +878,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -909,6 +897,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -927,6 +916,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -945,6 +935,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -963,6 +954,7 @@ public class Dashboard extends TabbedForm {
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = dateFormat.parse(strDate);
+            ftfCalendar.setText(strDate);
             dateChooser1.setSelectedDate(date);
             loadBooking();
         } catch (ParseException ex) {
@@ -993,6 +985,15 @@ public class Dashboard extends TabbedForm {
             }
         }
     }//GEN-LAST:event_tblBookingMouseClicked
+
+    private void ftfCalendarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseClicked
+
+        dateChooser.showPopup();
+    }//GEN-LAST:event_ftfCalendarMouseClicked
+
+    private void ftfCalendarMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseReleased
+
+    }//GEN-LAST:event_ftfCalendarMouseReleased
 
     private void findMatch(int index) {
         String idString = listBookingId.get(index).toString();
@@ -1066,14 +1067,23 @@ public class Dashboard extends TabbedForm {
         return new Object[]{formattedStartTime, fieldName, fieldType, customer.getName(), formattedTimeDifference, booking.getNote(), matchInfo};
     }
 
+    
+    private void setDateChooser() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateChooser = new DatePicker();
+        dateChooser.now();
+        dateChooser.setEditor(ftfCalendar);
+        ftfCalendar.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
+//        ftfCalendar.setEditable(false);
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAllField;
-    private javax.swing.JButton btnOpenCalendar;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanelField;
     private raven.crazypanel.CrazyPanel crazyPanelService;
     private com.raven.datechooser.DateChooser dateChooser1;
     private minisoccerfieldmanagement.util.FieldSection fieldSection1;
+    private javax.swing.JFormattedTextField ftfCalendar;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
@@ -1081,7 +1091,6 @@ public class Dashboard extends TabbedForm {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblFriday;
     private javax.swing.JLabel lblLive;
@@ -1100,7 +1109,6 @@ public class Dashboard extends TabbedForm {
     private minisoccerfieldmanagement.util.PanelRound pnlWednesday;
     private minisoccerfieldmanagement.util.ServiceSectionInDashboard serviceSection;
     private javax.swing.JTable tblBooking;
-    private javax.swing.JTextField txtDate;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }
