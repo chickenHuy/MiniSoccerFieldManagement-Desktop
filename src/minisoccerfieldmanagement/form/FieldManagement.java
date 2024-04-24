@@ -103,7 +103,13 @@ public class FieldManagement extends TabbedForm {
     }
 
     private void setTableModel(String[] columnNames) {
-        DefaultTableModel model = new DefaultTableModel();
+        DefaultTableModel model = new DefaultTableModel()  {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Return the editable status of the column
+                return false;
+            }
+        };
 
         // Add columns to the model
         for (String columnName : columnNames) {
@@ -542,12 +548,20 @@ public class FieldManagement extends TabbedForm {
         // TODO add your handling code here:
         tableModelDeleted();
         isSearchDeleted = true;
+        btnSave.setEnabled(false);
+        btnDeleteIcon.setEnabled(false);
+        btnDelete.setText("Restore");
+        clearText();
     }//GEN-LAST:event_btnDeletedFieldActionPerformed
 
     private void btnFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFieldActionPerformed
         // TODO add your handling code here:
         tableModelField();
         isSearchDeleted = false;
+        btnSave.setEnabled(true);
+        btnDeleteIcon.setEnabled(true);
+        btnDelete.setText("Delete");
+        clearText();
     }//GEN-LAST:event_btnFieldActionPerformed
 
     private void btnAddNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNewActionPerformed
@@ -596,7 +610,7 @@ public class FieldManagement extends TabbedForm {
             cboStatus.setSelectedItem(models.getValueAt(index, 3).toString());
             cboFieldType.setSelectedItem(type);
             Field field = fieldService.findById(Integer.parseInt(models.getValueAt(index, 0).toString()));
-            if (field.getImage() == null) {
+            if (field == null || field.getImage() == null) {
                 havePicture = false;
                 ptbFieldImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/pitch.png"));
                 ptbFieldImage.repaint();
@@ -807,7 +821,8 @@ public class FieldManagement extends TabbedForm {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         if (index != -1) {
-            MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+            if (isSearchDeleted == false) {
+                MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
                     if (i == MessageAlerts.YES_OPTION) {
@@ -836,12 +851,45 @@ public class FieldManagement extends TabbedForm {
                 }
             });
 
-        }
+        
+            }
+            else {
+                MessageAlerts.getInstance().showMessage("Restore Field", "You definitely want to restore the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.YES_OPTION) {
+                        int id = Integer.parseInt(models.getValueAt(index, 0).toString());
+                        if (fieldService.restore(id)) {
+                            MessageAlerts.getInstance().showMessage("Restored", "Successfully restored data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                                    }
+                                }
+                            });
+                            models.removeRow(index);
+                            clearText();
+
+                        } else {
+                            MessageAlerts.getInstance().showMessage("Restore failed", "There was an erro during restoration, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            }
+            }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnDeleteIconActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteIconActionPerformed
         if (index != -1) {
-            MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+            if (isSearchDeleted == false) {
+                MessageAlerts.getInstance().showMessage("Delete Field", "You definitely want to delete the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
                 @Override
                 public void action(PopupController pc, int i) {
                     if (i == MessageAlerts.YES_OPTION) {
@@ -869,6 +917,38 @@ public class FieldManagement extends TabbedForm {
                     }
                 }
             });
+            }
+            else {
+                MessageAlerts.getInstance().showMessage("Restore Field", "You definitely want to restore the field with id: " + models.getValueAt(index, 0).toString(), MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.YES_OPTION) {
+                        int id = Integer.parseInt(models.getValueAt(index, 0).toString());
+                        if (fieldService.restore(id)) {
+                            MessageAlerts.getInstance().showMessage("Restored", "Successfully restored data", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+                                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                                    }
+                                }
+                            });
+                            models.removeRow(index);
+                            clearText();
+
+                        } else {
+                            MessageAlerts.getInstance().showMessage("Restore failed", "There was an erro during restoration, please try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                                @Override
+                                public void action(PopupController pc, int i) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            }
+            
 
         }
     }//GEN-LAST:event_btnDeleteIconActionPerformed

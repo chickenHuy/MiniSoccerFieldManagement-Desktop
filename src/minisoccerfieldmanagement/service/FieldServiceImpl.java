@@ -73,5 +73,10 @@ public class FieldServiceImpl implements IFieldService{
     public List<Field> findByNameALike(String str, boolean isFindDeleted) {
         return fieldDAO.findByNameALike(str, isFindDeleted);
     }
+
+    @Override
+    public Boolean restore(int id) {
+        return fieldDAO.restore(id);
+    }
     
 }

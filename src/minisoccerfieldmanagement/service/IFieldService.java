@@ -28,4 +28,6 @@ public interface IFieldService {
     List<Field> findAllDeleted();
     List<Field> findParent(int id);
     List<Field> findByNameALike(String str, boolean isFindDeleted);
+    
+    Boolean restore(int id);
 }
