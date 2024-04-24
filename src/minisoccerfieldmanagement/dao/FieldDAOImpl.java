@@ -436,4 +436,25 @@ public class FieldDAOImpl implements IFieldDAO {
         }
         return allLists;
     }
+
+    @Override
+    public Boolean restore(int id) {
+        try {
+            String sql = "UPDATE `field` SET `isDeleted` = ? WHERE `id`= ?";
+
+            conn = new DBConnection().getConnection();
+            ps = conn.prepareStatement(sql);
+
+            ps.setBoolean(1, false);
+            ps.setInt(2, id);
+
+            ps.executeUpdate();
+            conn.close();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
