@@ -4,6 +4,15 @@
  */
 package minisoccerfieldmanagement.panel.statistics;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import java.awt.Color;
+import java.text.DecimalFormat;
+import java.util.List;
+import javax.swing.JLabel;
+import minisoccerfieldmanagement.dao.ChartDAOImpl;
+import minisoccerfieldmanagement.dao.IChartDAO;
+import minisoccerfieldmanagement.model.BookingChart;
+import raven.chart.data.pie.DefaultPieDataset;
 import raven.crazypanel.CrazyPanel;
 
 /**
@@ -17,8 +26,34 @@ public class BookingStatistics extends CrazyPanel {
      */
     public BookingStatistics() {
         initComponents();
+        horizontalBarChart2.startAnimation();
+        createBarChart();
     }
 
+    private void createBarChart() {
+        // BarChart 2
+        JLabel header2 = new JLabel("Number of new Booking");
+        header2.putClientProperty(FlatClientProperties.STYLE, ""
+                + "font:+1;"
+                + "border:0,0,5,0");
+        horizontalBarChart2.setHeader(header2);
+        horizontalBarChart2.setBarColor(Color.decode("#f97316"));
+        horizontalBarChart2.setDataset(createData());
+        horizontalBarChart2.setValuesFormat(new DecimalFormat("#,#0.00"));
+        
+    }
+    
+    private DefaultPieDataset createData() {
+        DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+        
+        IChartDAO chartDAO = new ChartDAOImpl();
+        List<BookingChart> list = chartDAO.getBookingChart();
+        for (BookingChart cc : list) {
+            dataset.addValue(cc.getDate().toString(), cc.getNumberOfBooking());
+        }
+        return dataset;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,7 +63,7 @@ public class BookingStatistics extends CrazyPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        horizontalBarChart2 = new raven.chart.bar.HorizontalBarChart();
 
         setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -36,28 +71,26 @@ public class BookingStatistics extends CrazyPanel {
         ));
         setPreferredSize(new java.awt.Dimension(537, 222));
 
-        jButton1.setText("jButton1");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(218, 218, 218)
-                .addComponent(jButton1)
-                .addContainerGap(244, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(horizontalBarChart2, javax.swing.GroupLayout.DEFAULT_SIZE, 525, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(89, 89, 89)
-                .addComponent(jButton1)
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(horizontalBarChart2, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private raven.chart.bar.HorizontalBarChart horizontalBarChart2;
     // End of variables declaration//GEN-END:variables
 }
