@@ -77,5 +77,8 @@ public class TransactionServiceImpl implements ITransactionService{
         return  transactionDAO.findByFilter(search, type, order, date);
     }
 
-    
+    @Override
+    public int addTransactionWithReturnId(Transaction transaction){
+        return transactionDAO.addTransactionWithReturnId(transaction);
+    }
 }

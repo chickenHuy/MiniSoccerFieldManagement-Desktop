@@ -13,15 +13,28 @@ import minisoccerfieldmanagement.model.Transaction;
  * @author trank
  */
 public interface ITransactionService {
-    Boolean add (Transaction transaction);
-    Boolean update (Transaction transaction);
-    Boolean softDelete (int id);
-    Transaction findById (int id);
-    List <Transaction> findByUser (int userId);
-    Transaction findByServiceUsage (int serviceUsageId);
-    List <Transaction> findByDate (Timestamp date);
-    List <Transaction> findByCustomer (int customerId);
-    List <Transaction> findByFieldId (int fieldId);
-    List <Transaction> findAll();
+
+    Boolean add(Transaction transaction);
+
+    Boolean update(Transaction transaction);
+
+    Boolean softDelete(int id);
+
+    Transaction findById(int id);
+
+    List<Transaction> findByUser(int userId);
+
+    Transaction findByServiceUsage(int serviceUsageId);
+
+    List<Transaction> findByDate(Timestamp date);
+
+    List<Transaction> findByCustomer(int customerId);
+
+    List<Transaction> findByFieldId(int fieldId);
+
+    List<Transaction> findAll();
+
     List<Transaction> findByFilter(String search, String type, String order, Timestamp date);
+
+    int addTransactionWithReturnId(Transaction transaction);
 }
