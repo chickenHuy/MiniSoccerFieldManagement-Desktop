@@ -13,31 +13,32 @@ import minisoccerfieldmanagement.model.ServiceUsage;
  *
  * @author trank
  */
-public class ServiceUsageServiceImpl implements IServiceUsageService{
+public class ServiceUsageServiceImpl implements IServiceUsageService {
 
     IServiceUsageDAO serviceUsageDAO;
-    public ServiceUsageServiceImpl()
-    {
+
+    public ServiceUsageServiceImpl() {
         serviceUsageDAO = new ServiceUsageDAOImpl();
     }
+
     @Override
     public Boolean add(ServiceUsage serviceUsage) {
-        return  serviceUsageDAO.add(serviceUsage);
+        return serviceUsageDAO.add(serviceUsage);
     }
 
     @Override
     public Boolean update(ServiceUsage serviceUsage) {
-        return  serviceUsageDAO.update(serviceUsage);
+        return serviceUsageDAO.update(serviceUsage);
     }
 
     @Override
     public Boolean softDelete(int id) {
-        return  serviceUsageDAO.softDelete(id);
+        return serviceUsageDAO.softDelete(id);
     }
 
     @Override
     public ServiceUsage findById(int id) {
-        return  serviceUsageDAO.findById(id);
+        return serviceUsageDAO.findById(id);
     }
 
     @Override
@@ -49,6 +50,9 @@ public class ServiceUsageServiceImpl implements IServiceUsageService{
     public List<ServiceUsage> findByCustomer(int customerId) {
         return serviceUsageDAO.findByCustomer(customerId);
     }
-    
-    
+
+    @Override
+    public int addServiceUsageWithReturnId(ServiceUsage serviceUsage) {
+        return serviceUsageDAO.addServiceUsageWithReturnId(serviceUsage);
+    }
 }

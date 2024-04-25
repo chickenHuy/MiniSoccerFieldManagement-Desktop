@@ -6,16 +6,24 @@ package minisoccerfieldmanagement.dao;
 
 import minisoccerfieldmanagement.model.ServiceUsage;
 import java.util.List;
+
 /**
  *
  * @author trank
  */
 public interface IServiceUsageDAO {
-    Boolean add (ServiceUsage serviceUsage);
-    Boolean update (ServiceUsage serviceUsage);
-    Boolean softDelete (int id);
-    ServiceUsage findById (int id);
-    ServiceUsage findByMatch (int matchId);
-    List <ServiceUsage> findByCustomer (int customerId);
-    
+
+    Boolean add(ServiceUsage serviceUsage);
+
+    Boolean update(ServiceUsage serviceUsage);
+
+    Boolean softDelete(int id);
+
+    ServiceUsage findById(int id);
+
+    ServiceUsage findByMatch(int matchId);
+
+    List<ServiceUsage> findByCustomer(int customerId);
+
+    int addServiceUsageWithReturnId(ServiceUsage serviceUsage);
 }
