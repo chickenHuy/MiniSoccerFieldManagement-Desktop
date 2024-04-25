@@ -46,7 +46,7 @@
                                   <Group type="102" alignment="1" attributes="0">
                                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="labelServiceInStock" min="-2" pref="22" max="-2" attributes="0"/>
+                                      <Component id="labelServiceInStock" min="-2" pref="43" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="labelServicePrice" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="1" attributes="0">
