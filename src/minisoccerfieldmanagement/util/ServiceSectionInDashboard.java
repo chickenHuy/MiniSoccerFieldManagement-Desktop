@@ -17,6 +17,8 @@ import minisoccerfieldmanagement.model.Service;
 public class ServiceSectionInDashboard extends javax.swing.JPanel {
 
     private int selectedServiceId = -1;
+    private ISendQuantityOrder listener;
+    private EventItem event;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public void setSelectedServiceId(int selectedServiceId) {
@@ -25,14 +27,22 @@ public class ServiceSectionInDashboard extends javax.swing.JPanel {
         propertyChangeSupport.firePropertyChange("selectedServiceId", oldSelectedServiceId, selectedServiceId);
     }
 
-    private EventItem event;
-
     public int getSelectedServiceId() {
         return selectedServiceId;
     }
 
     public void setEvent(EventItem event) {
         this.event = event;
+    }
+
+    public void setQuantityListener(ISendQuantityOrder listener) {
+        this.listener = listener;
+    }
+
+    private void sendDataBack(Service service, int quantityOrder) {
+        if (listener != null) {
+            listener.sendQuantityOrder(service, quantityOrder);
+        }
     }
 
     public ServiceSectionInDashboard() {
@@ -71,15 +81,22 @@ public class ServiceSectionInDashboard extends javax.swing.JPanel {
 
             @Override
             public void serviceItemClick(Component com, Service service) {
+                if (service.getQuantity() == 0) {
+                    return;
+                }
+
                 setSelectedServiceId(service.getId());
                 GetQuantityOfService getQuantityOfService = new GetQuantityOfService(service);
                 getQuantityOfService.setLocationRelativeTo(null);
-                getQuantityOfService.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+                getQuantityOfService.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 getQuantityOfService.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        getQuantityOfService.dispose(); 
+                        getQuantityOfService.dispose();
                     }
+                });
+                getQuantityOfService.setQuantityListener((Service serviceSelected, int quantityOrder) -> {
+                    sendDataBack(service, quantityOrder);
                 });
                 getQuantityOfService.setVisible(true);
             }
