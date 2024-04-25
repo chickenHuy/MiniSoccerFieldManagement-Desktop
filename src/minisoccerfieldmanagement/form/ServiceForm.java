@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeSupport;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -35,8 +36,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import minisoccerfieldmanagement.model.Customer;
 import minisoccerfieldmanagement.model.Field;
+import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.service.CustomerServiceImpl;
+import minisoccerfieldmanagement.service.IMemberShipService;
+import minisoccerfieldmanagement.service.MemberShipServiceImpl;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.util.EventItem;
@@ -51,6 +55,7 @@ public class ServiceForm extends TabbedForm {
 
     private final ServiceServiceImpl serviceService = new ServiceServiceImpl();
     private final CustomerServiceImpl customerService = new CustomerServiceImpl();
+    private final MemberShipServiceImpl memberShipService = new MemberShipServiceImpl();
 
     private List<Service> listServiceInCart = null;
     private List<Service> listService = null;
@@ -61,6 +66,7 @@ public class ServiceForm extends TabbedForm {
     private int selectedServiceId = -1;
     private int page = 0;
     private Timer timer = null;
+    private Customer customer = null;
 
     private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
@@ -478,8 +484,10 @@ public class ServiceForm extends TabbedForm {
         editTextCustomerName = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        buttonSelectUser = new javax.swing.JButton();
         jScrollSearchCustomer = new javax.swing.JScrollPane();
         jListSearchCustomer = new javax.swing.JList<>();
+        crazyPanel7 = new raven.crazypanel.CrazyPanel();
         crazyPanel5 = new raven.crazypanel.CrazyPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableServiceCart = new javax.swing.JTable();
@@ -608,6 +616,13 @@ public class ServiceForm extends TabbedForm {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setText("Customer name:");
 
+        buttonSelectUser.setText("Select");
+        buttonSelectUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonSelectUserActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout crazyPanel6Layout = new javax.swing.GroupLayout(crazyPanel6);
         crazyPanel6.setLayout(crazyPanel6Layout);
         crazyPanel6Layout.setHorizontalGroup(
@@ -618,40 +633,46 @@ public class ServiceForm extends TabbedForm {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
                         .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(editTextCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
                                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(editTextPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(editTextPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(editTextCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
+                                        .addComponent(buttonSelectUser)
+                                        .addGap(108, 108, 108)))))
                         .addGap(25, 25, 25))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
                         .addComponent(buttonRemoveServiceInCard1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, crazyPanel6Layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addGap(99, 99, 99))))
+                        .addGap(92, 92, 92))))
         );
         crazyPanel6Layout.setVerticalGroup(
             crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(crazyPanel6Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(12, 12, 12)
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(editTextPhoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(9, 9, 9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(crazyPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(editTextCustomerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
-                .addGap(138, 138, 138)
+                .addGap(18, 18, 18)
+                .addComponent(buttonSelectUser)
+                .addGap(85, 85, 85)
                 .addComponent(buttonRemoveServiceInCard1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        crazyPanel3.add(crazyPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 14, -1, 109));
+        crazyPanel3.add(crazyPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 14, -1, 160));
 
         jScrollSearchCustomer.setPreferredSize(new java.awt.Dimension(50, 146));
 
@@ -663,6 +684,30 @@ public class ServiceForm extends TabbedForm {
         jScrollSearchCustomer.setViewportView(jListSearchCustomer);
 
         crazyPanel3.add(jScrollSearchCustomer, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 110, 190, 100));
+
+        crazyPanel7.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
+            "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
+            null
+        ));
+        crazyPanel7.setMigLayoutConstraints(new raven.crazypanel.MigLayoutConstraints(
+            "wrap,fill,insets 15",
+            "[fill]",
+            "[grow 0][fill]",
+            null
+        ));
+
+        javax.swing.GroupLayout crazyPanel7Layout = new javax.swing.GroupLayout(crazyPanel7);
+        crazyPanel7.setLayout(crazyPanel7Layout);
+        crazyPanel7Layout.setHorizontalGroup(
+            crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        crazyPanel7Layout.setVerticalGroup(
+            crazyPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 220, Short.MAX_VALUE)
+        );
+
+        crazyPanel3.add(crazyPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 360, 220));
 
         crazyPanel5.setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -723,7 +768,7 @@ public class ServiceForm extends TabbedForm {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(crazyPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(crazyPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(crazyPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -789,6 +834,56 @@ public class ServiceForm extends TabbedForm {
     private void buttonRemoveServiceInCard1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRemoveServiceInCard1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_buttonRemoveServiceInCard1ActionPerformed
+
+    private void buttonSelectUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSelectUserActionPerformed
+        if (editTextCustomerName.getText().trim().isEmpty() || editTextPhoneNumber.getText().trim().isEmpty()) {
+            MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+                    }
+                }
+            });
+            return;
+        }
+        if (editTextPhoneNumber.getText().trim().length() < 10) {
+            MessageAlerts.getInstance().showMessage("Not a phone number", "Ten-digit phone number!!!", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                }
+            });
+            return;
+        }
+        if (!isPhoneNumber(editTextPhoneNumber.getText())) {
+            MessageAlerts.getInstance().showMessage("Not number", "Quantity contain only numeric characters, cannot contain another characters", MessageAlerts.MessageType.WARNING, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
+                @Override
+                public void action(PopupController pc, int i) {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                }
+            });
+            return;
+        }
+
+        customer = customerService.findByPhoneNumber(editTextPhoneNumber.getText().trim());
+        if (customer == null) {
+            customer = new Customer();
+            MemberShip membership = memberShipService.findBySpendAmount(BigDecimal.ZERO);
+            customer.setName(editTextCustomerName.getText());
+            customer.setPhoneNumber(editTextPhoneNumber.getText());
+            customer.setMemberShipId(membership.getId());
+
+            int currentCustomerId = customerService.addWithReturnId(customer);
+            System.out.println(currentCustomerId);
+        } else {
+            System.out.println(customer.getId());
+        }
+
+    }//GEN-LAST:event_buttonSelectUserActionPerformed
 
     public class CustomTableModel extends DefaultTableModel {
 
@@ -856,10 +951,12 @@ public class ServiceForm extends TabbedForm {
     private javax.swing.JButton buttonRemoveServiceInCard;
     private javax.swing.JButton buttonRemoveServiceInCard1;
     private javax.swing.JButton buttonSearch;
+    private javax.swing.JButton buttonSelectUser;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanel3;
     private raven.crazypanel.CrazyPanel crazyPanel5;
     private raven.crazypanel.CrazyPanel crazyPanel6;
+    private raven.crazypanel.CrazyPanel crazyPanel7;
     private javax.swing.JTextField editTextCustomerName;
     private javax.swing.JTextField editTextPhoneNumber;
     private javax.swing.JLabel jLabel1;
