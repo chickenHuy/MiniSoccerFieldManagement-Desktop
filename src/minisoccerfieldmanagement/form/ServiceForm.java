@@ -88,6 +88,7 @@ public class ServiceForm extends TabbedForm {
     public ServiceForm() {
         initComponents();
 
+        setUpListServiceInCart();
         listServiceInCart = new ArrayList<>();
         setUpWidgit();
     }
@@ -95,8 +96,11 @@ public class ServiceForm extends TabbedForm {
     public ServiceForm(Service service) {
         initComponents();
 
+        setUpListServiceInCart();
         listServiceInCart = new ArrayList<>();
         listServiceInCart.add(service);
+
+        model.addRow(getRowData(service));
 
         setUpWidgit();
     }
@@ -203,7 +207,6 @@ public class ServiceForm extends TabbedForm {
         });
 
         setUpListService();
-        setUpListServiceInCart();
     }
 
     private boolean isPhoneNumber(String number) {
@@ -1135,6 +1138,8 @@ public class ServiceForm extends TabbedForm {
             }
         });
 
+        page = 0;
+        loadDataIntoJTable("", "Active", 20, 20 * page, "", "");
         buttonPayment.setEnabled(false);
     }//GEN-LAST:event_buttonPaymentActionPerformed
 
