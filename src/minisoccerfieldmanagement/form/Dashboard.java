@@ -93,6 +93,14 @@ public class Dashboard extends TabbedForm {
         applyTableStyle(tblBooking);
         loadBooking();
         loadService();
+        setServiceSection();
+    }
+
+    private void setServiceSection() {
+        serviceSection.setQuantityListener((Service serviceSelected, int quantityOrder) -> {
+            serviceSelected.setQuantityOrder(quantityOrder);
+            WindowsTabbed.getInstance().addTab("Service", new ServiceForm(serviceSelected));
+        });
     }
 
     private void applyTableStyle(JTable table) {
@@ -1067,7 +1075,6 @@ public class Dashboard extends TabbedForm {
         return new Object[]{formattedStartTime, fieldName, fieldType, customer.getName(), formattedTimeDifference, booking.getNote(), matchInfo};
     }
 
-    
     private void setDateChooser() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         dateChooser = new DatePicker();
