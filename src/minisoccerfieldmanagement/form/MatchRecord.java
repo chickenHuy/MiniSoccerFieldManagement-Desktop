@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
 import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
@@ -35,6 +37,7 @@ import minisoccerfieldmanagement.model.Field;
 import minisoccerfieldmanagement.model.Match;
 import minisoccerfieldmanagement.model.MemberShip;
 import minisoccerfieldmanagement.model.Service;
+import minisoccerfieldmanagement.model.ServiceItems;
 import minisoccerfieldmanagement.model.ServiceUsage;
 import minisoccerfieldmanagement.model.Transaction;
 import minisoccerfieldmanagement.model.User;
@@ -44,11 +47,13 @@ import minisoccerfieldmanagement.service.IBookingService;
 import minisoccerfieldmanagement.service.ICustomerService;
 import minisoccerfieldmanagement.service.IMatchService;
 import minisoccerfieldmanagement.service.IMemberShipService;
+import minisoccerfieldmanagement.service.IServiceItemsService;
 import minisoccerfieldmanagement.service.IServiceService;
 import minisoccerfieldmanagement.service.IServiceUsageService;
 import minisoccerfieldmanagement.service.ITransactionService;
 import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.MemberShipServiceImpl;
+import minisoccerfieldmanagement.service.ServiceItemsServiceImpl;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.service.ServiceUsageServiceImpl;
 import minisoccerfieldmanagement.service.TransactionServiceImpl;
@@ -61,6 +66,7 @@ import raven.alerts.MessageAlerts;
 import raven.datetime.component.time.TimePicker;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
+import raven.toast.Notifications;
 
 /**
  *
@@ -85,7 +91,9 @@ public class MatchRecord extends TabbedForm {
     ICustomerService customerService;
     IServiceService serviceService;
     List<Service> service;
-
+    DefaultTableModel serviceModel;
+    List<ServiceItems> serviceItemses;
+    IServiceItemsService serviceItemsService;
     private void setTimePicker() {
         timePicker1 = new TimePicker();
         timePicker1.set24HourView(true);
@@ -105,23 +113,21 @@ public class MatchRecord extends TabbedForm {
         this.booking = booking;
         this.field = field;
         serviceUsage = new ServiceUsage();
+        serviceItemsService = new ServiceItemsServiceImpl();
         discount = BigDecimal.ZERO;
         total = BigDecimal.ZERO;
         firstTotal = BigDecimal.ZERO;
         serviceFee = BigDecimal.ZERO;
         initComponents();
+        serviceModel = (DefaultTableModel)tblService.getModel();
         applyTableStyle(tblService);
         setTimePicker();
+        serviceItemses = new ArrayList<>();
         setData();
         completedBooking();
         createServiceUsage();
         getService();
-
-        serviceSectionInMatch1.setQuantityListener((Service serviceSelected, int quantityOrder) -> {
-            // Viết tiếp đi m
-            System.out.println(serviceSelected.getId());
-            System.out.println(quantityOrder);
-        });
+        setEvent();
     }
 
     /**
@@ -714,7 +720,7 @@ public class MatchRecord extends TabbedForm {
 
     private void setData() {
         serviceService = new ServiceServiceImpl();
-        service = serviceService.findAll();
+        service = serviceService.findByStatus("active");
         btnSaveNote.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/edit.svg", 0.35f));
         lblCustomer.setText(customer.getName() + " - " + customer.getPhoneNumber());
         lblCheckin.setText(match.getCheckIn().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm")));
@@ -741,6 +747,9 @@ public class MatchRecord extends TabbedForm {
             }
         });
         timer.start();
+        
+        
+       
     }
 
     private void updateRemainingTime(long endTime) {
@@ -848,8 +857,6 @@ public class MatchRecord extends TabbedForm {
 
             ITransactionService transactionService = new TransactionServiceImpl();
             Transaction transaction = new Transaction();
-            transaction.setServiceUsageId(serviceUsage.getId());
-
             User user = UserSession.getInstance().getUser();
             transaction.setUserID(user.getId());
             transaction.setServiceUsageId(serviceUsage.getId());
@@ -908,6 +915,8 @@ public class MatchRecord extends TabbedForm {
         firstTotal = firstTotal.add(price);
         discount = firstTotal.multiply(rateBig);
         total = firstTotal.subtract(discount);
+        lblTotal.setText(Utils.toVND(total));
+        lblDiscount.setText(Utils.toVND(discount));
 
     }
 
@@ -941,6 +950,92 @@ public class MatchRecord extends TabbedForm {
     private void getService() {
 
         serviceSectionInMatch1.addData(service);
+        serviceItemses = serviceItemsService.findByServiceUsage(serviceUsage.getId());
+        for (ServiceItems si : serviceItemses)
+        {
+            for (Service se: service)
+            {
+                if (se.getId() == si.getServiceId())
+                {
+                    serviceModel.addRow(getRowService(se, si.getQuantity()));
+                    updateFee(se.getPrice().multiply(new BigDecimal(si.getQuantity())));
+                    setServicePrice(se.getPrice().multiply(new BigDecimal(si.getQuantity())));
+                
+                }
+                
+            }
+        }
+    }
+
+    private void setEvent() {
+        serviceSectionInMatch1.setQuantityListener((Service serviceSelected, int quantityOrder) -> {
+            try {
+                int flag = 0;
+            int indexRow = 0;
+            Service ser = serviceService.findById(serviceSelected.getId());
+            if (ser == null)
+            {
+                throw new Exception("Service not found");
+            }
+            else
+            if (ser.getQuantity()< quantityOrder)
+            {
+                throw  new Exception("Please select the appropriate quantity.");
+            }
+            else
+            {
+                for (ServiceItems serviceItems : serviceItemses)
+            {
+                if (serviceItems.getServiceId() == serviceSelected.getId())
+                {
+                    serviceItems.setQuantity(quantityOrder + serviceItems.getQuantity());
+                    serviceModel.setValueAt(serviceItems.getQuantity(), indexRow, 2);
+                    serviceModel.setValueAt(Utils.formatVND(serviceSelected.getPrice().multiply(new BigDecimal(serviceItems.getQuantity()))), indexRow, 3);
+                    if(serviceItemsService.updateQty(serviceItems.getId(), serviceItems.getQuantity()));
+                    {
+                        int qty = serviceSelected.getQuantity() - quantityOrder;
+                        int sold = serviceSelected.getSold() + quantityOrder;
+                        serviceSelected.setQuantity(qty);
+                        serviceSelected.setSold(sold);
+                        updateFee(serviceSelected.getPrice().multiply(new BigDecimal(quantityOrder)));
+                        setServicePrice(serviceSelected.getPrice().multiply(new BigDecimal(quantityOrder)));
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, "Update Success");
+                    }
+                    flag = 1;
+                    break;
+                }
+                indexRow ++;
+            }
+            if (flag == 0){
+                ServiceItems si = new ServiceItems();
+                si.setQuantity(quantityOrder);
+                si.setServiceId(serviceSelected.getId());
+                si.setServiceUsageId(serviceUsage.getId());
+                serviceItemses.add(si);
+                if(serviceItemsService.add(si))
+                {
+                    int qty = serviceSelected.getQuantity() - quantityOrder;
+                    int sold = serviceSelected.getSold() + quantityOrder;
+                    serviceSelected.setQuantity(qty);
+                    serviceSelected.setSold(sold);
+                    serviceService.update(serviceSelected);
+                    updateFee(serviceSelected.getPrice().multiply(new BigDecimal(quantityOrder)));
+                    setServicePrice(serviceSelected.getPrice().multiply(new BigDecimal(quantityOrder)));
+                    Notifications.getInstance().show(Notifications.Type.SUCCESS, "Success");
+                }
+                serviceModel.addRow(getRowService(serviceSelected, quantityOrder));
+            }
+            }
+       
+            } catch (Exception e) {
+                Notifications.getInstance().show(Notifications.Type.ERROR, e.getMessage());
+            }
+        });
+    }
+    private void setServicePrice(BigDecimal pr)
+    {
+        serviceFee = serviceFee.add(pr);
+        lblServiceFees.setText(Utils.toVND(serviceFee));
     }
 
 }
