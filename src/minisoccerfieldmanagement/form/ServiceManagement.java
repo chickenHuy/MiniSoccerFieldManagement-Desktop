@@ -35,6 +35,7 @@ import javax.swing.table.TableCellRenderer;
 import minisoccerfieldmanagement.model.Service;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
+import minisoccerfieldmanagement.util.Excel;
 import minisoccerfieldmanagement.util.Utils;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
@@ -502,6 +503,11 @@ public class ServiceManagement extends TabbedForm {
         });
 
         buttonPrint.setText("Print");
+        buttonPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonPrintActionPerformed(evt);
+            }
+        });
 
         buttonNext.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -999,6 +1005,10 @@ public class ServiceManagement extends TabbedForm {
             loadDataIntoJTable("", status, limit, limit * page - limit, direction, orderBy);
         }
     }//GEN-LAST:event_buttonPrevousActionPerformed
+
+    private void buttonPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrintActionPerformed
+        toExcel();
+    }//GEN-LAST:event_buttonPrintActionPerformed
     
     private void cleanField() {
         pictureBoxServiceImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/service/service_image_default.png"));
@@ -1053,6 +1063,21 @@ public class ServiceManagement extends TabbedForm {
                 }
             });
             return false;
+        }
+    }
+    
+    private void toExcel() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(filter);
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+            Excel.export(tblService, filePath, "INVOICE");
         }
     }
 
