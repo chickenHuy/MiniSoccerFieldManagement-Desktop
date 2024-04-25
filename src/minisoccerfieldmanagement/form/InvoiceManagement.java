@@ -9,6 +9,7 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
+import java.io.File;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -55,9 +56,12 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import minisoccerfieldmanagement.datetime.component.date.DatePicker;
+import minisoccerfieldmanagement.util.Excel;
 import minisoccerfieldmanagement.util.Utils;
 
 /**
@@ -170,6 +174,11 @@ public class InvoiceManagement extends TabbedForm {
         crazyPanel2.add(txtSearch);
 
         btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
         crazyPanel2.add(btnPrint);
 
         ftfCalendar.setPreferredSize(new java.awt.Dimension(120, 22));
@@ -442,6 +451,10 @@ public class InvoiceManagement extends TabbedForm {
         loadData();
     }//GEN-LAST:event_txtSearchKeyReleased
 
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        toExcel();
+    }//GEN-LAST:event_btnPrintActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPrint;
@@ -680,6 +693,21 @@ public class InvoiceManagement extends TabbedForm {
         dateChooser.setEditor(ftfCalendar);
         ftfCalendar.setText(dateFormat.format(new Timestamp(System.currentTimeMillis())));
         ftfCalendar.setEditable(false);
+    }
+
+    private void toExcel() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(filter);
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+            Excel.export(tblInvoice, filePath, "INVOICE");
+        }
     }
     
     
