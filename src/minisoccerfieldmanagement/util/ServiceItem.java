@@ -11,7 +11,7 @@ import minisoccerfieldmanagement.model.Service;
 
 public class ServiceItem extends javax.swing.JPanel {
 
-     private Service service;
+    private Service service;
 
     public Service getData() {
         return service;
@@ -60,6 +60,12 @@ public class ServiceItem extends javax.swing.JPanel {
         lbItemName.setText(service.getName());
         lbBrand.setText(service.getUnit());
         lbPrice.setText(Utils.formatVND(service.getPrice()));
+
+        if (service.getQuantity() == 0) {
+            buttonSoutOut.setVisible(true);
+        } else {
+            buttonSoutOut.setVisible(false);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -70,6 +76,7 @@ public class ServiceItem extends javax.swing.JPanel {
         lbPrice = new javax.swing.JLabel();
         lbBrand = new javax.swing.JLabel();
         pictureBox1 = new minisoccerfieldmanagement.util.PictureBox();
+        buttonSoutOut = new javax.swing.JButton();
         lbBrand1 = new javax.swing.JLabel();
 
         lbItemName.setFont(new java.awt.Font("sansserif", 1, 12)); // NOI18N
@@ -84,6 +91,13 @@ public class ServiceItem extends javax.swing.JPanel {
         lbBrand.setForeground(new java.awt.Color(76, 76, 76));
         lbBrand.setText("Brand");
 
+        buttonSoutOut.setBackground(new java.awt.Color(51, 51, 51));
+        buttonSoutOut.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        buttonSoutOut.setForeground(new java.awt.Color(255, 255, 255));
+        buttonSoutOut.setText("Sold out");
+        pictureBox1.add(buttonSoutOut);
+        buttonSoutOut.setBounds(40, 50, 80, 23);
+
         lbBrand1.setFont(new java.awt.Font("sansserif", 1, 11)); // NOI18N
         lbBrand1.setForeground(new java.awt.Color(76, 76, 76));
         lbBrand1.setText("Unit:");
@@ -92,39 +106,42 @@ public class ServiceItem extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(pictureBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(lbItemName, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
                         .addComponent(lbBrand1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbBrand)
-                        .addGap(0, 58, Short.MAX_VALUE))
-                    .addComponent(lbItemName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(lbPrice)))
+                        .addGap(6, 6, 6)
+                        .addComponent(lbBrand)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(pictureBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(lbPrice)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(pictureBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(pictureBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbItemName)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbBrand, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbBrand1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbBrand1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbBrand, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lbPrice)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonSoutOut;
     private javax.swing.JLabel lbBrand;
     private javax.swing.JLabel lbBrand1;
     private javax.swing.JLabel lbItemName;
