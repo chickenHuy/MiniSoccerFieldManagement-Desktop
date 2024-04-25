@@ -74,4 +74,8 @@ public class CustomerServiceImpl implements ICustomerService {
         return customerDAO.findAllAndFilter(content, membershipId, displayType);
     }
 
+    @Override
+    public int addWithReturnId(Customer model) {
+        return customerDAO.addWithReturnId(model);
+    }
 }

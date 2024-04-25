@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -117,7 +118,7 @@ public class CustomerDAOImpl implements ICustomerDAO {
 
     @Override
     public Customer findByPhoneNumber(String phoneNumber) {
-        Customer model = new Customer();
+        Customer model = null;
         try {
             String sql = "SELECT * FROM `Customer` WHERE `phoneNumber` = ? AND `isDeleted` = 0;";
             conn = new DBConnection().getConnection();
@@ -128,6 +129,7 @@ public class CustomerDAOImpl implements ICustomerDAO {
             rs = ps.executeQuery();
 
             while (rs.next()) {
+                model = new Customer();
                 model.setId(rs.getInt("id"));
                 model.setMemberShipId(rs.getInt("memberShipId"));
                 model.setName(rs.getString("name"));
@@ -270,41 +272,44 @@ public class CustomerDAOImpl implements ICustomerDAO {
         List<Customer> models = new ArrayList<>();
         try {
             String display = " ORDER BY Customer.totalSpend ";
-            if (displayType == -1 ) // Giảm dần
+            if (displayType == -1) // Giảm dần
+            {
                 display += "DESC";
+            }
             if (displayType == 1) // Tăng dần
+            {
                 display += "ASC";
+            }
             String membershipString = "";
             if (membershipId != -1) // nếu bth thì truyền -1 vào memmebrshipId
-                membershipString = " AND membership.id = ? ";
-            String sql = "Select customer.* from customer join membership on membership.id = customer.membershipId\n" +
-                            "where customer.isDeleted = 0 and membership.isDeleted = 0\n" +
-                            "and \n" +
-                            "	(lower(customer.name) like lower(?) or\n" +
-                            "    lower(customer.id) like lower(?) or\n" +
-                            "    lower(customer.phoneNumber) like lower(?) or\n" +
-                            "    lower(customer.totalSpend) like lower(?) or\n" +
-                            "    lower(membership.name) like lower(?)) ";
-            
-            if (!membershipString.isEmpty())
             {
+                membershipString = " AND membership.id = ? ";
+            }
+            String sql = "Select customer.* from customer join membership on membership.id = customer.membershipId\n"
+                    + "where customer.isDeleted = 0 and membership.isDeleted = 0\n"
+                    + "and \n"
+                    + "	(lower(customer.name) like lower(?) or\n"
+                    + "    lower(customer.id) like lower(?) or\n"
+                    + "    lower(customer.phoneNumber) like lower(?) or\n"
+                    + "    lower(customer.totalSpend) like lower(?) or\n"
+                    + "    lower(membership.name) like lower(?)) ";
+
+            if (!membershipString.isEmpty()) {
                 sql += membershipString;
             }
-            if (displayType != 0)
-            {
+            if (displayType != 0) {
                 sql += display;
-                        
+
             }
             conn = new DBConnection().getConnection();
 
             ps = conn.prepareStatement(sql);
-            ps.setString(1, "%" + content + "%" );
-            ps.setString(2, "%" + content + "%" );
-            ps.setString(3, "%" + content + "%" );
-            ps.setString(4, "%" + content + "%" );
-            ps.setString(5, "%" + content + "%" );
-            if (!membershipString.isEmpty())
-            {
+            ps.setString(1, "%" + content + "%");
+            ps.setString(2, "%" + content + "%");
+            ps.setString(3, "%" + content + "%");
+            ps.setString(4, "%" + content + "%");
+            ps.setString(5, "%" + content + "%");
+            if (!membershipString.isEmpty()) {
                 ps.setInt(6, membershipId);
             }
             rs = ps.executeQuery();
@@ -331,6 +336,42 @@ public class CustomerDAOImpl implements ICustomerDAO {
             e.printStackTrace();
         }
         return models;
+    }
+
+    @Override
+    public int addWithReturnId(Customer model) {
+        int generatedId = -1;
+        try {
+            String insertSql = "INSERT INTO `Customer`(`memberShipId`, `name`, `phoneNumber`, `totalSpend`, `image`, `createdAt`) VALUES(?,?,?,0,?,NOW());";
+            String retrieveIdSql = "SELECT LAST_INSERT_ID();";
+
+            conn = new DBConnection().getConnection();
+            conn.setAutoCommit(false);
+
+            ps = conn.prepareStatement(insertSql);
+            ps.setInt(1, model.getMemberShipId());
+            ps.setString(2, model.getName());
+            ps.setString(3, model.getPhoneNumber());
+            ps.setString(4, model.getImage());
+            ps.executeUpdate();
+
+            ps = conn.prepareStatement(retrieveIdSql);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+            }
+            conn.commit();
+            conn.close();
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return -1;
+        }
+        return generatedId;
     }
 
 }
