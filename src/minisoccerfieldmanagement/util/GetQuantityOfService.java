@@ -3,7 +3,6 @@ package minisoccerfieldmanagement.util;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import minisoccerfieldmanagement.model.Service;

@@ -17,6 +17,7 @@ import minisoccerfieldmanagement.model.Service;
 public class ServiceSectionInMatch extends javax.swing.JPanel {
 
     private int selectedServiceId = -1;
+    private ISendQuantityOrder listener;
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public void setSelectedServiceId(int selectedServiceId) {
@@ -33,6 +34,16 @@ public class ServiceSectionInMatch extends javax.swing.JPanel {
 
     public void setEvent(EventItem event) {
         this.event = event;
+    }
+
+    public void setQuantityListener(ISendQuantityOrder listener) {
+        this.listener = listener;
+    }
+
+    private void sendDataBack(Service service, int quantityOrder) {
+        if (listener != null) {
+            listener.sendQuantityOrder(service, quantityOrder);
+        }
     }
 
     public ServiceSectionInMatch() {
@@ -74,12 +85,15 @@ public class ServiceSectionInMatch extends javax.swing.JPanel {
                 setSelectedServiceId(service.getId());
                 GetQuantityOfService getQuantityOfService = new GetQuantityOfService(service);
                 getQuantityOfService.setLocationRelativeTo(null);
-                getQuantityOfService.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+                getQuantityOfService.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
                 getQuantityOfService.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        getQuantityOfService.dispose(); 
+                        getQuantityOfService.dispose();
                     }
+                });
+                getQuantityOfService.setQuantityListener((Service serviceSelected, int quantityOrder) -> {
+                    sendDataBack(service, quantityOrder);
                 });
                 getQuantityOfService.setVisible(true);
             }
