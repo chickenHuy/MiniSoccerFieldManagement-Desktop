@@ -653,15 +653,16 @@ public class CustomerManagement extends TabbedForm {
                     return;
                 }
                 if (customerService.add(customer)) {
+                    clearText();
+                    tfTotalSpend.setText("0");
+                    type = -1;
+                    loadDataCustomerManagement();
                     MessageAlerts.getInstance().showMessage("Add successful", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                         if (i == MessageAlerts.CLOSED_OPTION) {
 
                         }
                     });
-                    clearText();
-                    tfTotalSpend.setText("0");
-                    type = -1;
-                    loadDataCustomerManagement();
+                  
                 } else {
                     MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                         if (i == MessageAlerts.CLOSED_OPTION) {
@@ -684,16 +685,17 @@ public class CustomerManagement extends TabbedForm {
                     return;
                 }
                 if (tblCustomer.getSelectedRowCount() == 1) {
+                    clearText();
+                    tfTotalSpend.setText("0");
+                    type = -1;
+                    loadDataCustomerManagement();
                     if (customerService.update(customer)) {
                         MessageAlerts.getInstance().showMessage("Update successful", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                             if (i == MessageAlerts.CLOSED_OPTION) {
 
                             }
                         });
-                        clearText();
-                        tfTotalSpend.setText("0");
-                        type = -1;
-                        loadDataCustomerManagement();
+                        
                     } else {
                         MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                             if (i == MessageAlerts.CLOSED_OPTION) {
