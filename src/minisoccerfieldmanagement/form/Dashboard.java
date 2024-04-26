@@ -30,6 +30,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -38,6 +39,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableRowSorter;
 import minisoccerfieldmanagement.datetime.component.date.DatePicker;
 import minisoccerfieldmanagement.model.Booking;
 import minisoccerfieldmanagement.model.Customer;
@@ -55,6 +57,7 @@ import minisoccerfieldmanagement.service.MatchServiceImpl;
 import minisoccerfieldmanagement.service.ServiceServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
 import minisoccerfieldmanagement.tabbed.WindowsTabbed;
+import minisoccerfieldmanagement.util.DashboardRowFilter;
 import minisoccerfieldmanagement.util.EventItem;
 import minisoccerfieldmanagement.util.ServiceItem;
 import raven.alerts.MessageAlerts;
@@ -104,6 +107,15 @@ public class Dashboard extends TabbedForm {
     }
 
     private void applyTableStyle(JTable table) {
+        // Set sorter
+        DefaultTableModel model = (DefaultTableModel) tblBooking.getModel();
+        TableRowSorter myTableRowSorter = new TableRowSorter(model);
+        // Remove sorting tại dùng để filter thôi
+        for (int i=0;i<tblBooking.getColumnCount();i++) {
+            myTableRowSorter.setSortable(i, false);
+        }
+        tblBooking.setRowSorter(myTableRowSorter);
+        
         //  Change scroll style
         JScrollPane scroll = (JScrollPane) table.getParent().getParent();
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -176,9 +188,15 @@ public class Dashboard extends TabbedForm {
             java.sql.Date sqlDate = new java.sql.Date(chooseDate.getTime());
             List<Booking> bookings;
             if (fieldSection1.getSelectedFieldId() == -1) {
-                bookings = bookingService.findByDate(sqlDate);
+                if (comboBoxFielter.getSelectedItem().toString().equals("Customer phone"))
+                    bookings = bookingService.findByDateAndPhoneKeyWord(sqlDate, txtSearch.getText());
+                else
+                    bookings = bookingService.findByDate(sqlDate);
             } else {
-                bookings = bookingService.findByDateAndField(sqlDate, fieldSection1.getSelectedFieldId());
+                if (comboBoxFielter.getSelectedItem().toString().equals("Customer phone"))
+                    bookings = bookingService.findByDateAndFieldAndPhoneKeyWord(sqlDate, fieldSection1.getSelectedFieldId(), txtSearch.getText());
+                else
+                    bookings = bookingService.findByDateAndField(sqlDate, fieldSection1.getSelectedFieldId());
             }
             models.setNumRows(0);
             liveBooking = 0;
@@ -383,6 +401,7 @@ public class Dashboard extends TabbedForm {
         tblBooking = new javax.swing.JTable();
         btnAllField = new javax.swing.JButton();
         ftfCalendar = new javax.swing.JFormattedTextField();
+        comboBoxFielter = new javax.swing.JComboBox<>();
         crazyPanelService = new raven.crazypanel.CrazyPanel();
         serviceSection = new minisoccerfieldmanagement.util.ServiceSectionInDashboard();
 
@@ -419,6 +438,11 @@ public class Dashboard extends TabbedForm {
         ));
 
         txtSearch.setText("Search");
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
 
         lblLive.setText("Live (1)");
 
@@ -724,6 +748,14 @@ public class Dashboard extends TabbedForm {
             }
         });
 
+        comboBoxFielter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Field", "Customer name", "Customer phone" }));
+        comboBoxFielter.setVerifyInputWhenFocusTarget(false);
+        comboBoxFielter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBoxFielterActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout crazyPanel1Layout = new javax.swing.GroupLayout(crazyPanel1);
         crazyPanel1.setLayout(crazyPanel1Layout);
         crazyPanel1Layout.setHorizontalGroup(
@@ -736,7 +768,9 @@ public class Dashboard extends TabbedForm {
                         .addComponent(lblLive)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(307, 307, 307))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(comboBoxFielter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(226, 226, 226))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, crazyPanel1Layout.createSequentialGroup()
                         .addComponent(pnlMonday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -753,7 +787,7 @@ public class Dashboard extends TabbedForm {
                         .addComponent(pnlSunday, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ftfCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                            .addComponent(ftfCalendar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAllField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -763,7 +797,8 @@ public class Dashboard extends TabbedForm {
                 .addContainerGap()
                 .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblLive))
+                    .addComponent(lblLive)
+                    .addComponent(comboBoxFielter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(8, 8, 8)
                 .addGroup(crazyPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(crazyPanel1Layout.createSequentialGroup()
@@ -969,6 +1004,7 @@ public class Dashboard extends TabbedForm {
         // TODO add your handling code here:
         fieldSection1.setSelectedFieldId(-1);
         fieldSection1.setSelected(null);
+        txtSearch.setText("");
         loadBooking();
     }//GEN-LAST:event_btnAllFieldActionPerformed
 
@@ -978,11 +1014,11 @@ public class Dashboard extends TabbedForm {
             evt.consume();
             DefaultTableModel temp = (DefaultTableModel) tblBooking.getModel();
             if (temp.getValueAt(tblBooking.getSelectedRow(), 0).toString().equals("LIVE")) {
-                if (!temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkout")) {
+                if (!temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("CHECKED OUT")) {
                     findMatch(tblBooking.getSelectedRow());
                 }
             } else {
-                if (temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("Đã Checkin")) {
+                if (temp.getValueAt(tblBooking.getSelectedRow(), 6).toString().equals("CHECKED IN")) {
                     findMatch(tblBooking.getSelectedRow());
                 }
             }
@@ -997,6 +1033,27 @@ public class Dashboard extends TabbedForm {
     private void ftfCalendarMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ftfCalendarMouseReleased
 
     }//GEN-LAST:event_ftfCalendarMouseReleased
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        // TODO add your handling code here:
+        String searchType = comboBoxFielter.getSelectedItem().toString();
+        String searchText = txtSearch.getText();
+        TableRowSorter myTableRowSorter = (TableRowSorter)tblBooking.getRowSorter();
+        if (searchType.equals("Field")) {
+            myTableRowSorter.setRowFilter(new DashboardRowFilter(searchText, 1));
+        } else if (searchType.equals("Customer name")) {
+            myTableRowSorter.setRowFilter(new DashboardRowFilter(searchText, 3));
+        } else {
+            loadBooking();
+        }
+    }//GEN-LAST:event_txtSearchActionPerformed
+
+    private void comboBoxFielterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxFielterActionPerformed
+        // TODO add your handling code here:
+        TableRowSorter myTableRowSorter = (TableRowSorter)tblBooking.getRowSorter();
+        myTableRowSorter.setRowFilter(new DashboardRowFilter("", 0));
+        txtSearch.setText("");
+    }//GEN-LAST:event_comboBoxFielterActionPerformed
 
     private void findMatch(int index) {
         String idString = listBookingId.get(index).toString();
@@ -1049,12 +1106,12 @@ public class Dashboard extends TabbedForm {
 
         String matchInfo;
         if (match == null) {
-            matchInfo = "Chưa Checkin";
+            matchInfo = "NOT CHECK IN";
         } else {
             if (match.getCheckOut() == null) {
-                matchInfo = "Đã Checkin";
+                matchInfo = "CHECKED IN";
             } else {
-                matchInfo = "Đã Checkout";
+                matchInfo = "CHECKED OUT";
             }
         }
         String formattedStartTime = LocalTime.of((int) tStart.getHour(), (int) tStart.getMinute()).format(formatter);
@@ -1080,6 +1137,7 @@ public class Dashboard extends TabbedForm {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAllField;
+    private javax.swing.JComboBox<String> comboBoxFielter;
     private raven.crazypanel.CrazyPanel crazyPanel1;
     private raven.crazypanel.CrazyPanel crazyPanelField;
     private raven.crazypanel.CrazyPanel crazyPanelService;
