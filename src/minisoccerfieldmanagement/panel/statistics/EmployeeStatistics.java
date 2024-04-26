@@ -98,23 +98,27 @@ public class EmployeeStatistics extends CrazyPanel {
         int vt  = 0;
         List<java.sql.Date> date = new ArrayList<java.sql.Date>();
         double[][] finalAmount = new double[3][100];
-        for (User user : listUser) {
-            chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt%3]),  Color.decode(color2[vt%3]));
-           
-            List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
-            for (UserChart uc: userCharts)
-            {
-                if (date.isEmpty() || (!date.contains(uc.getDate())))
+        if (!listUser.isEmpty()){
+        {
+            for (User user : listUser) {
+                chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt%3]),  Color.decode(color2[vt%3]));
+
+                List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+                for (UserChart uc: userCharts)
                 {
-                    date.add(uc.getDate());
-                    
+                    if (date.isEmpty() || (!date.contains(uc.getDate())))
+                    {
+                        date.add(uc.getDate());
+
+                    }
+                    finalAmount[vt][date.size()-1] = uc.getSumTotal().doubleValue();
                 }
-                finalAmount[vt][date.size()-1] = uc.getSumTotal().doubleValue();
+                vt++;
             }
-            vt++;
+
+            generateData(date, finalAmount, listUser.size());
+            }
         }
-        
-        generateData(date, finalAmount, listUser.size());
         
         
        

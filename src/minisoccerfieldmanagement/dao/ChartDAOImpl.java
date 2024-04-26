@@ -33,7 +33,7 @@ public class ChartDAOImpl implements IChartDAO{
         List<UserChart> models = new ArrayList<>();
         try {
             String sql = "SELECT SUM(finalAmount) as sumTotal, `User`.name, `User`.id, DATE(`Transaction`.createdAt) as `date` from `Transaction` join `User` on `Transaction`.userId = `User`.id where `User`.isDeleted = 0 and `User`.Id = ? and `Transaction`.isDeleted  = 0 Group by `User`.name, `User`.id,\n" +
-"DATE(`Transaction`.createdAt)";
+"DATE(`Transaction`.createdAt)  limit 4";
             conn = new DBConnection().getConnection();
 
             ps = conn.prepareStatement(sql);
