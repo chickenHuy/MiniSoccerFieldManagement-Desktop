@@ -12,12 +12,9 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import minisoccerfieldmanagement.tabbed.TabbedForm;
-import raven.alerts.MessageAlerts;
 import raven.drawer.Drawer;
 import raven.drawer.component.header.SimpleHeader;
 import raven.drawer.component.header.SimpleHeaderData;
-import raven.popup.component.PopupCallbackAction;
-import raven.popup.component.PopupController;
 import raven.swing.AvatarIcon;
 
 public final class AccountInformation extends TabbedForm {
@@ -31,26 +28,6 @@ public final class AccountInformation extends TabbedForm {
         applyStyle();
         userService = new UserServiceImpl();
         loadDataAccountInformation();
-        setAccountInfo();
-    }
-
-    public void setAccountInfo() {
-        User user = UserSession.getInstance().getUser();
-        String title = user.getName();
-        String desc = user.getPhoneNumber();
-        String path = "/minisoccerfieldmanagement/image/profile.jpg";
-        if (user.getImage() != null) {
-            File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
-            if (file.exists()) {
-                path = "/minisoccerfieldmanagement/image/user/" + user.getImage();
-            }
-        }
-        SimpleHeaderData newSimpleHeaderData = new SimpleHeaderData()
-                .setIcon(new AvatarIcon(getClass().getResource(path), 60, 60, 999))
-                .setTitle(title)
-                .setDescription(desc);
-        SimpleHeader header = (SimpleHeader) Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
-        header.setSimpleHeaderData(newSimpleHeaderData);
     }
 
     public void loadDataAccountInformation() {

@@ -541,7 +541,7 @@ public class CustomerManagement extends TabbedForm {
             lblId.setText("#" + customerModels.getValueAt(index, 0).toString());
             tfName.setText(customerModels.getValueAt(index, 1).toString());
             tfPhoneNumber.setText(customerModels.getValueAt(index, 3).toString());
-            tfTotalSpend.setText(customerModels.getValueAt(index, 4).toString().replace(" VND", "").replace(",", ""));
+            tfTotalSpend.setText(customerModels.getValueAt(index, 4).toString());//.replace(" VND", "").replace(",", ""));
             Customer customer = customerService.findById(Integer.parseInt(customerModels.getValueAt(index, 0).toString()));
             int customerId = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
             loadListBookingHistory(customerId);
@@ -601,8 +601,7 @@ public class CustomerManagement extends TabbedForm {
         Customer customer = new Customer();
         String name = tfName.getText().trim();
         String phoneNumber = tfPhoneNumber.getText().trim();
-        String totalSpendText = tfTotalSpend.getText().trim();
-        if (name.isBlank() || phoneNumber.isBlank() || totalSpendText.isBlank()) {
+        if (name.isBlank() || phoneNumber.isBlank()) {
             MessageAlerts.getInstance().showMessage("Wrong format", "Please do not leave fields blank", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                 if (i == MessageAlerts.CLOSED_OPTION) {
 
@@ -617,18 +616,8 @@ public class CustomerManagement extends TabbedForm {
                 });
                 return;
             }
-            if (!totalSpendText.matches("\\d+")) {
-                MessageAlerts.getInstance().showMessage("Wrong format", "Total spend cannot contain special characters, cannot be negative, must be a positive integer >= 0", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
-                    if (i == MessageAlerts.CLOSED_OPTION) {
-
-                    }
-                });
-                return;
-            }
             customer.setName(name);
             customer.setPhoneNumber(phoneNumber);
-            BigDecimal totalSpend = new BigDecimal(totalSpendText);
-            customer.setTotalSpend(totalSpend);
             if (tempPicture != null) {
                 String picturePath = tempPicture.getAbsolutePath();
                 String uuid = UUID.randomUUID().toString();
@@ -673,13 +662,11 @@ public class CustomerManagement extends TabbedForm {
 
             } else {
                 int customerId = Integer.parseInt(customerModels.getValueAt(index, 0).toString());
-                customer.setId(customerId);
                 Customer cus = customerService.findById(customerId);
-                customer.setMemberShipId(cus.getMemberShipId());
-                if (customerService.checkPhoneNumberExistExceptCurrent(customer.getId(), phoneNumber)) {
+                if (customerService.checkPhoneNumberExistExceptCurrent(customer.getId(), phoneNumber) && !phoneNumber.equals(cus.getPhoneNumber())) {
                     MessageAlerts.getInstance().showMessage("Update failed", "This phone number already exists! Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                         if (i == MessageAlerts.CLOSED_OPTION) {
-
+                            
                         }
                     });
                     return;
@@ -688,8 +675,12 @@ public class CustomerManagement extends TabbedForm {
                     clearText();
                     tfTotalSpend.setText("0");
                     type = -1;
-                    loadDataCustomerManagement();
-                    if (customerService.update(customer)) {
+   
+                    cus.setName(customer.getName());
+                    cus.setPhoneNumber(customer.getPhoneNumber());
+                    cus.setImage(customer.getImage());
+                    if (customerService.update(cus)) {
+                        loadDataCustomerManagement();
                         MessageAlerts.getInstance().showMessage("Update successful", "Your data has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                             if (i == MessageAlerts.CLOSED_OPTION) {
 

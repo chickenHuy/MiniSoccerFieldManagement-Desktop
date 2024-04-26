@@ -60,7 +60,7 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
             {"Service"},
             {"Booking Schedule"},
             {"~MANAGEMENT~"},
-            {"Operations", "Account", "Field", "Service", "Employee"},
+            {"Operations", "Field", "Service", "Employee"},
             {"Invoice"},
             {"~OTHER~"},
             {"Statistics"},
@@ -97,17 +97,17 @@ public class MSFieldMgmttBuilder extends SimpleDrawerBuilder {
                             WindowsTabbed.getInstance().addTab("Customer", new CustomerManagement());
                         }
                         else if (index == 8) {
-                            WindowsTabbed.getInstance().addTab("AccountInformation", new AccountInformation());
-                        }
-                        else if (index == 4 && subIndex == 3 )
-                        {
-                            WindowsTabbed.getInstance().addTab("Service", new ServiceManagement());
+                            WindowsTabbed.getInstance().addTab("Account Information", new AccountInformation());
                         }
                         else if (index == 4 && subIndex == 2 )
                         {
+                            WindowsTabbed.getInstance().addTab("Service", new ServiceManagement());
+                        }
+                        else if (index == 4 && subIndex == 1 )
+                        {
                             WindowsTabbed.getInstance().addTab("Field", new FieldManagement());
                         }
-                        else if (index == 4 && subIndex == 4 )
+                        else if (index == 4 && subIndex == 3 )
                         {
                             WindowsTabbed.getInstance().addTab("Empolyee", new EmployeeManagement());
                         }
