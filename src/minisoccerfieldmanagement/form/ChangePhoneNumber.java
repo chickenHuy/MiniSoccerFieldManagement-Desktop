@@ -1,13 +1,18 @@
 package minisoccerfieldmanagement.form;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import java.io.File;
 import minisoccerfieldmanagement.login.UserSession;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
 import raven.alerts.MessageAlerts;
+import raven.drawer.Drawer;
+import raven.drawer.component.header.SimpleHeader;
+import raven.drawer.component.header.SimpleHeaderData;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
+import raven.swing.AvatarIcon;
 
 public class ChangePhoneNumber extends javax.swing.JFrame {
 
@@ -26,6 +31,25 @@ public class ChangePhoneNumber extends javax.swing.JFrame {
         userService = new UserServiceImpl();
         loadData();
         setLocationRelativeTo(null);
+    }
+    
+    public void setAccountInfo() {
+        User user = UserSession.getInstance().getUser();
+        String title = user.getName();
+        String desc = user.getPhoneNumber();
+        String path = "/minisoccerfieldmanagement/image/profile.jpg";
+        if (user.getImage() != null) {
+            File file = new File("src/minisoccerfieldmanagement/image/user/" + user.getImage());
+            if (file.exists()) {
+                path = "/minisoccerfieldmanagement/image/user/" + user.getImage();
+            }
+        }
+        SimpleHeaderData newSimpleHeaderData = new SimpleHeaderData()
+                .setIcon(new AvatarIcon(getClass().getResource(path), 60, 60, 999))
+                .setTitle(title)
+                .setDescription(desc);
+        SimpleHeader header = (SimpleHeader) Drawer.getInstance().getDrawerPanel().getDrawerBuilder().getHeader();
+        header.setSimpleHeaderData(newSimpleHeaderData);
     }
 
     private void loadData() {
@@ -131,6 +155,8 @@ public class ChangePhoneNumber extends javax.swing.JFrame {
             MessageAlerts.getInstance().showMessage("Change phone number", "Are you sure you want to change your phone number?", MessageAlerts.MessageType.WARNING, MessageAlerts.YES_NO_OPTION, (PopupController pc, int i) -> {
                 if (i == MessageAlerts.YES_OPTION) {
                     if (userService.update(userNew)) {
+                        UserSession.getInstance().loginUser(userNew);
+                        setAccountInfo();
                         MessageAlerts.getInstance().showMessage("Edit success", "Phone number has been saved", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, new PopupCallbackAction() {
                             @Override
                             public void action(PopupController pc, int i) {
@@ -138,8 +164,7 @@ public class ChangePhoneNumber extends javax.swing.JFrame {
 
                                 }
                             }
-                        });
-                        UserSession.getInstance().loginUser(userNew);
+                        });                       
                         accountInformationForm.loadDataAccountInformation();
                         this.dispose();
                     } else {
