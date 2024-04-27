@@ -34,4 +34,7 @@ public interface IBookingService {
 
     List<Booking> findByDateAndField(Date date, int fieldId);
     List<Booking> findByDateAndFieldType(Date date, String typeField);
+    List<Booking> findByDateAndPhoneKeyWord(Date date, String keyword);
+    
+    List<Booking> findByDateAndFieldAndPhoneKeyWord(Date date, int fieldId, String keyword);
 }

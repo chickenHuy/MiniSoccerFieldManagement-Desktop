@@ -416,4 +416,93 @@ public class BookingDAOImpl implements IBookingDAO {
         return bookings;
     }
 
+    @Override
+    public List<Booking> findByDateAndPhoneKeyWord(Date date, String keyword) {
+        List<Booking> bookings = new ArrayList<>();
+        try {
+            String sql = "SELECT Booking.id, customerId, fieldId, userId, Booking.status, Booking.note, Booking.timeStart, Booking.timeEnd, Booking.price, Booking.isDeleted, Booking.createdAt, Booking.updatedAt FROM Booking JOIN Customer ON Booking.customerId = Customer.id\n WHERE DATE(timeStart) = DATE(?) and Booking.isDeleted = 0 and Customer.phoneNumber like ?";
+
+            conn = new DBConnection().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, date.toString());
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(2,"%" + keyword + "%");
+            } else {
+                ps.setString(2,"%" + "%");
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setId(rs.getInt("id"));
+                booking.setCustomerId(rs.getInt("customerId"));
+                booking.setFieldId(rs.getInt("fieldId"));
+                booking.setUserId(rs.getInt("userId"));
+                booking.setStatus(rs.getString("status"));
+                booking.setNote(rs.getString("note"));
+                booking.setTimeStart(rs.getTimestamp("timeStart"));
+                booking.setTimeEnd(rs.getTimestamp("timeEnd"));
+                booking.setPrice(rs.getBigDecimal("price"));
+                booking.setIsDeleted(rs.getBoolean("isDeleted"));
+                booking.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                java.util.Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    booking.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                bookings.add(booking);
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    @Override
+    public List<Booking> findByDateAndFieldAndPhoneKeyWord(Date date, int fieldId, String keyword) {
+        List<Booking> bookings = new ArrayList<>();
+        try {
+            String sql = "SELECT Booking.id, customerId, fieldId, userId, Booking.status, Booking.note, Booking.timeStart, Booking.timeEnd, Booking.price, Booking.isDeleted, Booking.createdAt, Booking.updatedAt FROM Booking JOIN Customer ON Booking.customerId = Customer.id\n WHERE DATE(timeStart) = DATE(?) AND fieldId = ? and Booking.isDeleted = 0 and Customer.phoneNumber like ?";
+
+            conn = new DBConnection().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, date.toString());
+            ps.setInt(2, fieldId);
+            if (keyword != null && !keyword.isEmpty()) {
+                ps.setString(3,"%" + keyword + "%");
+            } else {
+                ps.setString(3,"%" + "%");
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setId(rs.getInt("id"));
+                booking.setCustomerId(rs.getInt("customerId"));
+                booking.setFieldId(rs.getInt("fieldId"));
+                booking.setUserId(rs.getInt("userId"));
+                booking.setStatus(rs.getString("status"));
+                booking.setNote(rs.getString("note"));
+                booking.setTimeStart(rs.getTimestamp("timeStart"));
+                booking.setTimeEnd(rs.getTimestamp("timeEnd"));
+                booking.setPrice(rs.getBigDecimal("price"));
+                booking.setIsDeleted(rs.getBoolean("isDeleted"));
+                booking.setCreatedAt(new Timestamp(rs.getDate("createdAt").getTime()));
+                java.util.Date updatedAtDate = rs.getDate("updatedAt");
+                if (updatedAtDate != null) {
+                    booking.setUpdatedAt(new Timestamp(updatedAtDate.getTime()));
+                }
+
+                bookings.add(booking);
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    
+
 }

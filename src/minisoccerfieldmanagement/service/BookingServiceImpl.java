@@ -84,4 +84,14 @@ public class BookingServiceImpl implements IBookingService{
         }
         return bookingDao.findByDate(date);
     }
+
+    @Override
+    public List<Booking> findByDateAndPhoneKeyWord(Date date, String keyword) {
+        return bookingDao.findByDateAndPhoneKeyWord(date, keyword);
+    }
+
+    @Override
+    public List<Booking> findByDateAndFieldAndPhoneKeyWord(Date date, int fieldId, String keyword) {
+        return bookingDao.findByDateAndFieldAndPhoneKeyWord(date, fieldId, keyword);
+    }
 }

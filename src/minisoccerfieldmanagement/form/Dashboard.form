@@ -111,7 +111,9 @@
                           <Component id="lblLive" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="txtSearch" min="-2" pref="359" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="307" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="comboBoxFielter" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="226" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="pnlMonday" min="-2" max="-2" attributes="0"/>
@@ -129,7 +131,7 @@
                           <Component id="pnlSunday" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="ftfCalendar" pref="131" max="32767" attributes="0"/>
+                              <Component id="ftfCalendar" max="32767" attributes="0"/>
                               <Component id="btnAllField" max="32767" attributes="0"/>
                           </Group>
                       </Group>
@@ -145,6 +147,7 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="txtSearch" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="lblLive" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="comboBoxFielter" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="8" pref="8" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
@@ -175,6 +178,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Search"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtSearchActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblLive">
           <Properties>
@@ -641,6 +647,24 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ftfCalendarMouseClicked"/>
             <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ftfCalendarMouseReleased"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JComboBox" name="comboBoxFielter">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+              <StringArray count="3">
+                <StringItem index="0" value="Field"/>
+                <StringItem index="1" value="Customer name"/>
+                <StringItem index="2" value="Customer phone"/>
+              </StringArray>
+            </Property>
+            <Property name="verifyInputWhenFocusTarget" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboBoxFielterActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>
