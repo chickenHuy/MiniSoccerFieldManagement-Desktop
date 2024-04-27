@@ -359,7 +359,7 @@ public class TransactionDAOImpl implements ITransactionDAO {
             String sql = "SELECT t.*\n"
                     + "FROM `Transaction` t\n"
                     + "JOIN `ServiceUsage` su ON t.serviceUsageId = su.id\n"
-                    + "RIGHT JOIN customer ON su.customerId = customer.id\n"
+                    + "LEFT JOIN customer ON su.customerId = customer.id\n"
                     + "JOIN `User` ON t.userId = User.id\n"
                     + "WHERE (LOWER(`userId`) LIKE LOWER(?) \n"
                     + "        OR LOWER(`serviceUsageId`) LIKE LOWER(?)\n"

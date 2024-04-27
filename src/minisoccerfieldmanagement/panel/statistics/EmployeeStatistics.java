@@ -126,6 +126,7 @@ public class EmployeeStatistics extends CrazyPanel {
                         if (uc.getDate().equals(date.get(i)))
                         {
                             finalAmount[vt][i] = uc.getSumTotal().doubleValue();
+                            System.out.println(finalAmount[vt][i]);
                             break;
                         }
                     }
