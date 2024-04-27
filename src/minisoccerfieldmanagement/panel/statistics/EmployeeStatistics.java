@@ -7,7 +7,10 @@ package minisoccerfieldmanagement.panel.statistics;
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import minisoccerfieldmanagement.custom.chart.ModelChart;
 import minisoccerfieldmanagement.dao.ChartDAOImpl;
 import minisoccerfieldmanagement.dao.IChartDAO;
@@ -98,27 +101,37 @@ public class EmployeeStatistics extends CrazyPanel {
         int vt  = 0;
         List<java.sql.Date> date = new ArrayList<java.sql.Date>();
         double[][] finalAmount = new double[3][100];
-        int dateCount = 0;
         if (!listUser.isEmpty()){
         {
             for (User user : listUser) {
-                dateCount = 0;
                 chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt%3]),  Color.decode(color2[vt%3]));
-
                 List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
                 for (UserChart uc: userCharts)
                 {
-                    if (date.isEmpty() || (!date.contains(uc.getDate())))
-                    {
-                        date.add(uc.getDate());
-
-                    }
-                    finalAmount[vt][dateCount] = uc.getSumTotal().doubleValue();
-                    dateCount++;
+                    date.add(uc.getDate());
                 }
                 vt++;
+                
             }
-
+            // Sử dụng Set để loại bỏ các giá trị trùng lặp
+            Set<java.sql.Date> uniqueDates = new TreeSet<>(date);
+            date = new ArrayList<>(uniqueDates);
+            vt = 0;
+            for (User user : listUser) {
+                List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+                for (UserChart uc: userCharts)
+                {
+                    for (int i = 0; i < date.size(); i++)
+                    {
+                        if (uc.getDate().equals(date.get(i)))
+                        {
+                            finalAmount[vt][i] = uc.getSumTotal().doubleValue();
+                            break;
+                        }
+                    }
+                }
+                vt ++;
+            }
             generateData(date, finalAmount, listUser.size());
             }
         }
