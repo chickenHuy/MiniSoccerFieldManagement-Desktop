@@ -526,6 +526,11 @@ public class ServiceManagement extends TabbedForm {
 
         comboBoxDirection.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Decrease", "Increase" }));
         comboBoxDirection.setVerifyInputWhenFocusTarget(false);
+        comboBoxDirection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBoxDirectionActionPerformed(evt);
+            }
+        });
 
         comboBoxOrderBy.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Default", "Price", "Quantity", "Sold" }));
         comboBoxOrderBy.setVerifyInputWhenFocusTarget(false);
@@ -1009,6 +1014,10 @@ public class ServiceManagement extends TabbedForm {
     private void buttonPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPrintActionPerformed
         toExcel();
     }//GEN-LAST:event_buttonPrintActionPerformed
+
+    private void comboBoxDirectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBoxDirectionActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboBoxDirectionActionPerformed
     
     private void cleanField() {
         pictureBoxServiceImage.setImage(new ImageIcon("src/minisoccerfieldmanagement/image/service/service_image_default.png"));
