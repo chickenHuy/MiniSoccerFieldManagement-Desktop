@@ -4,6 +4,7 @@
  */
 package minisoccerfieldmanagement.dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import minisoccerfieldmanagement.model.BookingChart;
 import minisoccerfieldmanagement.model.CustomerChart;
+import minisoccerfieldmanagement.model.IncomeChart;
 import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.model.UserChart;
+import minisoccerfieldmanagement.util.StaticStrings;
 
 /**
  *
@@ -103,5 +106,45 @@ public class ChartDAOImpl implements IChartDAO{
         }
         return models;
     }
+    
+    @Override
+    public List<IncomeChart> getIncomeChart(String type) {
+        List<IncomeChart> incomeCharts = new ArrayList<>();
+        String query = "";
+        if (type.equals(StaticStrings.FINAL_AMOUNT)) {
+            query = "SELECT DATE(createdAt) as date, SUM(" + type + ") as income " +
+                    "FROM `Transaction` " +
+                    "GROUP BY DATE(createdAt)";
+        }
+        else if (type.equals(StaticStrings.FIELD_AMOUNT))
+        {
+            query = "SELECT DATE(`Transaction`.createdAt) as date, SUM(booking.price) as income from `Transaction` JOIN ServiceUsage on `Transaction`.serviceUsageId = ServiceUsage.id join `Match` on ServiceUsage.matchId = `Match`.Id  join  Booking on `Match`.bookingId = Booking.id Group by (DATE(`Transaction`.createdAt))" ;
+        }
+        else if (type.equals(StaticStrings.SERVICE_AMOUNT))
+        {
+            query = "SELECT DATE(`Transaction`.createdAt) as date, SUM(service.price * serviceItems.quantity) as income from `Transaction` JOIN ServiceUsage on `Transaction`.serviceUsageId = ServiceUsage.id join ServiceItems on ServiceUsage.id = ServiceItems.serviceUsageId  join  Service on Service.id = ServiceItems.serviceId Group by (DATE(`Transaction`.createdAt))";
+        }
+        if (!query.isEmpty()) {
+            try {
+                conn = new DBConnection().getConnection();
+                ps = conn.prepareStatement(query);
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    java.sql.Date date = rs.getDate("date");
+                    BigDecimal income = rs.getBigDecimal("income");
+
+                    IncomeChart incomeChart = new IncomeChart(income, date, type);
+                    incomeCharts.add(incomeChart);
+                }
+                conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return incomeCharts;
+    }
+    
    
 }

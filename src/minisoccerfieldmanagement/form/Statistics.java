@@ -146,8 +146,8 @@ public class Statistics extends TabbedForm {
     private void loadStatistics() {
 //        overridePanel(pnlService, new ServiceStatistics());
         overridePanel(pnlCusNew, new CusNewStatistics());
-        overridePanel(pnlEmployee, new EmployeeStatistics());
-//        overridePanel(pnlIncome, new IncomeStatistics());
+      //  overridePanel(pnlEmployee, new EmployeeStatistics());
+        overridePanel(pnlIncome, new IncomeStatistics());
         overridePanel(pnlBooking, new BookingStatistics());
     }
     

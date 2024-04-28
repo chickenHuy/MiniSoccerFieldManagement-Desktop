@@ -7,6 +7,7 @@ package minisoccerfieldmanagement.dao;
 import java.util.List;
 import minisoccerfieldmanagement.model.BookingChart;
 import minisoccerfieldmanagement.model.CustomerChart;
+import minisoccerfieldmanagement.model.IncomeChart;
 import minisoccerfieldmanagement.model.UserChart;
 
 /**
@@ -17,5 +18,6 @@ public interface IChartDAO {
     public List<UserChart> getUserCharById(int id);
     public List<CustomerChart> getCustomerChart();
     public List<BookingChart> getBookingChart();
+    List<IncomeChart> getIncomeChart(String type);
 
 }
