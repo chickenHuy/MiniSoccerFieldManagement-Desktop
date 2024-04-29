@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MiniSoccerFieldManagement">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/MiniSoccerFieldManagement.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

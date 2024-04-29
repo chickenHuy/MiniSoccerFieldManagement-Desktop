@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="qrcode">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/library/qrcode/jcommander-1.82.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/qrcode/core-3.5.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/qrcode/javase-3.5.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

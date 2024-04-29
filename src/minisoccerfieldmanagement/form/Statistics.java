@@ -144,9 +144,9 @@ public class Statistics extends TabbedForm {
     // End of variables declaration//GEN-END:variables
 
     private void loadStatistics() {
-//        overridePanel(pnlService, new ServiceStatistics());
+        overridePanel(pnlService, new ServiceStatistics());
         overridePanel(pnlCusNew, new CusNewStatistics());
-      //  overridePanel(pnlEmployee, new EmployeeStatistics());
+        overridePanel(pnlEmployee, new EmployeeStatistics());
         overridePanel(pnlIncome, new IncomeStatistics());
         overridePanel(pnlBooking, new BookingStatistics());
     }
