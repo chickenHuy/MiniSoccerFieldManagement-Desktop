@@ -95,7 +95,7 @@ public class EmployeeStatistics extends CrazyPanel {
         userService = new UserServiceImpl();
         listUser = userService.getTopKpi(3);
         chartDAO = new ChartDAOImpl();
-        chart.setTitle("KPI data");
+        chart.setTitle("KPI data (VND)");
         String[] color1 = new String[]{"#7b4397", "#e65c00", "#0099F7"};
         String[] color2 = new String[]{"#dc2430","#F9D423", "#F11712"};
         int vt  = 0;

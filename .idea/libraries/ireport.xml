@@ -1,0 +1,43 @@
+<component name="libraryTable">
+  <library name="ireport">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/library/ireport/openpdf-1.3.30.jaspersoft.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jackson-dataformat-xml-2.14.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-gvt-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-css-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-svg-dom-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-beanutils-1.9.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-lang3-3.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-cli-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jcommon-1.0.23.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-dom-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/itext-2.1.7.js8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jackson-databind-2.14.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-anim-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/avalon-framework-impl-4.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-i18n-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/barcode4j-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jasper-compiler-jdt-5.5.23.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/groovy-all-2.4.16.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jfreechart-1.0.19.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-util-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/ecj-3.21.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/barbecue-1.5-beta1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-collections4-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jackson-annotations-2.14.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/stax2-api-4.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/ant-launcher-1.10.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/ant-1.10.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jasperreports-6.20.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-collections-3.2.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/jackson-core-2.14.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/junit-3.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/batik-bridge-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/commons-digester-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/library/ireport/woodstox-core-6.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

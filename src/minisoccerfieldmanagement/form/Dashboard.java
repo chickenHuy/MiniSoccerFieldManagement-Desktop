@@ -60,6 +60,7 @@ import minisoccerfieldmanagement.tabbed.WindowsTabbed;
 import minisoccerfieldmanagement.util.DashboardRowFilter;
 import minisoccerfieldmanagement.util.EventItem;
 import minisoccerfieldmanagement.util.ServiceItem;
+import minisoccerfieldmanagement.util.StaticStrings;
 import raven.alerts.MessageAlerts;
 import raven.popup.component.PopupCallbackAction;
 import raven.popup.component.PopupController;
@@ -345,7 +346,7 @@ public class Dashboard extends TabbedForm {
     }
 
     private void loadService() {
-        List<Service> listService = new ServiceServiceImpl().findAll();
+        List<Service> listService = new ServiceServiceImpl().findByStatus(StaticStrings.ACTIVE);
         serviceSection.addData(listService);
 
         fieldSection1.setEvent(new EventItem() {
