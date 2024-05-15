@@ -58,6 +58,7 @@ public class IncomeStatistics extends CrazyPanel {
 
     public IncomeStatistics() {
         initComponents();
+        setComponentZOrder(btnPrint, 0);
         chartDAO = new ChartDAOImpl();
         lineChart.startAnimation();
         createLineChart();
@@ -81,6 +82,9 @@ public class IncomeStatistics extends CrazyPanel {
             null
         ));
         setPreferredSize(new java.awt.Dimension(980, 220));
+        setLayout(null);
+        add(lineChart);
+        lineChart.setBounds(6, 6, 1140, 185);
 
         btnPrint.setText("Print");
         btnPrint.addActionListener(new java.awt.event.ActionListener() {
@@ -88,29 +92,8 @@ public class IncomeStatistics extends CrazyPanel {
                 btnPrintActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 899, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lineChart, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(73, 73, 73)
-                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(29, Short.MAX_VALUE))
-        );
+        add(btnPrint);
+        btnPrint.setBounds(1050, 10, 90, 23);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
