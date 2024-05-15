@@ -30,4 +30,6 @@ public interface IMembershipDAO {
     
     int findIdByName(String name);
     
+    String getFirstMembershipName();
+    
 }

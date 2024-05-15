@@ -50,4 +50,9 @@ public class MemberShipServiceImpl implements IMemberShipService{
         return memberShipDAO.findIdByName(name);
     }
     
+    @Override
+    public String getFirstMembershipName() {
+        return memberShipDAO.getFirstMembershipName();
+    }
+    
 }

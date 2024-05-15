@@ -23,4 +23,6 @@ public interface IMemberShipService {
     
     int findIdByName(String name);
     
+    String getFirstMembershipName();
+    
 }

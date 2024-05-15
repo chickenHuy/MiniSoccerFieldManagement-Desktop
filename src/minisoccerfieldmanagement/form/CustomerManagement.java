@@ -72,6 +72,7 @@ public class CustomerManagement extends TabbedForm {
         applyTableStyle(tblCustomer);
         index = -1;
         btnDeleteImage.setEnabled(false);
+        loadMembershipNames();
         loadDataCustomerManagement();
     }
 
@@ -117,6 +118,15 @@ public class CustomerManagement extends TabbedForm {
         customers = customerService.findAllAndFilter(search, type, order);
         for (Customer customer : customers) {
             customerModels.addRow(getRow(customer));
+        }
+    }
+
+    private void loadMembershipNames() {
+        cbxMembership.removeAllItems();
+        List<MemberShip> memberships = membershipService.findAll();
+        cbxMembership.addItem("All");
+        for (MemberShip membership : memberships) {
+            cbxMembership.addItem(membership.getName());
         }
     }
 
@@ -245,7 +255,6 @@ public class CustomerManagement extends TabbedForm {
             }
         });
 
-        cbxMembership.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "All", "Standard", "Silver", "Gold", "Platinum", "Diamond" }));
         cbxMembership.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbxMembershipActionPerformed(evt);
@@ -630,7 +639,7 @@ public class CustomerManagement extends TabbedForm {
                 customer.setImage(customer.getImage());
             }
             if (index == -1) {
-                String membershipName = "Standard";
+                String membershipName = membershipService.getFirstMembershipName();
                 int membershipId = membershipService.findIdByName(membershipName);
                 customer.setMemberShipId(membershipId);
                 if (customerService.checkPhoneNumberExist(phoneNumber)) {
@@ -651,7 +660,7 @@ public class CustomerManagement extends TabbedForm {
 
                         }
                     });
-                  
+
                 } else {
                     MessageAlerts.getInstance().showMessage("Add failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                         if (i == MessageAlerts.CLOSED_OPTION) {
@@ -666,7 +675,7 @@ public class CustomerManagement extends TabbedForm {
                 if (customerService.checkPhoneNumberExistExceptCurrent(customer.getId(), phoneNumber) && !phoneNumber.equals(cus.getPhoneNumber())) {
                     MessageAlerts.getInstance().showMessage("Update failed", "This phone number already exists! Please use another phone number.", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                         if (i == MessageAlerts.CLOSED_OPTION) {
-                            
+
                         }
                     });
                     return;
@@ -675,7 +684,7 @@ public class CustomerManagement extends TabbedForm {
                     clearText();
                     tfTotalSpend.setText("0");
                     type = -1;
-   
+
                     cus.setName(customer.getName());
                     cus.setPhoneNumber(customer.getPhoneNumber());
                     cus.setImage(customer.getImage());
@@ -686,7 +695,7 @@ public class CustomerManagement extends TabbedForm {
 
                             }
                         });
-                        
+
                     } else {
                         MessageAlerts.getInstance().showMessage("Updated failed", "Please check and try again", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
                             if (i == MessageAlerts.CLOSED_OPTION) {
