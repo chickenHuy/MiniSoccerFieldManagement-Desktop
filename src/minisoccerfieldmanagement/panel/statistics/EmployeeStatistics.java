@@ -4,13 +4,22 @@
  */
 package minisoccerfieldmanagement.panel.statistics;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
+import java.awt.Desktop;
+import java.io.File;
+import org.apache.poi.ss.usermodel.Font;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import minisoccerfieldmanagement.custom.chart.ModelChart;
 import minisoccerfieldmanagement.dao.ChartDAOImpl;
 import minisoccerfieldmanagement.dao.IChartDAO;
@@ -18,33 +27,44 @@ import minisoccerfieldmanagement.model.User;
 import minisoccerfieldmanagement.model.UserChart;
 import minisoccerfieldmanagement.service.IUserService;
 import minisoccerfieldmanagement.service.UserServiceImpl;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import raven.alerts.MessageAlerts;
 import raven.crazypanel.CrazyPanel;
+import raven.popup.component.PopupController;
 
 /**
  *
  * @author trank
  */
 public class EmployeeStatistics extends CrazyPanel {
-    
+
     private List<User> listUser;
     private IUserService userService;
     private IChartDAO chartDAO;
-    private void generateData(List<java.sql.Date> date , double[][] finalAmount, int size) {
+
+    private void generateData(List<java.sql.Date> date, double[][] finalAmount, int size) {
         chart.clear();
-        for (int i = 0; i < date.size(); i++){
+        for (int i = 0; i < date.size(); i++) {
             double[] doubleList = new double[size];
-            for (int j = 0; j < size; j++)
-            {
+            for (int j = 0; j < size; j++) {
                 doubleList[j] = finalAmount[j][i];
             }
             chart.addData(new ModelChart(String.valueOf(date.get(i)), doubleList));
         }
         chart.start();
-    }   
+    }
+
     public EmployeeStatistics() {
         initComponents();
         setChart();
-       
+        btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg", 0.35f));
     }
 
     /**
@@ -57,6 +77,7 @@ public class EmployeeStatistics extends CrazyPanel {
     private void initComponents() {
 
         chart = new minisoccerfieldmanagement.custom.chart.CurveLineChart();
+        btnPrint = new com.formdev.flatlaf.extras.components.FlatButton();
 
         setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -64,11 +85,21 @@ public class EmployeeStatistics extends CrazyPanel {
         ));
         setPreferredSize(new java.awt.Dimension(699, 218));
 
+        btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 699, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(445, Short.MAX_VALUE)
+                .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(182, 182, 182))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
@@ -77,7 +108,10 @@ public class EmployeeStatistics extends CrazyPanel {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 218, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(189, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
@@ -85,9 +119,126 @@ public class EmployeeStatistics extends CrazyPanel {
                     .addContainerGap()))
         );
     }// </editor-fold>//GEN-END:initComponents
-    
-    
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(filter);
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+            exportEmployeeStatisticsToExcel(filePath);
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
+    private void exportEmployeeStatisticsToExcel(String filePath) {
+        try {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Data");
+
+            Row headerRow = sheet.createRow(0);
+            Cell headerCell = headerRow.createCell(0);
+            headerCell.setCellValue("Employee Statistics");
+
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 14);
+            headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerCell.setCellStyle(headerCellStyle);
+
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, listUser.size()));
+
+            Row columnHeadersRow = sheet.createRow(1);
+            columnHeadersRow.createCell(0).setCellValue("Date");
+            for (int i = 0; i < listUser.size(); i++) {
+                Cell cell = columnHeadersRow.createCell(i + 1);
+                cell.setCellValue(listUser.get(i).getName());
+            }
+
+            CellStyle leftAlignCellStyle = workbook.createCellStyle();
+            leftAlignCellStyle.setAlignment(HorizontalAlignment.LEFT);
+
+            SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy");
+            List<java.sql.Date> dates = getUniqueDatesFromChart();
+            double[][] finalAmount = getFinalAmountsForUsers(dates);
+
+            int rowNum = 2;
+            for (int i = 0; i < dates.size(); i++) {
+                Row row = sheet.createRow(rowNum++);
+                Cell dateCell = row.createCell(0);
+                dateCell.setCellValue(df.format(dates.get(i)));
+                dateCell.setCellStyle(leftAlignCellStyle);
+
+                for (int j = 0; j < listUser.size(); j++) {
+                    Cell cell = row.createCell(j + 1);
+                    cell.setCellValue(finalAmount[j][i]);
+                    cell.setCellStyle(leftAlignCellStyle);
+                }
+            }
+
+            for (int i = 0; i <= listUser.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                workbook.close();
+
+                MessageAlerts.getInstance().showMessage("Save successful", "Data exported to Excel", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+                    }
+                });
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(new File(filePath));
+                }
+            }
+        } catch (IOException ex) {
+            MessageAlerts.getInstance().showMessage("Save failed", "Error exporting data to Excel", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+                }
+            });
+        }
+    }
+
+    private List<java.sql.Date> getUniqueDatesFromChart() {
+        List<java.sql.Date> dates = new ArrayList<>();
+        for (User user : listUser) {
+            List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+            for (UserChart uc : userCharts) {
+                dates.add(uc.getDate());
+            }
+        }
+        Set<java.sql.Date> uniqueDates = new TreeSet<>(dates);
+        return new ArrayList<>(uniqueDates);
+    }
+
+    private double[][] getFinalAmountsForUsers(List<java.sql.Date> dates) {
+        double[][] finalAmount = new double[listUser.size()][dates.size()];
+        int vt = 0;
+        for (User user : listUser) {
+            List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+            for (UserChart uc : userCharts) {
+                for (int i = 0; i < dates.size(); i++) {
+                    if (uc.getDate().equals(dates.get(i))) {
+                        finalAmount[vt][i] = uc.getSumTotal().doubleValue();
+                        break;
+                    }
+                }
+            }
+            vt++;
+        }
+        return finalAmount;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.formdev.flatlaf.extras.components.FlatButton btnPrint;
     private minisoccerfieldmanagement.custom.chart.CurveLineChart chart;
     // End of variables declaration//GEN-END:variables
 
@@ -97,47 +248,41 @@ public class EmployeeStatistics extends CrazyPanel {
         chartDAO = new ChartDAOImpl();
         chart.setTitle("KPI data (VND)");
         String[] color1 = new String[]{"#7b4397", "#e65c00", "#0099F7"};
-        String[] color2 = new String[]{"#dc2430","#F9D423", "#F11712"};
-        int vt  = 0;
+        String[] color2 = new String[]{"#dc2430", "#F9D423", "#F11712"};
+        int vt = 0;
         List<java.sql.Date> date = new ArrayList<java.sql.Date>();
         double[][] finalAmount = new double[3][100];
-        if (!listUser.isEmpty()){
-        {
-            for (User user : listUser) {
-                chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt%3]),  Color.decode(color2[vt%3]));
-                List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
-                for (UserChart uc: userCharts)
-                {
-                    date.add(uc.getDate());
+        if (!listUser.isEmpty()) {
+            {
+                for (User user : listUser) {
+                    chart.addLegend(listUser.get(vt).getName(), Color.decode(color1[vt % 3]), Color.decode(color2[vt % 3]));
+                    List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+                    for (UserChart uc : userCharts) {
+                        date.add(uc.getDate());
+                    }
+                    vt++;
+
                 }
-                vt++;
-                
-            }
-            // Sử dụng Set để loại bỏ các giá trị trùng lặp
-            Set<java.sql.Date> uniqueDates = new TreeSet<>(date);
-            date = new ArrayList<>(uniqueDates);
-            vt = 0;
-            for (User user : listUser) {
-                List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
-                for (UserChart uc: userCharts)
-                {
-                    for (int i = 0; i < date.size(); i++)
-                    {
-                        if (uc.getDate().equals(date.get(i)))
-                        {
-                            finalAmount[vt][i] = uc.getSumTotal().doubleValue();
-                            System.out.println(finalAmount[vt][i]);
-                            break;
+                // Sử dụng Set để loại bỏ các giá trị trùng lặp
+                Set<java.sql.Date> uniqueDates = new TreeSet<>(date);
+                date = new ArrayList<>(uniqueDates);
+                vt = 0;
+                for (User user : listUser) {
+                    List<UserChart> userCharts = chartDAO.getUserCharById(user.getId());
+                    for (UserChart uc : userCharts) {
+                        for (int i = 0; i < date.size(); i++) {
+                            if (uc.getDate().equals(date.get(i))) {
+                                finalAmount[vt][i] = uc.getSumTotal().doubleValue();
+                                System.out.println(finalAmount[vt][i]);
+                                break;
+                            }
                         }
                     }
+                    vt++;
                 }
-                vt ++;
-            }
-            generateData(date, finalAmount, listUser.size());
+                generateData(date, finalAmount, listUser.size());
             }
         }
-        
-        
-       
+
     }
 }

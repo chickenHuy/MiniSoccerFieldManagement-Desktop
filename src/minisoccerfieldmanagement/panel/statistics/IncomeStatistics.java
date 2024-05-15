@@ -5,6 +5,7 @@
 package minisoccerfieldmanagement.panel.statistics;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
@@ -60,6 +61,7 @@ public class IncomeStatistics extends CrazyPanel {
         chartDAO = new ChartDAOImpl();
         lineChart.startAnimation();
         createLineChart();
+        btnPrint.setIcon(new FlatSVGIcon("minisoccerfieldmanagement/drawer/icon/excel.svg", 0.35f));
     }
 
     /**
@@ -72,7 +74,7 @@ public class IncomeStatistics extends CrazyPanel {
     private void initComponents() {
 
         lineChart = new raven.chart.line.LineChart();
-        flatButton1 = new com.formdev.flatlaf.extras.components.FlatButton();
+        btnPrint = new com.formdev.flatlaf.extras.components.FlatButton();
 
         setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -80,10 +82,10 @@ public class IncomeStatistics extends CrazyPanel {
         ));
         setPreferredSize(new java.awt.Dimension(980, 220));
 
-        flatButton1.setText("Print");
-        flatButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnPrint.setText("Print");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                flatButton1ActionPerformed(evt);
+                btnPrintActionPerformed(evt);
             }
         });
 
@@ -91,23 +93,27 @@ public class IncomeStatistics extends CrazyPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(lineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 899, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(flatButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(flatButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lineChart, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lineChart, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(73, 73, 73)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(29, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void flatButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flatButton1ActionPerformed
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
         fileChooser.setFileFilter(filter);
@@ -120,7 +126,7 @@ public class IncomeStatistics extends CrazyPanel {
             }
             exportChartDataToExcel(filePath);
         }
-    }//GEN-LAST:event_flatButton1ActionPerformed
+    }//GEN-LAST:event_btnPrintActionPerformed
 
     private void exportChartDataToExcel(String filePath) {
         try {
@@ -129,7 +135,7 @@ public class IncomeStatistics extends CrazyPanel {
 
             Row headerRow = sheet.createRow(0);
             Cell headerCell = headerRow.createCell(0);
-            headerCell.setCellValue("Income Data");
+            headerCell.setCellValue("Income Statistics");
 
             CellStyle headerCellStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
@@ -204,7 +210,7 @@ public class IncomeStatistics extends CrazyPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.formdev.flatlaf.extras.components.FlatButton flatButton1;
+    private com.formdev.flatlaf.extras.components.FlatButton btnPrint;
     private raven.chart.line.LineChart lineChart;
     // End of variables declaration//GEN-END:variables
 
