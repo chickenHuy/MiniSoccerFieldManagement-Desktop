@@ -7,6 +7,11 @@ package minisoccerfieldmanagement.panel.statistics;
 import com.formdev.flatlaf.FlatClientProperties;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
+import org.apache.poi.ss.usermodel.Font;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,17 +22,30 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import minisoccerfieldmanagement.dao.ChartDAOImpl;
 import minisoccerfieldmanagement.dao.IChartDAO;
 import minisoccerfieldmanagement.model.IncomeChart;
 import minisoccerfieldmanagement.util.DateCalculator;
 import minisoccerfieldmanagement.util.StaticStrings;
 import net.miginfocom.swing.MigLayout;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import raven.alerts.MessageAlerts;
 import raven.chart.ChartLegendRenderer;
 import raven.chart.data.category.DefaultCategoryDataset;
 import raven.chart.line.LineChart;
 import raven.crazypanel.CrazyPanel;
+import raven.popup.component.PopupController;
 
 /**
  *
@@ -36,6 +54,7 @@ import raven.crazypanel.CrazyPanel;
 public class IncomeStatistics extends CrazyPanel {
 
     IChartDAO chartDAO;
+
     public IncomeStatistics() {
         initComponents();
         chartDAO = new ChartDAOImpl();
@@ -53,6 +72,7 @@ public class IncomeStatistics extends CrazyPanel {
     private void initComponents() {
 
         lineChart = new raven.chart.line.LineChart();
+        flatButton1 = new com.formdev.flatlaf.extras.components.FlatButton();
 
         setFlatLafStyleComponent(new raven.crazypanel.FlatLafStyleComponent(
             "background:$Table.background;[light]border:0,0,0,0,shade(@background,5%),,20;[dark]border:0,0,0,0,tint(@background,5%),,20",
@@ -60,23 +80,133 @@ public class IncomeStatistics extends CrazyPanel {
         ));
         setPreferredSize(new java.awt.Dimension(980, 220));
 
+        flatButton1.setText("Print");
+        flatButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flatButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lineChart, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1089, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(lineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 902, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(flatButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lineChart, javax.swing.GroupLayout.PREFERRED_SIZE, 187, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(flatButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(lineChart, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void flatButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flatButton1ActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Files (*.xlsx)", "xlsx");
+        fileChooser.setFileFilter(filter);
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                filePath += ".xlsx";
+            }
+            exportChartDataToExcel(filePath);
+        }
+    }//GEN-LAST:event_flatButton1ActionPerformed
+
+    private void exportChartDataToExcel(String filePath) {
+        try {
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Data");
+
+            Row headerRow = sheet.createRow(0);
+            Cell headerCell = headerRow.createCell(0);
+            headerCell.setCellValue("Income Data");
+
+            CellStyle headerCellStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 11);
+            headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerCell.setCellStyle(headerCellStyle);
+
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+
+            Row columnHeadersRow = sheet.createRow(1);
+            String[] headers = {"Date", "Final Income", "Field Income", "Service Income"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = columnHeadersRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            CellStyle leftAlignCellStyle = workbook.createCellStyle();
+            leftAlignCellStyle.setAlignment(HorizontalAlignment.LEFT);
+
+            DefaultCategoryDataset<String, String> dataset = (DefaultCategoryDataset<String, String>) lineChart.getCategoryDataset();
+            SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy");
+            int rowNum = 2;
+
+            for (int i = 0; i < dataset.getColumnCount(); i++) {
+                Row row = sheet.createRow(rowNum++);
+                String date = dataset.getColumnKey(i);
+
+                Cell dateCell = row.createCell(0);
+                dateCell.setCellValue(date);
+                dateCell.setCellStyle(leftAlignCellStyle);
+
+                Cell finalIncomeCell = row.createCell(1);
+                finalIncomeCell.setCellValue(dataset.getValue("Final Income", date).doubleValue());
+                finalIncomeCell.setCellStyle(leftAlignCellStyle);
+
+                Cell fieldIncomeCell = row.createCell(2);
+                fieldIncomeCell.setCellValue(dataset.getValue("Field Income", date).doubleValue());
+                fieldIncomeCell.setCellStyle(leftAlignCellStyle);
+
+                Cell serviceIncomeCell = row.createCell(3);
+                serviceIncomeCell.setCellValue(dataset.getValue("Service Income", date).doubleValue());
+                serviceIncomeCell.setCellStyle(leftAlignCellStyle);
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+                workbook.close();
+
+                MessageAlerts.getInstance().showMessage("Save successful", "Data exported to Excel", MessageAlerts.MessageType.SUCCESS, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                    if (i == MessageAlerts.CLOSED_OPTION) {
+
+                    }
+                });
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(new File(filePath));
+                }
+            }
+        } catch (IOException ex) {
+            MessageAlerts.getInstance().showMessage("Save failed", "Error exporting data to Excel", MessageAlerts.MessageType.ERROR, MessageAlerts.CLOSED_OPTION, (PopupController pc, int i) -> {
+                if (i == MessageAlerts.CLOSED_OPTION) {
+
+                }
+            });
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.formdev.flatlaf.extras.components.FlatButton flatButton1;
     private raven.chart.line.LineChart lineChart;
     // End of variables declaration//GEN-END:variables
 
@@ -87,73 +217,55 @@ public class IncomeStatistics extends CrazyPanel {
         lineChart.setValuesFormat(new DecimalFormat("#,##0.##"));
         createLineChartData();
     }
-    
+
     private void createLineChartData() {
-        
-        
+
         List<IncomeChart> finalIncome = chartDAO.getIncomeChart(StaticStrings.FINAL_AMOUNT);
         List<IncomeChart> fieldIncome = chartDAO.getIncomeChart(StaticStrings.FIELD_AMOUNT);
         List<IncomeChart> serviceIncome = chartDAO.getIncomeChart(StaticStrings.SERVICE_AMOUNT);
-        
+
         List<java.sql.Date> dates = new ArrayList<java.sql.Date>();
         for (IncomeChart incomeChart : fieldIncome) {
-            if (!dates.contains(incomeChart.getDate()))
-            {
+            if (!dates.contains(incomeChart.getDate())) {
                 dates.add(incomeChart.getDate());
             }
         }
         for (IncomeChart incomeChart : finalIncome) {
-            if (!dates.contains(incomeChart.getDate()))
-            {
+            if (!dates.contains(incomeChart.getDate())) {
                 dates.add(incomeChart.getDate());
             }
         }
         for (IncomeChart incomeChart : serviceIncome) {
-            if (!dates.contains(incomeChart.getDate()))
-            {
+            if (!dates.contains(incomeChart.getDate())) {
                 dates.add(incomeChart.getDate());
             }
         }
         Set<java.sql.Date> uniqueDates = new TreeSet<>(dates);
         dates = new ArrayList<>(uniqueDates);
-                
-        
-        
+
         double[][] incomes = new double[3][dates.size()];
         for (IncomeChart incomeChart : fieldIncome) {
-            for (int i = 0; i < dates.size(); i++)
-            {
-                if (dates.get(i).equals(incomeChart.getDate()))
-                {
-                   incomes[1][i] = incomeChart.getIncome().doubleValue();
+            for (int i = 0; i < dates.size(); i++) {
+                if (dates.get(i).equals(incomeChart.getDate())) {
+                    incomes[1][i] = incomeChart.getIncome().doubleValue();
                 }
             }
         }
         for (IncomeChart incomeChart : finalIncome) {
-            for (int i = 0; i < dates.size(); i++)
-            {
-                if (dates.get(i).equals(incomeChart.getDate()))
-                {
-                   incomes[0][i] = incomeChart.getIncome().doubleValue();
+            for (int i = 0; i < dates.size(); i++) {
+                if (dates.get(i).equals(incomeChart.getDate())) {
+                    incomes[0][i] = incomeChart.getIncome().doubleValue();
                 }
             }
         }
         for (IncomeChart incomeChart : serviceIncome) {
-           for (int i = 0; i < dates.size(); i++)
-            {
-                if (dates.get(i).equals(incomeChart.getDate()))
-                {
-                   incomes[2][i] = incomeChart.getIncome().doubleValue();
+            for (int i = 0; i < dates.size(); i++) {
+                if (dates.get(i).equals(incomeChart.getDate())) {
+                    incomes[2][i] = incomeChart.getIncome().doubleValue();
                 }
             }
         }
-        
-        
-        
-        
-        
-        
-        
+
         DefaultCategoryDataset<String, String> categoryDataset = new DefaultCategoryDataset<>();
         SimpleDateFormat df = new SimpleDateFormat("MMM dd, yyyy");
         for (int i = 0; i < dates.size(); i++) {
@@ -196,5 +308,5 @@ public class IncomeStatistics extends CrazyPanel {
                 + "border:0,0,5,0");
         lineChart.setHeader(header);
     }
-    
+
 }
