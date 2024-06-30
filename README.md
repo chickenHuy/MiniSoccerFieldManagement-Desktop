@@ -22,14 +22,18 @@ git clone https://github.com/chickenHuy/MiniSoccerFieldManagement-Desktop.git
 ## Some image of the application
 
 *Login*
+
 ![Login](./image/page_login.png)
 
 *Dashboard*
+
 ![Dashboard](./image/page_dashboard.png)
 
 *Service*
+
 ![Service](./image/page_service.png)
 
-*Field bookind*
+*Field booking*
+
 ![Field](./image/page_booking_field.png)
 
